@@ -59,6 +59,7 @@ function makeInfoMessage(msg, color) {
 	size *= 1.25;
 	makeChatMessage(msg, null, '#9448ff', null, true);
 	size = prevSize;
+	console.log(msg);
 }
 
 async function fetchThing(url, options) {
