@@ -6,7 +6,8 @@ emotes_7tv = {};
 emotes_twitch = {};
 
 size = 16;
-lang = "en";
+decay = 0;
+decayDuration = 0.5;
 langFile = {};
 
 function langFile_RU() {
@@ -36,7 +37,7 @@ function hslToHex(h, s, l) {
 	return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-versionDisplay = "LeerTwitchChat v1.3";
+versionDisplay = "LeerTwitchChat v1.3.1";
 
 function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
@@ -105,6 +106,25 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 		}
 	}
 
+	if (decay > 0) {
+		setTimeout(() => {
+			const willBeRemoved = decayDuration * 1000;
+			var elapsed = 0;
+			setInterval(() => {
+				div.style.opacity = 1 - (elapsed / willBeRemoved);
+				if (elapsed < willBeRemoved)
+					elapsed += 50;
+				else {
+					if (document.body.children.includes(div))
+						document.body.removeChild(div);
+					const index = chatMessagesDiv.indexOf(div);
+					if (index > -1)
+						chatMessagesDiv.splice(index, 1);
+				}
+			}, 50);
+		}, decay * 1000);
+	}
+
 	chatMessagesDiv.push(div);
 	if (document.body.getBoundingClientRect().height > window.innerHeight) {
 		document.body.removeChild(chatMessagesDiv[0]);
@@ -135,9 +155,10 @@ async function main() {
 		arg = arg.split('=');
 		args[arg[0]] = arg[1];
 	}
-	if (args.size != null) size = parseInt(args.size);
-	if (args.lang != null) lang = args.lang.toLowerCase();
-	switch(lang) {
+	if (args.size != null) size = parseFloat(args.size);
+	if (args.decay != null) decay = parseFloat(args.decay);
+	if (args.decayDuration != null) decayDuration = parseFloat(args.decayDuration);
+	switch((args.lang || "en").toLowerCase()) {
 		case 'ru':
 			langFile = langFile_RU();
 	}
