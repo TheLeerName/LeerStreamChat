@@ -23,5 +23,5 @@ https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&client_
 | `<decay_msg>`               | (seconds) Specifies how much time message will be seen before disappearing, if `0`, message will stay before going outside screen | `5`                                     | No (default value: `0`)                                          |
 | `<decay_msg_duration>`      | (seconds) Specifies how long the disappearing will last                                                                           | `0.5`                                   | No (default value: `0.5`)                                        |
 3. If you don't want change some not required parameters, just remove them
-for example `https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&size=20` will be after removing `https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>`
+- for example `https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&size=20` will be after removing `https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>`
 4. Now you have the cooliest chat :3
