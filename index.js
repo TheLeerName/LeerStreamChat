@@ -3,6 +3,7 @@ channelID = null;
 chatMessagesDiv = [];
 badges = {};
 emotes_7tv = {};
+emotes_twitch = {};
 
 size = 16;
 
@@ -10,9 +11,11 @@ function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
 };
 
-function findEmote_7tv(nameToFind) {
-	for (let [name, url] of Object.entries(emotes_7tv))
-		if (nameToFind == name) return url;
+function findEmote(nameToFind) {
+	for (let [name, urls] of Object.entries(emotes_twitch))
+		if (nameToFind == name) return urls;
+	for (let [name, urls] of Object.entries(emotes_7tv))
+		if (nameToFind == name) return urls;
 	return null;
 }
 
@@ -52,8 +55,8 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 		div.appendChild(hMessage);
 
 		for (let chunk of message.split(' ')) {
-			const emoteURL = findEmote_7tv(chunk);
-			if (emoteURL == null) {
+			const emoteURLs = findEmote(chunk);
+			if (emoteURLs == null) {
 				const hMessage = document.createElement('p');
 				hMessage.style.color = "white";
 				hMessage.style.fontSize = size;
@@ -62,7 +65,7 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 				div.appendChild(hMessage);
 			} else {
 				const img = document.createElement('img');
-				img.srcset = `${emoteURL}/1x.webp 1x, ${emoteURL}/2x.webp 2x, ${emoteURL}/3x.webp 3x, ${emoteURL}/4x.webp 4x`;
+				img.srcset = `${emoteURLs["1x"]} 1x, ${emoteURLs["2x"]} 2x, ${emoteURLs["3x"]} 3x, ${emoteURLs["4x"]} 4x`;
 				img.style.width = "1em";
 				img.style.height = "1em";
 				img.style.verticalAlign = "middle";
@@ -122,9 +125,29 @@ async function main() {
 	const response_7tv = await fetchThing(`https://7tv.io/v3/users/twitch/${channelID}`);
 	if (response_7tv.error == null) {
 		for (let entry of response_7tv.emote_set.emotes)
-			emotes_7tv[entry.name] = `https:${entry.data.host.url}`;
+			emotes_7tv[entry.name] = {
+				"1x": `https:${entry.data.host.url}/1x.webp`,
+				"2x": `https:${entry.data.host.url}/2x.webp`,
+				"3x": `https:${entry.data.host.url}/3x.webp`,
+				"4x": `https:${entry.data.host.url}/4x.webp`
+			};
 	} else {
 		console.log('7tv fetch error: ' + response_7tv.error);
+	}
+
+	for (let link of ['https://api.twitch.tv/helix/chat/emotes/global', 'https://api.twitch.tv/helix/chat/emotes?broadcaster_id=' + channelID]) {
+		const response = await fetchThing(link, {headers: {
+			'Client-Id': args.clientID,
+			'Authorization': 'Bearer ' + args.token
+		}});
+		for (let entry of response.data) {
+			emotes_twitch[entry.name] = {
+				"1x": entry.images.url_1x,
+				"2x": entry.images.url_2x,
+				"3x": entry.images.url_2x,
+				"4x": entry.images.url_4x
+			};
+		}
 	}
 
 	for (let link of ['https://api.twitch.tv/helix/chat/badges/global', 'https://api.twitch.tv/helix/chat/badges?broadcaster_id=' + channelID]) {
