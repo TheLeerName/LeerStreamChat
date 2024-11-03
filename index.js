@@ -13,7 +13,7 @@ langFile = {};
 function langFile_RU() {
 	return JSON.parse(`{
 		"loginNotFound": "Параметр login не определён!",
-		"noEmotes": "Смайлики и значки не будут отображены, так как параметры clientID и token не были указаны",
+		"noEmotes": "Смайлики и значки не будут отображены, так как параметры client_id и token не были указаны",
 		"channelIDFetchFailed": "Не могу получить ID канала! Посмотрите в консоль браузера",
 		"twitchEmotesLoaded": "Twitch смайлики успешно загружены",
 		"twitchBadgesLoaded": "Twitch значки успешно загружены",
@@ -167,10 +167,10 @@ async function main() {
 	if (args.login == null)
 		return makeInfoMessage(langFile['loginNotFound'] || 'login is not specified!', '#FF0000');
 
-	if (args.clientID != null && args.token != null) {
+	if (args.client_id != null && args.token != null) {
 		// getting twitch channel id
 		channelID = (await fetchThing(`https://api.twitch.tv/helix/users?login=${args.login}`, {headers: {
-			'Client-Id': args.clientID,
+			'Client-Id': args.client_id,
 			'Authorization': 'Bearer ' + args.token
 		}}))?.data[0]?.id;
 		if (channelID == "unknown")
@@ -180,7 +180,7 @@ async function main() {
 		var loaded_twitchEmotes = false;
 		for (let link of ['https://api.twitch.tv/helix/chat/emotes/global', 'https://api.twitch.tv/helix/chat/emotes?broadcaster_id=' + channelID]) {
 			const response = await fetchThing(link, {headers: {
-				'Client-Id': args.clientID,
+				'Client-Id': args.client_id,
 				'Authorization': 'Bearer ' + args.token
 			}});
 			for (let entry of response.data) {
@@ -199,7 +199,7 @@ async function main() {
 		var loaded_twitchBadges = false;
 		for (let link of ['https://api.twitch.tv/helix/chat/badges/global', 'https://api.twitch.tv/helix/chat/badges?broadcaster_id=' + channelID]) {
 			const response = await fetchThing(link, {headers: {
-				'Client-Id': args.clientID,
+				'Client-Id': args.client_id,
 				'Authorization': 'Bearer ' + args.token
 			}});
 			for (let entry of response.data) {
@@ -244,7 +244,7 @@ async function main() {
 		}
 		if (loaded_7tv) makeInfoMessage(langFile['7tvLoaded'] || '7TV emotes loaded', '#9448ff');
 	} else
-		makeInfoMessage(langFile['noEmotes'] || 'Emotes and badges will be not displayed, you need to specify clientID and token', '#ff0000');
+		makeInfoMessage(langFile['noEmotes'] || 'Emotes and badges will be not displayed, you need to specify client_id and token', '#ff0000');
 
 	// and use all of this in posting messages to website
 	ComfyJS.onChat = (user, message, flags, self, extra) => {
