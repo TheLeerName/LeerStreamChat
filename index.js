@@ -17,7 +17,7 @@ function langFile_RU() {
 		"channelIDFetchFailed": "Не могу получить ID канала! Посмотрите в консоль браузера",
 		"twitchEmotesLoaded": "Twitch смайлики успешно загружены",
 		"twitchBadgesLoaded": "Twitch значки успешно загружены",
-		"7tvFetchFailed": "Не могу получить ответ от 7TV!",
+		"7tvFetchFailed": "Не могу получить ответ от 7TV! ",
 		"7tvLoaded": "7TV смайлики успешно загружены",
 		"connect": "Чат подключён к каналу ",
 		"reconnect": "Пытаюсь переподключиться к чату канала..."
@@ -240,7 +240,7 @@ async function main() {
 				loaded_7tv = true;
 			}
 		} else {
-			return console.log(langFile['7tvFetchFailed'] || '7tv fetch error: ' + response_7tv.error);
+			return console.log((langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tv.error);
 		}
 		if (loaded_7tv) makeInfoMessage(langFile['7tvLoaded'] || '7TV emotes loaded', '#9448ff');
 	} else
