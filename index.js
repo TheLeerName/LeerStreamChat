@@ -225,7 +225,7 @@ async function main() {
 				loaded_7tv = true;
 			}
 		} else {
-			return console.log(langFile['7tvFetchFailed'] || '7tv fetch error: ' + response_7tvglobal.error);
+			console.log((langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tvglobal.error);
 		}
 		// getting 7tv channel emotes
 		const response_7tv = await fetchThing(`https://7tv.io/v3/users/twitch/${channelID}`);
@@ -240,7 +240,7 @@ async function main() {
 				loaded_7tv = true;
 			}
 		} else {
-			return console.log((langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tv.error);
+			console.log((langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tv.error);
 		}
 		if (loaded_7tv) makeInfoMessage(langFile['7tvLoaded'] || '7TV emotes loaded', '#9448ff');
 	} else
