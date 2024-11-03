@@ -6,6 +6,37 @@ emotes_7tv = {};
 emotes_twitch = {};
 
 size = 16;
+lang = "en";
+langFile = {};
+
+function langFile_RU() {
+	return JSON.parse(`{
+		"loginNotFound": "Параметр login не определён!",
+		"clientIDNotFound": "Параметр clientID не определён!",
+		"tokenNotFound": "Параметр token не определён!",
+		"channelIDFetchFailed": "Не могу получить ID канала! Посмотрите в консоль браузера",
+		"twitchEmotesLoaded": "Twitch смайлики успешно загружены",
+		"twitchBadgesLoaded": "Twitch значки успешно загружены",
+		"7tvFetchFailed": "Не могу получить ответ от 7TV!",
+		"7tvLoaded": "7TV смайлики успешно загружены",
+		"connect": "Чат подключён к каналу ",
+		"reconnect": "Пытаюсь переподключиться к чату канала..."
+	}`);
+}
+
+// https://stackoverflow.com/a/44134328
+function hslToHex(h, s, l) {
+	l /= 100;
+	const a = s * Math.min(l, 1 - l) / 100;
+	const f = n => {
+		const k = (n + h / 30) % 12;
+		const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+		return Math.round(255 * color).toString(16).padStart(2, '0');   // convert to Hex and prefix "0" if needed
+	};
+	return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+versionDisplay = "LeerTwitchChat v1.3";
 
 function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
@@ -20,7 +51,7 @@ function findEmote(nameToFind) {
 }
 
 function makeChatMessage(user, message, color, userBadges, bold) {
-	if (color == null) color = "#FFFFFF";
+	if (color == null) color = hslToHex(Math.floor(Math.random() * 360), 50, 50);
 	if (userBadges == null) userBadges = {};
 
 	const div = document.createElement('div');
@@ -74,13 +105,11 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 		}
 	}
 
-	/*var divY = div.getBoundingClientRect().y;
-	if (divY > divY * (Math.floor(window.innerHeight / divY) - 1)) {
+	chatMessagesDiv.push(div);
+	if (document.body.getBoundingClientRect().height > window.innerHeight) {
 		document.body.removeChild(chatMessagesDiv[0]);
 		chatMessagesDiv.shift();
-	}*/
-
-	chatMessagesDiv.push(div);
+	}
 }
 
 function makeInfoMessage(msg, color) {
@@ -106,35 +135,32 @@ async function main() {
 		arg = arg.split('=');
 		args[arg[0]] = arg[1];
 	}
-	size = parseInt(args.size);
+	if (args.size != null) size = parseInt(args.size);
+	if (args.lang != null) lang = args.lang.toLowerCase();
+	switch(lang) {
+		case 'ru':
+			langFile = langFile_RU();
+	}
+
+	makeInfoMessage(versionDisplay, '#9448ff');
 
 	if (args.login == null)
-		return makeInfoMessage('login is not specified!', '#FF0000');
+		return makeInfoMessage(langFile['loginNotFound'] || 'login is not specified!', '#FF0000');
 	if (args.clientID == null)
-		return makeInfoMessage('clientID is not specified!', '#FF0000');
+		return makeInfoMessage(langFile['clientIDNotFound'] || 'clientID is not specified!', '#FF0000');
 	if (args.token == null)
-		return makeInfoMessage('token is not specified!', '#FF0000');
+		return makeInfoMessage(langFile['tokenNotFound'] || 'token is not specified!', '#FF0000');
 
+	// getting twitch channel id
 	channelID = (await fetchThing(`https://api.twitch.tv/helix/users?login=${args.login}`, {headers: {
 		'Client-Id': args.clientID,
 		'Authorization': 'Bearer ' + args.token
 	}}))?.data[0]?.id;
 	if (channelID == null)
-		return makeInfoMessage("Can't get channelID! See console", '#FF0000');
+		return makeInfoMessage(langFile['channelIDFetchFailed'] || "Can't get channelID! See console", '#FF0000');
 
-	const response_7tv = await fetchThing(`https://7tv.io/v3/users/twitch/${channelID}`);
-	if (response_7tv.error == null) {
-		for (let entry of response_7tv.emote_set.emotes)
-			emotes_7tv[entry.name] = {
-				"1x": `https:${entry.data.host.url}/1x.webp`,
-				"2x": `https:${entry.data.host.url}/2x.webp`,
-				"3x": `https:${entry.data.host.url}/3x.webp`,
-				"4x": `https:${entry.data.host.url}/4x.webp`
-			};
-	} else {
-		console.log('7tv fetch error: ' + response_7tv.error);
-	}
-
+	// getting twitch global and channel emotes
+	var loaded_twitchEmotes = false;
 	for (let link of ['https://api.twitch.tv/helix/chat/emotes/global', 'https://api.twitch.tv/helix/chat/emotes?broadcaster_id=' + channelID]) {
 		const response = await fetchThing(link, {headers: {
 			'Client-Id': args.clientID,
@@ -147,9 +173,13 @@ async function main() {
 				"3x": entry.images.url_2x,
 				"4x": entry.images.url_4x
 			};
+			loaded_twitchEmotes = true;
 		}
 	}
+	if (loaded_twitchEmotes) makeInfoMessage(langFile['twitchEmotesLoaded'] || 'Twitch emotes loaded', '#9448ff');
 
+	// getting twitch global and channel badges
+	var loaded_twitchBadges = false;
 	for (let link of ['https://api.twitch.tv/helix/chat/badges/global', 'https://api.twitch.tv/helix/chat/badges?broadcaster_id=' + channelID]) {
 		const response = await fetchThing(link, {headers: {
 			'Client-Id': args.clientID,
@@ -159,17 +189,53 @@ async function main() {
 			badges[entry.set_id] = {};
 			for (let verEntry of entry.versions)
 				badges[entry.set_id][verEntry.id] = verEntry;
+			loaded_twitchBadges = true;
 		}
 	}
+	if (loaded_twitchBadges) makeInfoMessage(langFile['twitchBadgesLoaded'] || 'Twitch badges loaded', '#9448ff');
 
+	// getting 7tv global emotes
+	var loaded_7tv = false;
+	const response_7tvglobal = await fetchThing(`https://7tv.io/v3/emote-sets/01GG8F04Y000089195YKEP5CA3`);
+	if (response_7tvglobal.error == null) {
+		for (let entry of response_7tvglobal.emotes) {
+			emotes_7tv[entry.name] = {
+				"1x": `https:${entry.data.host.url}/1x.webp`,
+				"2x": `https:${entry.data.host.url}/2x.webp`,
+				"3x": `https:${entry.data.host.url}/3x.webp`,
+				"4x": `https:${entry.data.host.url}/4x.webp`
+			};
+			loaded_7tv = true;
+		}
+	} else {
+		return console.log(langFile['7tvFetchFailed'] || '7tv fetch error: ' + response_7tvglobal.error);
+	}
+	// getting 7tv channel emotes
+	const response_7tv = await fetchThing(`https://7tv.io/v3/users/twitch/${channelID}`);
+	if (response_7tv.error == null) {
+		for (let entry of response_7tv.emote_set.emotes) {
+			emotes_7tv[entry.name] = {
+				"1x": `https:${entry.data.host.url}/1x.webp`,
+				"2x": `https:${entry.data.host.url}/2x.webp`,
+				"3x": `https:${entry.data.host.url}/3x.webp`,
+				"4x": `https:${entry.data.host.url}/4x.webp`
+			};
+			loaded_7tv = true;
+		}
+	} else {
+		return console.log(langFile['7tvFetchFailed'] || '7tv fetch error: ' + response_7tv.error);
+	}
+	if (loaded_7tv) makeInfoMessage(langFile['7tvLoaded'] || '7TV emotes loaded', '#9448ff');
+
+	// and use all of this in posting messages to website
 	ComfyJS.onChat = (user, message, flags, self, extra) => {
 		makeChatMessage(user, message, extra.userColor, extra.userBadges);
 	};
 	ComfyJS.onConnected = (address, port, isFirstConnect) => {
-		makeInfoMessage('Chat connected to ' + args.login + ' (' + channelID + ')', '#9448ff');
+		makeInfoMessage((langFile['connect'] || 'Chat connected to сhannel ') + args.login + ' (' + channelID + ')', '#9448ff');
 	};
 	ComfyJS.onReconnect = (reconnectCount) => {
-		makeInfoMessage('Attempting to reconnect...', '#9448ff');
+		makeInfoMessage(langFile['reconnect'] || 'Attempting to reconnect...', '#9448ff');
 	};
 	ComfyJS.Init(null, null, args.login);
 }
