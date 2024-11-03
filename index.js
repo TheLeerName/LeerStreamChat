@@ -6,6 +6,7 @@ emotes_7tv = {};
 emotes_twitch = {};
 
 size = 16;
+indent = 0;
 decay = 0;
 decay_duration = 0.5;
 langFile = {};
@@ -36,7 +37,7 @@ function hslToHex(h, s, l) {
 	return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-versionDisplay = "LeerTwitchChat v1.3.2";
+versionDisplay = "LeerTwitchChat v1.3.3";
 
 function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
@@ -55,6 +56,7 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 	if (userBadges == null) userBadges = {};
 
 	const div = document.createElement('div');
+	div.style.marginBottom = indent;
 	document.body.appendChild(div);
 
 	for (let [k, v] of Object.entries(userBadges)) {
@@ -62,9 +64,6 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 		if (badge != null) {
 			const img = document.createElement('img');
 			img.srcset = `${badge.image_url_1x} 1x, ${badge.image_url_2x} 2x, ${badge.image_url_4x} 4x`;
-			img.style.width = "1em";
-			img.style.height = "1em";
-			img.style.verticalAlign = "middle";
 			div.appendChild(img);
 		}
 	}
@@ -97,9 +96,6 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 			} else {
 				const img = document.createElement('img');
 				img.srcset = `${emoteURLs["1x"]} 1x, ${emoteURLs["2x"]} 2x, ${emoteURLs["3x"]} 3x, ${emoteURLs["4x"]} 4x`;
-				img.style.width = "1em";
-				img.style.height = "1em";
-				img.style.verticalAlign = "middle";
 				div.appendChild(img);
 			}
 		}
@@ -157,6 +153,7 @@ async function main() {
 	if (args.size != null) size = parseFloat(args.size);
 	if (args.decay != null) decay = parseFloat(args.decay);
 	if (args.decay_duration != null) decay_duration = parseFloat(args.decay_duration);
+	if (args.indent != null) indent = parseFloat(args.indent);
 	switch((args.lang || "en").toLowerCase()) {
 		case 'ru':
 			langFile = langFile_RU();
