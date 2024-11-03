@@ -12,6 +12,7 @@ Twitch chat for displaying on browser source in OBS
 https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&clientID=<twitch_bot_client_id>&token=<twitch_bot_access_token>&size=<fontSize>&decay=<decay>&decayDuration=<decayDuration>
 ```
 2. Replace placeholders with some parameters in link:
+
 | Parameter | Description | Example | Required |
 |---|---|---|---|
 | <twitch_channel_name> | Twitch channel name | xqc | Yes |
