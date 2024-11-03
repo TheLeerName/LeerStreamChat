@@ -7,7 +7,7 @@ emotes_twitch = {};
 
 size = 16;
 decay = 0;
-decayDuration = 0.5;
+decay_duration = 0.5;
 langFile = {};
 
 function langFile_RU() {
@@ -107,7 +107,7 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 
 	if (decay > 0) {
 		setTimeout(() => {
-			const willBeRemoved = decayDuration * 1000;
+			const willBeRemoved = decay_duration * 1000;
 			var elapsed = 0;
 			setInterval(() => {
 				div.style.opacity = 1 - (elapsed / willBeRemoved);
@@ -156,7 +156,7 @@ async function main() {
 	}
 	if (args.size != null) size = parseFloat(args.size);
 	if (args.decay != null) decay = parseFloat(args.decay);
-	if (args.decayDuration != null) decayDuration = parseFloat(args.decayDuration);
+	if (args.decay_duration != null) decay_duration = parseFloat(args.decay_duration);
 	switch((args.lang || "en").toLowerCase()) {
 		case 'ru':
 			langFile = langFile_RU();

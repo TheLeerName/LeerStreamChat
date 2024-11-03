@@ -9,7 +9,7 @@ Twitch chat for displaying on browser source in OBS
 ## How to use?
 1. Paste this link in OBS browser source
 ```
-https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&clientID=<twitch_bot_client_id>&token=<twitch_bot_access_token>&size=<font_size>&decay=<decay_msg>&decayDuration=<decay_msg_duration>
+https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&clientID=<twitch_bot_client_id>&token=<twitch_bot_access_token>&size=<font_size>&decay=<decay_msg>&decay_duration=<decay_msg_duration>
 ```
 2. Replace placeholders with some parameters in link:
 
