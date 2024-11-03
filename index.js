@@ -249,6 +249,7 @@ async function main() {
 	// and use all of this in posting messages to website
 	ComfyJS.onChat = (user, message, flags, self, extra) => {
 		makeChatMessage(user, message, extra.userColor, extra.userBadges);
+		console.log(user + ': ' + message);
 	};
 	ComfyJS.onConnected = (address, port, isFirstConnect) => {
 		makeInfoMessage((langFile['connect'] || 'Chat connected to сhannel ') + args.login + ' (' + channelID + ')', '#9448ff');
