@@ -21,7 +21,8 @@ function langFile_RU() {
 		"7tvFetchFailed": "Не могу получить ответ от 7TV! ",
 		"7tvLoaded": "7TV смайлики успешно загружены",
 		"connect": "Чат подключён к каналу ",
-		"reconnect": "Пытаюсь переподключиться к чату канала..."
+		"reconnect": "Переподключение...",
+		"unknown": "неизвестно"
 	}`);
 }
 
@@ -37,7 +38,7 @@ function hslToHex(h, s, l) {
 	return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-versionDisplay = "LeerTwitchChat v1.3.5";
+versionDisplay = "LeerTwitchChat v1.3.6";
 
 function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
@@ -249,7 +250,7 @@ async function main() {
 		console.log(user + ': ' + message);
 	};
 	ComfyJS.onConnected = (address, port, isFirstConnect) => {
-		makeInfoMessage((langFile['connect'] || 'Chat connected to сhannel ') + args.login + ' (' + channelID + ')', '#9448ff');
+		makeInfoMessage((langFile['connect'] || 'Chat connected to сhannel ') + args.login + ' (' + (channelID == "unknown" ? langFile['unknown'] : channelID) + ')', '#9448ff');
 	};
 	ComfyJS.onReconnect = (reconnectCount) => {
 		makeInfoMessage(langFile['reconnect'] || 'Attempting to reconnect...', '#9448ff');
