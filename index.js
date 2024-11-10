@@ -37,7 +37,7 @@ function hslToHex(h, s, l) {
 	return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-versionDisplay = "LeerTwitchChat v1.3.4";
+versionDisplay = "LeerTwitchChat v1.3.5";
 
 function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
