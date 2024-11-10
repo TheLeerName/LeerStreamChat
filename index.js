@@ -38,7 +38,7 @@ function hslToHex(h, s, l) {
 	return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-versionDisplay = "LeerTwitchChat v1.3.7";
+versionDisplay = "LeerTwitchChat v1.3.8";
 
 function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
@@ -91,7 +91,7 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 			const emoteURLs = findEmote(chunk);
 			if (emoteURLs == null) {
 				const hMessage = document.createElement('p');
-				hMessage.style.color = (chunk.startsWith("@") || chunk.startsWith('https://') || chunk.startsWith('http://')) ? "purple" : "white";
+				hMessage.style.color = (chunk.startsWith("@") || chunk.startsWith('https://') || chunk.startsWith('http://')) ? "#ff00ff" : "white";
 				hMessage.style.fontSize = size;
 				if (bold) hMessage.style.fontWeight = 700;
 				hMessage.innerText = chunk + " ";
