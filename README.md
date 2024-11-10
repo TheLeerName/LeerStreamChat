@@ -26,3 +26,6 @@ https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&client_
 3. If you don't want change some not required parameters, just remove them
 - for example `https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&size=20` will be after removing `https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>`
 4. Now you have the cooliest chat :3
+
+## Special thanks
+- node module [ComfyJS](https://github.com/instafluff/ComfyJS) by [instafluff](https://github.com/instafluff) <3
