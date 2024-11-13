@@ -1,9 +1,17 @@
 args = {};
 channelID = "unknown";
+
 chatMessagesDiv = [];
+
 badges = {};
 emotes_7tv = {};
 emotes_twitch = {};
+
+userColors = new Map();
+
+prevChannelID = null;
+useChannelAvatars = false;
+channelAvatars = new Map();
 
 size = 16;
 indent = 0;
@@ -38,7 +46,7 @@ function hslToHex(h, s, l) {
 	return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-versionDisplay = "LeerTwitchChat v1.3.8";
+versionDisplay = "LeerTwitchChat v1.4";
 
 function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
@@ -51,16 +59,65 @@ function findEmote(nameToFind) {
 		if (nameToFind == name) return urls;
 	return null;
 }
+3
+async function getChannelAvatar(channelID) {
+	if (args.client_id != null && args.token != null) return null;
 
-function makeChatMessage(user, message, color, userBadges, bold) {
-	if (color == null) color = hslToHex(Math.floor(Math.random() * 360), 50, 50);
-	if (userBadges == null) userBadges = {};
+	var channelAvatar = channelAvatars.get(channelID);
+	if (channelAvatar != null) return channelAvatar;
+
+	const response = await fetchThing(`https://api.twitch.tv/helix/users?id=${channelID}`, {headers: {
+		'Client-Id': args.client_id,
+		'Authorization': 'Bearer ' + args.token
+	}});
+	if (response?.data == null) return null;
+
+	channelAvatars.set(channelID, response.data[0].profile_image_url);
+	return response.data[0].profile_image_url;
+}
+
+function removeChatMessage(id) {
+	for (let i = 0; i < chatMessagesDiv.length; i++) {
+		const div = chatMessagesDiv[i];
+		if (div != null && div['message-id'] == id) {
+			chatMessagesDiv.splice(i, 1);
+			i--;
+		}
+	}
+}
+
+async function makeChatMessage(user, message, extra, bold) {
+	if (extra == null) extra = {};
+
+	if (extra.color == null) extra.color = userColors.get(user);
+	if (extra.color == null) {
+		extra.color = hslToHex(Math.floor(Math.random() * 360), 50, 50);
+		userColors.set(user, extra.color);
+	}
+
+	var logMessage = user + ': ' + message;
 
 	const div = document.createElement('div');
+	div['message-id'] = extra.id;
 	div.style.marginBottom = indent;
 	document.body.appendChild(div);
 
-	for (let [k, v] of Object.entries(userBadges)) {
+	// adding avatar of channel as img element from where message was posted
+	// (works only if client_id and token specified in url parameters)
+	// source-room-id is null = shared chat is not enabled
+	if (extra['source-room-id'] != null) {
+		logMessage = `(${extra['source-room-id']}) `;
+		var channelAvatar = await getChannelAvatar(extra['source-room-id']);
+		if (channelAvatar != null) {
+			const img = document.createElement('img');
+			img.src = channelAvatar;
+			div.appendChild(img);
+		}
+	}
+
+	// adding user badges as img elements
+	// (works only if client_id and token specified in url parameters)
+	if (extra.userBadges == null) for (let [k, v] of Object.entries(extra.userBadges)) {
 		const badge = badges[k]?.[v];
 		if (badge != null) {
 			const img = document.createElement('img');
@@ -71,7 +128,7 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 
 	if (user != null) {
 		const hUser = document.createElement('p');
-		hUser.style.color = color;
+		hUser.style.color = extra.color;
 		hUser.style.fontSize = size;
 		hUser.innerText = user;
 		div.appendChild(hUser);
@@ -81,22 +138,26 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 		const hMessage = document.createElement('p');
 		hMessage.style.color = "white";
 		hMessage.style.fontSize = size;
-		if (bold) hMessage.style.fontWeight = 700;
 		hMessage.innerText = ": ";
 		div.appendChild(hMessage);
 
 		var loginLC = args.login.toLowerCase();
 		for (let chunk of message.split(' ')) {
-			if (chunk.toLowerCase() == '@' + loginLC) div.style.background = "rgba(255, 64, 0, 0.25)";
+			// messages which pings channel is highlighted
+			if (extra.userState?.['msg-id'] == 'highlighted-message' || chunk.toLowerCase() == '@' + loginLC) div.style.background = "rgba(255, 64, 0, 0.25)";
+
 			const emoteURLs = findEmote(chunk);
 			if (emoteURLs == null) {
 				const hMessage = document.createElement('p');
+				// chunk of message which pings someone or is link has another color
 				hMessage.style.color = (chunk.startsWith("@") || chunk.startsWith('https://') || chunk.startsWith('http://')) ? "#ff00ff" : "white";
 				hMessage.style.fontSize = size;
 				if (bold) hMessage.style.fontWeight = 700;
 				hMessage.innerText = chunk + " ";
 				div.appendChild(hMessage);
 			} else {
+				// if chunk of message contains word of emoji
+				// we removing this chunk and adding img of emoji instead
 				const img = document.createElement('img');
 				img.srcset = `${emoteURLs["1x"]} 1x, ${emoteURLs["2x"]} 2x, ${emoteURLs["3x"]} 3x, ${emoteURLs["4x"]} 4x`;
 				div.appendChild(img);
@@ -123,17 +184,20 @@ function makeChatMessage(user, message, color, userBadges, bold) {
 		}, decay * 1000);
 	}
 
+	// removing out of bounds message
 	chatMessagesDiv.push(div);
 	if (document.body.getBoundingClientRect().height > window.innerHeight) {
 		document.body.removeChild(chatMessagesDiv[0]);
 		chatMessagesDiv.shift();
 	}
+
+	if (logMessage != null) console.log(logMessage);
 }
 
 function makeInfoMessage(msg, color) {
 	var prevSize = size;
 	size *= 1.25;
-	makeChatMessage(msg, null, '#9448ff', null, true);
+	makeChatMessage(msg, null, {'color': '#9448ff'}, true);
 	size = prevSize;
 	console.log(msg);
 }
@@ -248,8 +312,10 @@ async function main() {
 
 	// and use all of this in posting messages to website
 	ComfyJS.onChat = (user, message, flags, self, extra) => {
-		makeChatMessage(user, message, extra.userColor, extra.userBadges);
-		console.log(user + ': ' + message);
+		makeChatMessage(user, message, extra);
+	};
+	ComfyJS.onMessageDeleted = (id, extra) => {
+		removeChatMessage(id);
 	};
 	ComfyJS.onConnected = (address, port, isFirstConnect) => {
 		makeInfoMessage((langFile['connect'] || 'Chat connected to сhannel ') + args.login + ' (' + (channelID == "unknown" ? langFile['unknown'] : channelID) + ')', '#9448ff');
