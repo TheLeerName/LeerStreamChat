@@ -30,6 +30,8 @@ function langFile_RU() {
 		"7tvLoaded": "7TV смайлики успешно загружены",
 		"connect": "Чат подключён к каналу ",
 		"reconnect": "Переподключение...",
+		"messageDeleted": "<cообщение удалено>",
+		"channelAvatarLoaded": "Аватар канала загружен",
 		"unknown": "неизвестно"
 	}`);
 }
@@ -46,7 +48,7 @@ function hslToHex(h, s, l) {
 	return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-versionDisplay = "LeerTwitchChat v1.5";
+versionDisplay = "LeerTwitchChat v1.5.1";
 
 function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
@@ -72,16 +74,35 @@ async function getChannelAvatar(channelID) {
 	}});
 	if (response?.data == null) return null;
 
-	channelAvatars.set(channelID, response.data[0].profile_image_url);
+	console.log('%c' + (langFile['channelAvatarLoaded'] || `Channel avatar loaded`) + ` (${channelID})`, 'color: #0080ff');
+	channelAvatars.set(channelID, response.data[0].profile_image_url);a
 	return response.data[0].profile_image_url;
 }
 
 function removeChatMessage(id) {
 	for (let i = 0; i < chatMessagesDiv.length; i++) {
 		const div = chatMessagesDiv[i];
-		if (div != null && div['message-id'] == id) {
-			chatMessagesDiv.splice(i, 1);
-			i--;
+		if (div != null) {
+			const msgID = div.getAttribute('message-id');
+			if (msgID != null && msgID == id) {
+				// removing message before separator
+				for (let i = div.childNodes.length - 1; i >= 0; i--) {
+					const node = div.childNodes[i];
+					if (node.getAttribute('separator') != null) break;
+					div.removeChild(node);
+				}
+
+				// replacing message with <message deleted>
+				const hMessage = document.createElement('p');
+				hMessage.style.color = "white";
+				hMessage.style.fontSize = size;
+				hMessage.innerText = langFile['messageDeleted'] || "<message deleted>";
+				div.appendChild(hMessage);
+
+				const sourceRoomID = div.getAttribute('source-room-id');
+				console.log(`(${msgID})${sourceRoomID != null ? ` (${sourceRoomID})` : ''} ${div.getAttribute('user')}: ${hMessage.innerText}`);
+				return;
+			}
 		}
 	}
 }
@@ -89,17 +110,21 @@ function removeChatMessage(id) {
 async function makeChatMessage(user, message, extra, bold) {
 	if (extra == null) extra = {};
 
+	if (extra.logColor == null) extra.logColor = '#c4c4c4';
 	if (extra.userColor == null) extra.userColor = userColors.get(user);
 	if (extra.userColor == null) {
-		extra.userColor = hslToHex(Math.floor(Math.random() * 360), 50, 50);
+		extra.userColor = hslToHex(Math.floor(Math.random() * 360), 75, 75);
 		userColors.set(user, extra.userColor);
+		console.log(`%cColor ${extra.userColor} assigned for user ${user}`, 'color: ' + extra.userColor);
 	}
 
 	var logMessage = user;
+	if (extra.id != null) logMessage = `(${extra.id}) ` + logMessage;
 	if (message != null) logMessage += ': ' + message;
 
 	const div = document.createElement('div');
-	div['message-id'] = extra.id;
+	if (extra.id != null) div.setAttribute('message-id', extra.id);
+	if (message != null) div.setAttribute('user', user);
 	div.style.marginTop = indent;
 	document.body.appendChild(div);
 
@@ -107,7 +132,8 @@ async function makeChatMessage(user, message, extra, bold) {
 	// (works only if client_id and token specified in url parameters)
 	// source-room-id is null = shared chat is not enabled
 	if (extra['source-room-id'] != null) {
-		logMessage = `(${extra['source-room-id']}) `;
+		div.setAttribute('source-room-id', extra['source-room-id']);
+		logMessage = `(${extra['source-room-id']}) ` + logMessage;
 		var channelAvatar = await getChannelAvatar(extra['source-room-id']);
 		if (channelAvatar != null) {
 			const img = document.createElement('img');
@@ -145,10 +171,14 @@ async function makeChatMessage(user, message, extra, bold) {
 		hMessage.style.color = "white";
 		hMessage.style.fontSize = size;
 		hMessage.innerText = ": ";
+		hMessage.setAttribute('separator', '');
 		div.appendChild(hMessage);
 
+		// splitting message by space to find any emoji word
 		var loginLC = args.login.toLowerCase();
 		for (let chunk of message.split(' ')) {
+			if (chunk.length == 0) continue;
+
 			// messages which from highlight message reward / pings channel is highlighted
 			if (extra.userState?.['msg-id'] == 'highlighted-message' || chunk.toLowerCase() == '@' + loginLC) div.style.background = "rgba(255, 64, 0, 0.25)";
 
@@ -190,8 +220,7 @@ async function makeChatMessage(user, message, extra, bold) {
 					if (document.body.children.includes(div))
 						document.body.removeChild(div);
 					const index = chatMessagesDiv.indexOf(div);
-					if (index > -1)
-						chatMessagesDiv.splice(index, 1);
+					if (index > -1) chatMessagesDiv.splice(index, 1);
 				}
 			}, 50);
 		}, decay * 1000);
@@ -204,13 +233,18 @@ async function makeChatMessage(user, message, extra, bold) {
 		chatMessagesDiv.shift();
 	}
 
-	if (logMessage != null) console.log(logMessage);
+	if (logMessage != null) {
+		if (extra.logColor != null)
+			console.log('%c' + logMessage, 'color: ' + extra.logColor);
+		else
+			console.log(logMessage);
+	}
 }
 
 function makeInfoMessage(msg, color) {
 	var prevSize = size;
 	size *= 1.25;
-	makeChatMessage(msg, null, {'userColor': '#9448ff'}, true);
+	makeChatMessage(msg, null, {'userColor': '#9448ff', 'logColor': '#0080ff'}, true);
 	size = prevSize;
 }
 
@@ -218,7 +252,7 @@ async function fetchThing(url, options) {
 	try {
 		return await (await fetch(url, options)).json();
 	} catch(e) {
-		console.log(e);
+		console.log('%c' + e, 'color: red');
 		return null;
 	}
 }
@@ -269,7 +303,7 @@ async function main() {
 				loaded_twitchEmotes = true;
 			}
 		}
-		if (loaded_twitchEmotes) makeInfoMessage(langFile['twitchEmotesLoaded'] || 'Twitch emotes loaded', '#9448ff');
+		if (loaded_twitchEmotes) makeInfoMessage((langFile['twitchEmotesLoaded'] || 'Twitch emotes loaded') + ` (${Object.keys(emotes_twitch).length})`, '#9448ff');
 
 		// getting twitch global and channel badges
 		var loaded_twitchBadges = false;
@@ -285,7 +319,7 @@ async function main() {
 				loaded_twitchBadges = true;
 			}
 		}
-		if (loaded_twitchBadges) makeInfoMessage(langFile['twitchBadgesLoaded'] || 'Twitch badges loaded', '#9448ff');
+		if (loaded_twitchBadges) makeInfoMessage((langFile['twitchBadgesLoaded'] || 'Twitch badges loaded') + ` (${Object.keys(badges).length})`, '#9448ff');
 
 		// getting 7tv global emotes
 		var loaded_7tv = false;
@@ -296,12 +330,13 @@ async function main() {
 					"1x": `https:${entry.data.host.url}/1x.webp`,
 					"2x": `https:${entry.data.host.url}/2x.webp`,
 					"3x": `https:${entry.data.host.url}/3x.webp`,
-					"4x": `https:${entry.data.host.url}/4x.webp`
+					"4x": `https:${entry.data.host.url}/4x.webp`,
+					"isZeroWidth": entry.flags == 1,
 				};
 				loaded_7tv = true;
 			}
 		} else {
-			console.log((langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tvglobal.error);
+			console.log('%c' + (langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tvglobal.error, 'color: red');
 		}
 		// getting 7tv channel emotes
 		const response_7tv = await fetchThing(`https://7tv.io/v3/users/twitch/${channelID}`);
@@ -311,14 +346,15 @@ async function main() {
 					"1x": `https:${entry.data.host.url}/1x.webp`,
 					"2x": `https:${entry.data.host.url}/2x.webp`,
 					"3x": `https:${entry.data.host.url}/3x.webp`,
-					"4x": `https:${entry.data.host.url}/4x.webp`
+					"4x": `https:${entry.data.host.url}/4x.webp`,
+					"isZeroWidth": entry.flags == 1,
 				};
 				loaded_7tv = true;
 			}
 		} else {
-			console.log((langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tv.error);
+			console.log('%c' + (langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tv.error, 'color: red');
 		}
-		if (loaded_7tv) makeInfoMessage(langFile['7tvLoaded'] || '7TV emotes loaded', '#9448ff');
+		if (loaded_7tv) makeInfoMessage((langFile['7tvLoaded'] || '7TV emotes loaded') + ` (${Object.keys(emotes_7tv).length})`, '#9448ff');
 	} else
 		makeInfoMessage(langFile['noEmotes'] || 'Emotes and badges will be not displayed, you need to specify client_id and token', '#ff0000');
 
