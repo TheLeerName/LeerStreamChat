@@ -59,7 +59,7 @@ function findEmote(nameToFind) {
 		if (nameToFind == name) return urls;
 	return null;
 }
-3
+
 async function getChannelAvatar(channelID) {
 	if (args.client_id != null && args.token != null) return null;
 
