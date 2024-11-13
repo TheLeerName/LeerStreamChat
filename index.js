@@ -14,7 +14,7 @@ useChannelAvatars = false;
 channelAvatars = new Map();
 
 size = 16;
-indent = 0;
+indent = 4;
 decay = 0;
 decay_duration = 0.5;
 langFile = {};
@@ -46,7 +46,7 @@ function hslToHex(h, s, l) {
 	return `#${f(0)}${f(8)}${f(4)}`;
 }
 
-versionDisplay = "LeerTwitchChat v1.4";
+versionDisplay = "LeerTwitchChat v1.5";
 
 function isOffscreen(el) {
 	return el.getBoundingClientRect().y > window.innerHeight;
@@ -89,17 +89,18 @@ function removeChatMessage(id) {
 async function makeChatMessage(user, message, extra, bold) {
 	if (extra == null) extra = {};
 
-	if (extra.color == null) extra.color = userColors.get(user);
-	if (extra.color == null) {
-		extra.color = hslToHex(Math.floor(Math.random() * 360), 50, 50);
-		userColors.set(user, extra.color);
+	if (extra.userColor == null) extra.userColor = userColors.get(user);
+	if (extra.userColor == null) {
+		extra.userColor = hslToHex(Math.floor(Math.random() * 360), 50, 50);
+		userColors.set(user, extra.userColor);
 	}
 
-	var logMessage = user + ': ' + message;
+	var logMessage = user;
+	if (message != null) logMessage += ': ' + message;
 
 	const div = document.createElement('div');
 	div['message-id'] = extra.id;
-	div.style.marginBottom = indent;
+	div.style.marginTop = indent;
 	document.body.appendChild(div);
 
 	// adding avatar of channel as img element from where message was posted
@@ -122,18 +123,23 @@ async function makeChatMessage(user, message, extra, bold) {
 		if (badge != null) {
 			const img = document.createElement('img');
 			img.srcset = `${badge.image_url_1x} 1x, ${badge.image_url_2x} 2x, ${badge.image_url_4x} 4x`;
+			img.style.width = size * 1.25;
+			img.style.marginRight = size / 8;
+			img.loading = "lazy";
+			img.decoding = "async";
 			div.appendChild(img);
 		}
 	}
 
 	if (user != null) {
 		const hUser = document.createElement('p');
-		hUser.style.color = extra.color;
+		hUser.style.color = extra.userColor;
 		hUser.style.fontSize = size;
 		hUser.innerText = user;
 		div.appendChild(hUser);
 	}
 
+	var prevEmote = false;
 	if (message != null) {
 		const hMessage = document.createElement('p');
 		hMessage.style.color = "white";
@@ -143,7 +149,7 @@ async function makeChatMessage(user, message, extra, bold) {
 
 		var loginLC = args.login.toLowerCase();
 		for (let chunk of message.split(' ')) {
-			// messages which pings channel is highlighted
+			// messages which from highlight message reward / pings channel is highlighted
 			if (extra.userState?.['msg-id'] == 'highlighted-message' || chunk.toLowerCase() == '@' + loginLC) div.style.background = "rgba(255, 64, 0, 0.25)";
 
 			const emoteURLs = findEmote(chunk);
@@ -155,12 +161,19 @@ async function makeChatMessage(user, message, extra, bold) {
 				if (bold) hMessage.style.fontWeight = 700;
 				hMessage.innerText = chunk + " ";
 				div.appendChild(hMessage);
+				prevEmote = false;
 			} else {
 				// if chunk of message contains word of emoji
 				// we removing this chunk and adding img of emoji instead
 				const img = document.createElement('img');
 				img.srcset = `${emoteURLs["1x"]} 1x, ${emoteURLs["2x"]} 2x, ${emoteURLs["3x"]} 3x, ${emoteURLs["4x"]} 4x`;
+				if (prevEmote && emoteURLs.isZeroWidth) img.style.marginLeft = - size * 1.75 - size / 8;
+				img.style.width = size * 1.75;
+				img.style.marginRight = size / 8;
+				img.loading = "lazy";
+				img.decoding = "async";
 				div.appendChild(img);
+				prevEmote = true;
 			}
 		}
 	}
@@ -197,9 +210,8 @@ async function makeChatMessage(user, message, extra, bold) {
 function makeInfoMessage(msg, color) {
 	var prevSize = size;
 	size *= 1.25;
-	makeChatMessage(msg, null, {'color': '#9448ff'}, true);
+	makeChatMessage(msg, null, {'userColor': '#9448ff'}, true);
 	size = prevSize;
-	console.log(msg);
 }
 
 async function fetchThing(url, options) {
