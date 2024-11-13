@@ -1,7 +1,7 @@
-# Leer's Twitch Chat
-Twitch chat for displaying on browser source in OBS
+# Leer's Stream Chat
+Stream chat for displaying on browser source in OBS
 
-## Displays
+## Twitch messages displays
 - 7TV channel and global emotes
 - Twitch channel and global emotes
 - Twitch channel and global badges
@@ -9,7 +9,7 @@ Twitch chat for displaying on browser source in OBS
 ## How to use?
 1. Paste this link in OBS browser source
 ```
-https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&client_id=<twitch_bot_client_id>&token=<twitch_bot_access_token>&lang=<cur_lang>&size=<font_size>&indent=<indent_size>&decay=<decay_msg>&decay_duration=<decay_msg_duration>
+https://theleername.github.io/LeerStreamChat?twitch_login=<twitch_channel_name>&twitch_client_id=<twitch_bot_client_id>&twitch_token=<twitch_bot_access_token>&lang=<cur_lang>&size=<font_size>&indent=<indent_size>&decay=<decay_msg>&decay_duration=<decay_msg_duration>
 ```
 2. Replace placeholders with some parameters in link:
 
@@ -24,8 +24,11 @@ https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&client_
 | `<decay_msg>`               | (seconds) Specifies how much time message will be seen before disappearing, if `0`, message will stay before going outside screen | `5`                                     | No (default value: `0`)                                          |
 | `<decay_msg_duration>`      | (seconds) Specifies how long the disappearing will last                                                                           | `0.5`                                   | No (default value: `0.5`)                                        |
 3. If you don't want change some not required parameters, just remove them
-- for example `https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>&size=20` will be after removing `https://theleername.github.io/LeerTwitchChat?login=<twitch_channel_name>`
+- for example `https://theleername.github.io/LeerStreamChat?twitch_login=<twitch_channel_name>&size=20` will be after removing `https://theleername.github.io/LeerStreamChat?twitch_login=<twitch_channel_name>`
 4. Now you have the cooliest chat :3
+
+## TODO
+- YouTube stream chat
 
 ## Special thanks
 - node module [ComfyJS](https://github.com/instafluff/ComfyJS) by [instafluff](https://github.com/instafluff) <3
