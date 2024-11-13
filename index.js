@@ -117,7 +117,7 @@ async function makeChatMessage(user, message, extra, bold) {
 
 	// adding user badges as img elements
 	// (works only if client_id and token specified in url parameters)
-	if (extra.userBadges == null) for (let [k, v] of Object.entries(extra.userBadges)) {
+	if (extra.userBadges != null) for (let [k, v] of Object.entries(extra.userBadges)) {
 		const badge = badges[k]?.[v];
 		if (badge != null) {
 			const img = document.createElement('img');
