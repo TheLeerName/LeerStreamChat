@@ -297,7 +297,7 @@ function setupParameters() {
 
 async function getTwitchChannelID() {
 	channelID = (await fetchThing(`https://api.twitch.tv/helix/users?login=${args.twitch_login}`, {headers: {
-		'Client-Id': args.client_id,
+		'Client-Id': args.twitch_client_id,
 		'Authorization': 'Bearer ' + args.twitch_token
 	}}))?.data[0]?.id ?? "unknown";
 	if (channelID == "unknown")
