@@ -16,13 +16,14 @@ prevChannelID = null;
 useChannelAvatars = false;
 channelAvatars = new Map();
 
+remove_msg = true;
 size = 16;
 indent = 4;
 decay = 0;
 decay_duration = 0.5;
 langFile = {};
 
-versionDisplay = "LeerStreamChat v1.5.3";
+versionDisplay = "LeerStreamChat v1.5.4";
 
 function langFile_RU() {
 	return JSON.parse(`{
@@ -282,6 +283,7 @@ function setupParameters() {
 	if (args.decay != null) decay = parseFloat(args.decay);
 	if (args.decay_duration != null) decay_duration = parseFloat(args.decay_duration);
 	if (args.indent != null) indent = parseFloat(args.indent);
+	if (args.remove_msg != null) remove_msg = args.remove_msg == '1' || args.remove_msg == 'true';
 	switch((args.lang || "en").toLowerCase()) {
 		case 'ru':
 			langFile = langFile_RU();
@@ -385,7 +387,7 @@ async function main() {
 	ComfyJS.onChat = (user, message, flags, self, extra) => {
 		makeChatMessage(user, message, extra);
 	};
-	ComfyJS.onMessageDeleted = (id, extra) => {
+	if (remove_msg) ComfyJS.onMessageDeleted = (id, extra) => {
 		removeChatMessage(id);
 	};
 	ComfyJS.onConnected = (address, port, isFirstConnect) => {
@@ -401,7 +403,7 @@ async function main() {
 		await getTwitchBadges();
 		await get7TVEmotes();
 	} else
-		makeInfoMessage(langFile['noEmotes'] || 'Emotes and badges will be not displayed, you need to specify twitch_client_id and twitch_token', '#ff0000');
+		makeInfoMessage(langFile['noEmotes'] || 'Emotes and badges will be not displayed, you need to specify twitch_client_id and twitch_token', '#BFBF00');
 
 	ComfyJS.Init(null, null, args.twitch_login);
 }
