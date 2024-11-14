@@ -22,7 +22,7 @@ decay = 0;
 decay_duration = 0.5;
 langFile = {};
 
-versionDisplay = "LeerStreamChat v1.5.2";
+versionDisplay = "LeerStreamChat v1.5.3";
 
 function langFile_RU() {
 	return JSON.parse(`{
@@ -286,13 +286,6 @@ function setupParameters() {
 		case 'ru':
 			langFile = langFile_RU();
 	}
-
-	makeInfoMessage(versionDisplay, '#9448ff');
-
-	deprecatedParameters();
-
-	if (args.twitch_login == null)
-		return makeInfoMessage(langFile['twitchLoginNotFound'] || 'twitch_login is not specified!', '#FF0000');
 }
 
 async function getTwitchChannelID() {
@@ -382,6 +375,11 @@ async function get7TVEmotes() {
 
 async function main() {
 	setupParameters();
+	makeInfoMessage(versionDisplay, '#9448ff');
+	deprecatedParameters();
+
+	if (args.twitch_login == null)
+		return makeInfoMessage(langFile['twitchLoginNotFound'] || 'twitch_login is not specified!', '#FF0000');
 
 	// and use all of this in posting messages to website
 	ComfyJS.onChat = (user, message, flags, self, extra) => {
