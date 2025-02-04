@@ -13,6 +13,7 @@ emotes_twitch = {};
 userColors = new Map();
 channelAvatars = new Map();
 
+sevenTV = true;
 remove_msg = true;
 size = 16;
 indent = 4;
@@ -24,7 +25,7 @@ messageColor = "#c4c4c4";
 infoColor = "#9448ff";
 errorColor = "#ff0000";
 
-versionDisplay = "LeerStreamChat v1.5.5";
+versionDisplay = "LeerStreamChat v1.5.6";
 
 function langFile_RU() {
 	return JSON.parse(`{
@@ -89,6 +90,7 @@ function createMessageChunkImage(src, cssClass, appendTo) {
 	chunk.loading = "lazy";
 	chunk.decoding = "async";
 	if (appendTo != null) appendTo.appendChild(chunk);
+	return chunk;
 }
 
 function createMessageChunkText(text, cssClass, appendTo) {
@@ -169,6 +171,18 @@ async function makeChatMessage(user, message, extra) {
 
 	var prevEmote = false;
 	if (message != null) {
+		if (extra.messageEmotes != null) for (let [emoteID, subs] of Object.entries(extra.messageEmotes)) {
+			let range = subs[0].split('-');
+			range.forEach((el, i, arr) => arr[i] = parseInt(el));
+			let link = `https://static-cdn.jtvnw.net/emoticons/v1/${emoteID}`;
+			emotes_twitch[message.substring(range[0], range[1] + 1)] = {
+				"1x": `${link}/1.0`,
+				"2x": `${link}/2.0`,
+				"3x": `${link}/3.0`,
+				"4x": `${link}/4.0`,
+			};
+		}
+
 		const pMessage = createMessageChunkText(": ", null, div);
 		pMessage.setAttribute('isseparator', '');
 
@@ -231,6 +245,7 @@ function setupParameters() {
 	if (args.decay_duration != null) decay_duration = parseFloat(args.decay_duration) * 1000;
 	if (args.indent != null) indent = parseFloat(args.indent);
 	if (args.remove_msg != null) remove_msg = args.remove_msg == '1' || args.remove_msg == 'true';
+	if (args['7tv'] != null) sevenTV = args['7tv'] == '1';
 	switch((args.lang || "en").toLowerCase()) {
 		case 'ru':
 			langFile = langFile_RU();
@@ -267,7 +282,7 @@ async function getTwitchChannelID() {
 }
 
 // getting twitch global and channel emotes
-async function getTwitchEmotes() {
+/*async function getTwitchEmotes() {
 	if (channelID == null) return;
 
 	var loaded_twitchEmotes = false;
@@ -287,7 +302,7 @@ async function getTwitchEmotes() {
 		}
 	}
 	if (loaded_twitchEmotes) makeInfoMessage((langFile['twitchEmotesLoaded'] || 'Twitch emotes loaded') + ` (${Object.keys(emotes_twitch).length})`, infoColor);
-}
+}*/
 
 // getting twitch global and channel badges
 async function getTwitchBadges() {
@@ -311,7 +326,7 @@ async function getTwitchBadges() {
 
 // getting 7tv global and channel emotes
 async function get7TVEmotes() {
-	if (channelID == null) return;
+	if (channelID == null || !sevenTV) return;
 
 	var loaded_7tv = false;
 	const response_7tvglobal = await fetchThing(`https://7tv.io/v3/emote-sets/01GG8F04Y000089195YKEP5CA3`); // global emote set
@@ -367,7 +382,7 @@ async function main() {
 	// initializing emotes/badges
 	if (args.twitch_client_id != null && args.twitch_token != null) {
 		if (!(await getTwitchChannelID())) return;
-		await getTwitchEmotes();
+		//await getTwitchEmotes();
 		await getTwitchBadges();
 		await get7TVEmotes();
 	} else
