@@ -3,6 +3,11 @@
 		<meta charset="UTF-8">
 		<title>LeerStreamChat</title>
 		<link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+		<script src="https://cdn.jsdelivr.net/npm/comfy.js@latest/dist/comfy.min.js"></script>
+	</head>
+	<body>
+		<div class="messages"></div>
+		<script type="text/javascript" src="index.js"></script>
 		<style>
 			body {
 				background-color: black;
@@ -11,9 +16,31 @@
 				margin: 0;
 				padding: 0;
 			}
-			div {
+			.messages {
 				width: 100vw;
 			}
+			.message {
+				opacity: 1;
+				margin-top: var(--args_margin_top);
+				padding: var(--args_padding);
+			}
+			.message.decaying {
+				opacity: 0;
+				transition-property: opacity;
+				transition-duration: var(--args_decay_duration);
+				transition-delay: var(--args_decay);
+			}
+			.message-chunk-nickname {
+				color: var(--info_color, white);
+				font-size: var(--args_size);
+				font-weight: 600;
+			}
+			.message-chunk-text {
+				color: white;
+				font-size: var(--args_size);
+				font-weight: 400;
+			}
+
 			p {
 				display: inline;
 				overflow: hidden;
@@ -24,11 +51,15 @@
 			img {
 				vertical-align: middle;
 			}
+			.img-badge {
+				width: calc(var(--args_size) * 1.25);
+				margin-right: calc(var(--args_size) / 8);
+			}
+			.img-emoji {
+				width: calc(var(--args_size) * 1.75);
+				margin-right: calc(var(--args_size) / 8);
+			}
+			
 		</style>
-		<script src="https://cdn.jsdelivr.net/npm/comfy.js@latest/dist/comfy.min.js"></script>
-	</head>
-	<body>
-		
-		<script type="text/javascript" src="index.js"></script>
 	</body>
 </html>

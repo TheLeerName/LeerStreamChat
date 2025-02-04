@@ -2,44 +2,45 @@
 // you can use things from this code everywhere, but make a credit pls :)
 
 args = {};
-channelID = "unknown";
+channelID = null;
 
-chatMessagesDiv = [];
+chatMessagesDiv = document.getElementsByClassName("messages")[0];
 
 badges = {};
 emotes_7tv = {};
 emotes_twitch = {};
 
 userColors = new Map();
-
-prevChannelID = null;
-useChannelAvatars = false;
 channelAvatars = new Map();
 
 remove_msg = true;
 size = 16;
 indent = 4;
-decay = 0;
-decay_duration = 0.5;
+decay = 0; // in ms
+decay_duration = 500; // in ms
 langFile = {};
 
-versionDisplay = "LeerStreamChat v1.5.4";
+messageColor = "#c4c4c4";
+infoColor = "#9448ff";
+errorColor = "#ff0000";
+
+versionDisplay = "LeerStreamChat v1.5.5";
 
 function langFile_RU() {
 	return JSON.parse(`{
 		"twitchLoginNotFound": "Параметр twitch_login не определён!",
 		"deprecatedParameter": "устарел, используйте",
 		"noEmotes": "Смайлики и значки не будут отображены, так как параметры twitch_client_id и twitch_token не были указаны",
-		"channelIDFetchFailed": "Не могу получить ID канала! Посмотрите в консоль браузера",
+		"getChannelIDFetchFailed": "Не могу получить ID канала",
+		"getChannelIDNotExists": "Канал не существует",
 		"twitchEmotesLoaded": "Twitch смайлики успешно загружены",
 		"twitchBadgesLoaded": "Twitch значки успешно загружены",
-		"7tvFetchFailed": "Не могу получить ответ от 7TV! ",
+		"7tvFetchFailed": "Не могу получить ответ от 7TV, попробуйте включить обход блокировки!",
 		"7tvLoaded": "7TV смайлики успешно загружены",
-		"connect": "Чат подключён к каналу ",
+		"connect": "Чат подключён к каналу",
 		"reconnect": "Переподключение...",
 		"messageDeleted": "<cообщение удалено>",
-		"channelAvatarLoaded": "Аватар канала загружен",
-		"unknown": "неизвестно"
+		"channelAvatarLoaded": "Аватар канала загружен"
 	}`);
 }
 
@@ -64,6 +65,7 @@ function findEmote(nameToFind) {
 }
 
 async function getChannelAvatar(channelID) {
+	if (channelID == null) return null;
 	if (args.twitch_client_id != null && args.twitch_token != null) return null;
 
 	var channelAvatar = channelAvatars.get(channelID);
@@ -75,48 +77,56 @@ async function getChannelAvatar(channelID) {
 	}});
 	if (response?.data == null) return null;
 
-	console.log('%c' + (langFile['channelAvatarLoaded'] || `Channel avatar loaded`) + ` (${channelID})`, 'color: #0080ff');
+	console.log('%c' + (langFile['channelAvatarLoaded'] || `Channel avatar loaded`) + ` (${channelID})`, 'color:' + infoColor);
 	channelAvatars.set(channelID, response.data[0].profile_image_url);a
 	return response.data[0].profile_image_url;
 }
 
+function createMessageChunkImage(src, cssClass, appendTo) {
+	const chunk = document.createElement('img');
+	chunk.src = src;
+	chunk.className = cssClass ?? "img-badge";
+	chunk.loading = "lazy";
+	chunk.decoding = "async";
+	if (appendTo != null) appendTo.appendChild(chunk);
+}
+
+function createMessageChunkText(text, cssClass, appendTo) {
+	const chunk = document.createElement('p');
+	chunk.className = cssClass ?? "message-chunk-text";
+	chunk.innerText = text;
+	if (appendTo != null) appendTo.appendChild(chunk);
+	return chunk;
+}
+
 function removeChatMessage(id) {
-	for (let i = 0; i < chatMessagesDiv.length; i++) {
-		const div = chatMessagesDiv[i];
-		if (div != null) {
-			const msgID = div.getAttribute('message-id');
-			if (msgID != null && msgID == id) {
-				// removing message before separator
-				for (let i = div.childNodes.length - 1; i >= 0; i--) {
-					const node = div.childNodes[i];
-					if (node.getAttribute('separator') != null) break;
-					div.removeChild(node);
-				}
-
-				// replacing message with <message deleted>
-				const hMessage = document.createElement('p');
-				hMessage.style.color = "white";
-				hMessage.style.fontSize = size;
-				hMessage.innerText = langFile['messageDeleted'] || "<message deleted>";
-				div.appendChild(hMessage);
-
-				const sourceRoomID = div.getAttribute('source-room-id');
-				console.log(`(${msgID})${sourceRoomID != null ? ` (${sourceRoomID})` : ''} ${div.getAttribute('user')}: ${hMessage.innerText}`);
-				return;
-			}
+	for (let msg of chatMessagesDiv.children) if (msg != null && msg.getAttribute('message-id') == id) {
+		// removing message before separator
+		for (let i = msg.childNodes.length - 1; i >= 0; i--) {
+			const node = msg.childNodes[i];
+			if (node.getAttribute('isseparator') != null) break;
+			msg.removeChild(node);
 		}
+
+		// replacing message with <message deleted>
+		const hMessage = createMessageChunkText(langFile['messageDeleted'] || "<message deleted>", null, msg);
+
+		const sourceRoomID = msg.getAttribute('source-room-id');
+		console.log(`%c(${id})${sourceRoomID != null ? ` (${sourceRoomID})` : ''} ${msg.getAttribute('user')}: ${hMessage.innerText}`, 'color:' + messageColor);
+		break;
 	}
 }
 
-async function makeChatMessage(user, message, extra, bold) {
-	if (extra == null) extra = {};
+async function makeChatMessage(user, message, extra) {
+	extra ??= {};
 
-	if (extra.logColor == null) extra.logColor = '#c4c4c4';
-	if (extra.userColor == null) extra.userColor = userColors.get(user);
-	if (extra.userColor == null) {
-		extra.userColor = hslToHex(Math.floor(Math.random() * 360), 75, 75);
-		userColors.set(user, extra.userColor);
-		console.log(`%cColor ${extra.userColor} assigned for user ${user}`, 'color: ' + extra.userColor);
+	if (!extra.isInfo) {
+		extra.userColor ??= userColors.get(user);
+		if (extra.userColor == null) {
+			extra.userColor = hslToHex(Math.floor(Math.random() * 360), 75, 75);
+			userColors.set(user, extra.userColor);
+			console.log(`%cColor ${extra.userColor} assigned for user ${user}`, 'color:' + extra.userColor);
+		}
 	}
 
 	var logMessage = user;
@@ -126,8 +136,11 @@ async function makeChatMessage(user, message, extra, bold) {
 	const div = document.createElement('div');
 	if (extra.id != null) div.setAttribute('message-id', extra.id);
 	if (message != null) div.setAttribute('user', user);
-	div.style.marginTop = indent;
-	document.body.appendChild(div);
+
+	div.className = "message";
+	// starting decaying of message (if allowed)
+	if (decay > 0)
+		setTimeout(() => { div.className += " decaying" }, 1);
 
 	// adding avatar of channel as img element from where message was posted
 	// (works only if twitch_client_id and twitch_token specified in url parameters)
@@ -136,44 +149,28 @@ async function makeChatMessage(user, message, extra, bold) {
 		div.setAttribute('source-room-id', extra['source-room-id']);
 		logMessage = `(${extra['source-room-id']}) ` + logMessage;
 		var channelAvatar = await getChannelAvatar(extra['source-room-id']);
-		if (channelAvatar != null) {
-			const img = document.createElement('img');
-			img.src = channelAvatar;
-			div.appendChild(img);
-		}
+		if (channelAvatar != null)
+			createMessageChunkImage(channelAvatar, null, div);
 	}
 
 	// adding user badges as img elements
 	// (works only if twitch_client_id and twitch_token specified in url parameters)
 	if (extra.userBadges != null) for (let [k, v] of Object.entries(extra.userBadges)) {
 		const badge = badges[k]?.[v];
-		if (badge != null) {
-			const img = document.createElement('img');
-			img.srcset = `${badge.image_url_1x} 1x, ${badge.image_url_2x} 2x, ${badge.image_url_4x} 4x`;
-			img.style.width = size * 1.25;
-			img.style.marginRight = size / 8;
-			img.loading = "lazy";
-			img.decoding = "async";
-			div.appendChild(img);
-		}
+		if (badge != null)
+			createMessageChunkImage(badge.image_url_4x, null, div);
 	}
 
+	// adding colored nickname of chatter
 	if (user != null) {
-		const hUser = document.createElement('p');
-		hUser.style.color = extra.userColor;
-		hUser.style.fontSize = size;
-		hUser.innerText = user;
-		div.appendChild(hUser);
+		const chunk = createMessageChunkText(user, "message-chunk-nickname", div);
+		chunk.style.color = extra.userColor;
 	}
 
 	var prevEmote = false;
 	if (message != null) {
-		const hMessage = document.createElement('p');
-		hMessage.style.color = "white";
-		hMessage.style.fontSize = size;
-		hMessage.innerText = ": ";
-		hMessage.setAttribute('separator', '');
-		div.appendChild(hMessage);
+		const pMessage = createMessageChunkText(": ", null, div);
+		pMessage.setAttribute('isseparator', '');
 
 		// splitting message by space to find any emoji word
 		var loginLC = args.twitch_login.toLowerCase();
@@ -185,91 +182,41 @@ async function makeChatMessage(user, message, extra, bold) {
 
 			const emoteURLs = findEmote(chunk);
 			if (emoteURLs == null) {
-				const hMessage = document.createElement('p');
 				// chunk of message which pings someone or is link has another color
-				hMessage.style.color = (chunk.startsWith("@") || chunk.startsWith('https://') || chunk.startsWith('http://')) ? "#ff00ff" : "white";
-				hMessage.style.fontSize = size;
-				if (bold) hMessage.style.fontWeight = 700;
-				hMessage.innerText = chunk + " ";
-				div.appendChild(hMessage);
+				let pMessageChunk = createMessageChunkText(`${chunk} `, null, div);
+				if (chunk.startsWith("@") || chunk.startsWith('https://') || chunk.startsWith('http://')) pMessageChunk.style.color = "#ff00ff";
 				prevEmote = false;
 			} else {
 				// if chunk of message contains word of emoji
 				// we removing this chunk and adding img of emoji instead
-				const img = document.createElement('img');
-				img.srcset = `${emoteURLs["1x"]} 1x, ${emoteURLs["2x"]} 2x, ${emoteURLs["3x"]} 3x, ${emoteURLs["4x"]} 4x`;
-				if (prevEmote && emoteURLs.isZeroWidth) img.style.marginLeft = - size * 1.75 - size / 8;
-				img.style.width = size * 1.75;
-				img.style.marginRight = size / 8;
-				img.loading = "lazy";
-				img.decoding = "async";
-				div.appendChild(img);
+				let pMessageChunk = createMessageChunkImage(emoteURLs["4x"], "img-emoji", div);
+				if (prevEmote && emoteURLs.isZeroWidth) pMessageChunk.style.marginLeft = -size * 1.75 - size / 8;
 				prevEmote = true;
 			}
 		}
 	}
 
-	if (decay > 0) {
-		setTimeout(() => {
-			const willBeRemoved = decay_duration * 1000;
-			var elapsed = 0;
-			setInterval(() => {
-				div.style.opacity = 1 - (elapsed / willBeRemoved);
-				if (elapsed < willBeRemoved)
-					elapsed += 50;
-				else {
-					if (document.body.children.includes(div))
-						document.body.removeChild(div);
-					const index = chatMessagesDiv.indexOf(div);
-					if (index > -1) chatMessagesDiv.splice(index, 1);
-				}
-			}, 50);
-		}, decay * 1000);
-	}
+	// adding message to messages div
+	chatMessagesDiv.appendChild(div);
 
 	// removing out of bounds message
-	chatMessagesDiv.push(div);
-	if (document.body.getBoundingClientRect().height > window.innerHeight) {
-		document.body.removeChild(chatMessagesDiv[0]);
-		chatMessagesDiv.shift();
-	}
+	if (chatMessagesDiv.getBoundingClientRect().height > window.innerHeight)
+		chatMessagesDiv.removeChild(chatMessagesDiv.children[0]);
 
-	if (logMessage != null) {
-		if (extra.logColor != null)
-			console.log('%c' + logMessage, 'color: ' + extra.logColor);
-		else
-			console.log(logMessage);
-	}
+	if (logMessage != null)
+		console.log('%c' + logMessage, 'color:' + (extra.isInfo ? extra.userColor : messageColor));
+	return div;
 }
 
-function makeInfoMessage(msg, color) {
-	var prevSize = size;
-	size *= 1.25;
-	makeChatMessage(msg, null, {'userColor': color ?? '#9448ff', 'logColor': color ?? '#0080ff'}, true);
-	size = prevSize;
+async function makeInfoMessage(msg, color) {
+	await makeChatMessage(msg, null, {userColor: color ?? infoColor, isInfo: true});
 }
 
 async function fetchThing(url, options) {
 	try {
 		return await (await fetch(url, options)).json();
 	} catch(e) {
-		console.log('%c' + e, 'color: red');
-		return null;
-	}
-}
-
-function deprecatedParameters() {
-	if (args.login != null) {
-		args.twitch_login = args.login;
-		makeInfoMessage(`login ${langFile['deprecatedParameter'] || 'deprecated, use'} twitch_login`, '#BFBF00');
-	}
-	if (args.client_id != null) {
-		args.twitch_client_id = args.client_id;
-		makeInfoMessage(`client_id ${langFile['deprecatedParameter'] || 'deprecated, use'} twitch_client_id`, '#BFBF00');
-	}
-	if (args.token != null) {
-		args.twitch_token = args.token;
-		makeInfoMessage(`token ${langFile['deprecatedParameter'] || 'deprecated, use'} twitch_token`, '#BFBF00');
+		return {error: e.message};
 	}
 }
 
@@ -280,34 +227,56 @@ function setupParameters() {
 		args[arg[0]] = arg[1];
 	}
 	if (args.size != null) size = parseFloat(args.size);
-	if (args.decay != null) decay = parseFloat(args.decay);
-	if (args.decay_duration != null) decay_duration = parseFloat(args.decay_duration);
+	if (args.decay != null) decay = parseFloat(args.decay) * 1000;
+	if (args.decay_duration != null) decay_duration = parseFloat(args.decay_duration) * 1000;
 	if (args.indent != null) indent = parseFloat(args.indent);
 	if (args.remove_msg != null) remove_msg = args.remove_msg == '1' || args.remove_msg == 'true';
 	switch((args.lang || "en").toLowerCase()) {
 		case 'ru':
 			langFile = langFile_RU();
 	}
+
+	const style = chatMessagesDiv.style;
+	style.setProperty('--message_color', messageColor);
+	style.setProperty('--info_color', infoColor);
+	style.setProperty('--error_color', errorColor);
+	style.setProperty('--args_size', `${size}px`);
+	style.setProperty('--args_decay', `${decay}ms`);
+	style.setProperty('--args_decay_duration', `${decay_duration}ms`);
+	style.setProperty('--args_margin_top', indent * 0.5);
+	style.setProperty('--args_padding', indent * 0.5);
+}
+
+function requiredParameters() {
+	if (args.twitch_login == null)
+		return makeInfoMessage(langFile['twitchLoginNotFound'] || 'twitch_login is not specified!', errorColor);
 }
 
 async function getTwitchChannelID() {
-	channelID = (await fetchThing(`https://api.twitch.tv/helix/users?login=${args.twitch_login}`, {headers: {
+	channelID = null;
+	const response = (await fetchThing(`https://api.twitch.tv/helix/users?login=${args.twitch_login}`, {headers: {
 		'Client-Id': args.twitch_client_id,
 		'Authorization': 'Bearer ' + args.twitch_token
-	}}))?.data[0]?.id ?? "unknown";
-	if (channelID == "unknown")
-		return makeInfoMessage(langFile['channelIDFetchFailed'] || "Can't get channelID! See console", '#FF0000');
+	}})).data;
+	if (response == null)
+		return makeInfoMessage(langFile['getChannelIDFetchFailed'] || "Can't get channelID!", errorColor);
+	if (response.length == 0)
+		return makeInfoMessage(langFile['getChannelIDNotExists'] || "Channel is not exists!", errorColor);
+	channelID = response[0].id;
+	return true;
 }
 
 // getting twitch global and channel emotes
 async function getTwitchEmotes() {
+	if (channelID == null) return;
+
 	var loaded_twitchEmotes = false;
 	for (let link of ['https://api.twitch.tv/helix/chat/emotes/global', 'https://api.twitch.tv/helix/chat/emotes?broadcaster_id=' + channelID]) {
 		const response = await fetchThing(link, {headers: {
 			'Client-Id': args.twitch_client_id,
 			'Authorization': 'Bearer ' + args.twitch_token
 		}});
-		for (let entry of response.data) {
+		if (response.data != null) for (let entry of response.data) {
 			emotes_twitch[entry.name] = {
 				"1x": entry.images.url_1x,
 				"2x": entry.images.url_2x,
@@ -317,49 +286,49 @@ async function getTwitchEmotes() {
 			loaded_twitchEmotes = true;
 		}
 	}
-	if (loaded_twitchEmotes) makeInfoMessage((langFile['twitchEmotesLoaded'] || 'Twitch emotes loaded') + ` (${Object.keys(emotes_twitch).length})`, '#9448ff');
+	if (loaded_twitchEmotes) makeInfoMessage((langFile['twitchEmotesLoaded'] || 'Twitch emotes loaded') + ` (${Object.keys(emotes_twitch).length})`, infoColor);
 }
 
 // getting twitch global and channel badges
 async function getTwitchBadges() {
+	if (channelID == null) return;
+
 	var loaded_twitchBadges = false;
 	for (let link of ['https://api.twitch.tv/helix/chat/badges/global', 'https://api.twitch.tv/helix/chat/badges?broadcaster_id=' + channelID]) {
 		const response = await fetchThing(link, {headers: {
 			'Client-Id': args.twitch_client_id,
 			'Authorization': 'Bearer ' + args.twitch_token
 		}});
-		for (let entry of response.data) {
+		if (response.data != null) for (let entry of response.data) {
 			badges[entry.set_id] = {};
 			for (let verEntry of entry.versions)
 				badges[entry.set_id][verEntry.id] = verEntry;
 			loaded_twitchBadges = true;
 		}
 	}
-	if (loaded_twitchBadges) makeInfoMessage((langFile['twitchBadgesLoaded'] || 'Twitch badges loaded') + ` (${Object.keys(badges).length})`, '#9448ff');
+	if (loaded_twitchBadges) makeInfoMessage((langFile['twitchBadgesLoaded'] || 'Twitch badges loaded') + ` (${Object.keys(badges).length})`, infoColor);
 }
 
 // getting 7tv global and channel emotes
 async function get7TVEmotes() {
+	if (channelID == null) return;
+
 	var loaded_7tv = false;
 	const response_7tvglobal = await fetchThing(`https://7tv.io/v3/emote-sets/01GG8F04Y000089195YKEP5CA3`); // global emote set
-	if (response_7tvglobal.error == null) {
-		for (let entry of response_7tvglobal.emotes) {
-			emotes_7tv[entry.name] = {
-				"1x": `https:${entry.data.host.url}/1x.webp`,
-				"2x": `https:${entry.data.host.url}/2x.webp`,
-				"3x": `https:${entry.data.host.url}/3x.webp`,
-				"4x": `https:${entry.data.host.url}/4x.webp`,
-				"isZeroWidth": entry.flags == 1,
-			};
-			loaded_7tv = true;
-		}
-	} else {
-		console.log('%c' + (langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tvglobal.error, 'color: red');
+	if (response_7tvglobal.emotes != null) for (let entry of response_7tvglobal.emotes) {
+		emotes_7tv[entry.name] = {
+			"1x": `https:${entry.data.host.url}/1x.webp`,
+			"2x": `https:${entry.data.host.url}/2x.webp`,
+			"3x": `https:${entry.data.host.url}/3x.webp`,
+			"4x": `https:${entry.data.host.url}/4x.webp`,
+			"isZeroWidth": entry.flags == 1,
+		};
+		loaded_7tv = true;
 	}
 
-	const response_7tv = await fetchThing(`https://7tv.io/v3/users/twitch/${channelID}`);
-	if (response_7tv.error == null) {
-		for (let entry of response_7tv.emote_set.emotes) {
+	if (loaded_7tv) {
+		const response_7tv = await fetchThing(`https://7tv.io/v3/users/twitch/${channelID}`);
+		if (response_7tv.emote_set?.emotes != null) for (let entry of response_7tv.emote_set.emotes) {
 			emotes_7tv[entry.name] = {
 				"1x": `https:${entry.data.host.url}/1x.webp`,
 				"2x": `https:${entry.data.host.url}/2x.webp`,
@@ -367,44 +336,43 @@ async function get7TVEmotes() {
 				"4x": `https:${entry.data.host.url}/4x.webp`,
 				"isZeroWidth": entry.flags == 1,
 			};
-			loaded_7tv = true;
 		}
-	} else {
-		console.log('%c' + (langFile['7tvFetchFailed'] || '7tv fetch error: ') + response_7tv.error, 'color: red');
+
+		return makeInfoMessage((langFile['7tvLoaded'] || '7TV emotes loaded') + ` (${Object.keys(emotes_7tv).length})`, infoColor);
 	}
-	if (loaded_7tv) makeInfoMessage((langFile['7tvLoaded'] || '7TV emotes loaded') + ` (${Object.keys(emotes_7tv).length})`, '#9448ff');
+
+	makeInfoMessage(langFile['7tvFetchFailed'] || '7tv fetch error', 'red');
 }
 
 async function main() {
 	setupParameters();
-	makeInfoMessage(versionDisplay, '#9448ff');
-	deprecatedParameters();
+	makeInfoMessage(versionDisplay, infoColor);
+	requiredParameters();
 
-	if (args.twitch_login == null)
-		return makeInfoMessage(langFile['twitchLoginNotFound'] || 'twitch_login is not specified!', '#FF0000');
-
-	// and use all of this in posting messages to website
+	// initializing comfyjs callbacks
 	ComfyJS.onChat = (user, message, flags, self, extra) => {
 		makeChatMessage(user, message, extra);
+		console.log(user, message, flags, self, extra);	
 	};
 	if (remove_msg) ComfyJS.onMessageDeleted = (id, extra) => {
 		removeChatMessage(id);
 	};
 	ComfyJS.onConnected = (address, port, isFirstConnect) => {
-		makeInfoMessage((langFile['connect'] || 'Chat connected to сhannel ') + args.twitch_login + ' (' + (channelID == "unknown" ? langFile['unknown'] : channelID) + ')', '#9448ff');
+		makeInfoMessage((langFile['connect'] || 'Chat connected to сhannel') + " " + args.twitch_login, infoColor);
 	};
 	ComfyJS.onReconnect = (reconnectCount) => {
-		makeInfoMessage(langFile['reconnect'] || 'Attempting to reconnect...', '#9448ff');
+		makeInfoMessage(langFile['reconnect'] || 'Attempting to reconnect...', infoColor);
 	};
 
+	// initializing emotes/badges
 	if (args.twitch_client_id != null && args.twitch_token != null) {
-		await getTwitchChannelID();
+		if (!(await getTwitchChannelID())) return;
 		await getTwitchEmotes();
 		await getTwitchBadges();
 		await get7TVEmotes();
 	} else
 		makeInfoMessage(langFile['noEmotes'] || 'Emotes and badges will be not displayed, you need to specify twitch_client_id and twitch_token', '#BFBF00');
 
-	ComfyJS.Init(null, null, args.twitch_login);
+	ComfyJS.Init(args.twitch_client_id, null, [args.twitch_login]);
 }
 main();
