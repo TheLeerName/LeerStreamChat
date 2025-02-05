@@ -25,7 +25,7 @@ messageColor = "#c4c4c4";
 infoColor = "#9448ff";
 errorColor = "#ff0000";
 
-versionDisplay = "LeerStreamChat v1.5.6";
+versionDisplay = "LeerStreamChat v1.5.7";
 
 function langFile_RU() {
 	return JSON.parse(`{
@@ -262,11 +262,6 @@ function setupParameters() {
 	style.setProperty('--args_padding', indent * 0.5);
 }
 
-function requiredParameters() {
-	if (args.twitch_login == null)
-		return makeInfoMessage(langFile['twitchLoginNotFound'] || 'twitch_login is not specified!', errorColor);
-}
-
 async function getTwitchChannelID() {
 	channelID = null;
 	const response = (await fetchThing(`https://api.twitch.tv/helix/users?login=${args.twitch_login}`, {headers: {
@@ -362,7 +357,8 @@ async function get7TVEmotes() {
 async function main() {
 	setupParameters();
 	makeInfoMessage(versionDisplay, infoColor);
-	requiredParameters();
+	if (args.twitch_login == null)
+		return makeInfoMessage(langFile['twitchLoginNotFound'] || 'twitch_login is not specified!', errorColor);
 
 	// initializing comfyjs callbacks
 	ComfyJS.onChat = (user, message, flags, self, extra) => {
