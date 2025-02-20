@@ -1,0 +1,85 @@
+{
+	"builder": {
+		"category": {
+			"label": {
+				"general": "General",
+				"chat_message_display": "Chat message display",
+				"chatter_emotes_and_badges": "Chatter emotes & badges",
+				"output": "Generated link"
+			},
+			"cell": {
+				"button": {
+					"twitch_access_token": {
+						"generate": "Generate",
+						"revoke": "Revoke"
+					}
+				},
+				"number-input": {
+					"size": "pixels",
+					"indent": "pixels",
+					"fadeout": "seconds",
+					"fadeout_duration": "seconds"
+				},
+				"select": {
+					"hide_sensitive_info": {
+						"1": "Enabled",
+						"0": "Disabled"
+					},
+					"lang": {
+						"en": "English",
+						"ru": "Russian"
+					},
+					"remove_msg": {
+						"2": "Replace message with &lt;message deleted&gt;",
+						"1": "Remove message",
+						"0": "Do not remove message"
+					},
+					"twitch_emotes": {
+						"1": "Enabled",
+						"0": "Disabled"
+					},
+					"twitch_badges": {
+						"1": "Enabled",
+						"0": "Disabled"
+					},
+					"7tv_emotes": {
+						"1": "Enabled",
+						"0": "Disabled"
+					}
+				},
+				"coming_soon": "Coming soon...",
+				"label": {
+					"twitch_access_token": "Twitch access token",
+					"twitch_login": "Twitch channel login",
+					"hide_sensitive_info": "Hide sensitive info",
+					"lang": "Language",
+					"remove_msg": "Removing chat message mode",
+					"size": "Chat message size",
+					"indent": "Size between chat messages",
+					"fadeout": "Fade out timeout",
+					"fadeout_duration": "Fade out duration",
+					"twitch_emotes": "Twitch emotes",
+					"twitch_badges": "Twitch badges",
+					"7tv_emotes": "7TV emotes",
+					"bttv_emotes": "BetterTTV emotes"
+				},
+				"footer": {
+					"twitch_access_token": {
+						"invalid": "token isn't validated. try to generate new.",
+						"expires_in": "this token expires in <b>$1</b>",
+						"info": "token is required for twitch chatter badges<br>token stores only in your browser cache, its not going to any 3rd-party servers<br>to see points redemptions in <b>YOUR</b> channel, you need the access token of <b>YOUR</b> channel, not someone else"
+					},
+					"twitch_login": {
+						"info": "autocompletes, if twitch access token is validated"
+					},
+					"twitch_badges": {
+						"info": "twitch access token is required"
+					},
+					"output": {
+						"info": "paste this URL to browser source of OBS or other streaming app"
+					}
+				}
+			}
+		}
+	}
+}

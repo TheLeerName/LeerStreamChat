@@ -34,5 +34,6 @@ https://theleername.github.io/LeerStreamChat?twitch_login=<twitch_login>&twitch_
 - makeChatMessage triggers on reward too
 - YouTube stream chat
 
-## Special thanks
-- node module [ComfyJS](https://github.com/instafluff/ComfyJS) by [instafluff](https://github.com/instafluff) <3
+## Special thanks <3
+- library [ComfyJS](https://github.com/instafluff/ComfyJS) by [instafluff](https://github.com/instafluff)
+- library [HumanizeDuration.js](https://github.com/EvanHahn/HumanizeDuration.js) by [EvanHahn](https://github.com/EvanHahn)

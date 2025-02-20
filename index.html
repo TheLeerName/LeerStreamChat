@@ -3,63 +3,131 @@
 		<meta charset="UTF-8">
 		<title>LeerStreamChat</title>
 		<link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
-		<script src="https://cdn.jsdelivr.net/npm/comfy.js@latest/dist/comfy.min.js"></script>
-		<style>
-			body {
-				background-color: black;
-				position: fixed;
-				bottom: 0;
-				margin: 0;
-				padding: 0;
-			}
-			.messages {
-				width: 100vw;
-			}
-			.message {
-				opacity: 1;
-				margin-top: var(--args_margin_top);
-				padding: var(--args_padding);
-			}
-			.message.decaying {
-				opacity: 0;
-				transition-property: opacity;
-				transition-duration: var(--args_decay_duration);
-				transition-delay: var(--args_decay);
-			}
-			.message-chunk-nickname {
-				color: white;
-				font-size: var(--args_size);
-				font-weight: 600;
-			}
-			.message-chunk-text {
-				color: white;
-				font-size: var(--args_size);
-				font-weight: 400;
-			}
-
-			p {
-				display: inline;
-				overflow: hidden;
-				vertical-align: middle;
-				word-break: break-word;
-				font-family: Inter;
-			}
-			img {
-				vertical-align: middle;
-			}
-			.img-badge {
-				width: calc(var(--args_size) * 1.25);
-				margin-right: calc(var(--args_size) / 8);
-			}
-			.img-emoji {
-				width: calc(var(--args_size) * 1.75);
-				margin-right: calc(var(--args_size) / 8);
-			}
-		</style>
+		<script type="text/javascript" src="humanize-duration.js"></script>
+		<script type="text/javascript" src="index.js"></script>
+		<link rel='stylesheet' type='text/css' media='screen' href='./index.css'>
 	</head>
 	<body>
-		<div class="messages"></div>
-		<script type="text/javascript" src="index.js"></script>
-		
+		<div class="category">
+			<p class="label">#builder.category.label.general</p>
+			<div class="category-row">
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.twitch_access_token</p>
+					<div class="access-token-input">
+						<div id="twitch_access_token" class="textarea" contenteditable="plaintext-only" onkeydown="return event.ctrlKey && (event.key == 'v' || event.key == 'c')"></div>
+						<div id="button_twitch_access_token_generate" class="button-generate">#builder.category.cell.button.twitch_access_token.generate</div>
+						<div id="button_twitch_access_token_revoke" class="button-revoke">#builder.category.cell.button.twitch_access_token.revoke</div>
+					</div>
+					<p id="message_twitch_access_token_invalid" class="footer" style="color: red">#builder.category.cell.footer.twitch_access_token.invalid</p>
+					<p id="message_twitch_access_token_expires_in" class="footer hidden"></p>
+					<p class="footer">#builder.category.cell.footer.twitch_access_token.info</p>
+				</div>
+			</div>
+			<div class="category-row">
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.twitch_login</p>
+					<div id="twitch_login-placeholder" class="textarea-twitch_login-placeholder" onclick="for (let node of event.target.parentElement.children) if (node.getAttribute('id') == 'twitch_login') { node.focus(); selectTextRange(node, node.innerText.length, node.innerText.length - 1); break;}"></div>
+					<div id="twitch_login" class="textarea-twitch_login-input" contenteditable="plaintext-only"></div>
+					<p class="footer">#builder.category.cell.footer.twitch_login.info</p>
+				</div>
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.hide_sensitive_info</p>
+					<select id="hide_sensitive_info">
+						<option value="1">#builder.category.cell.select.hide_sensitive_info.1</option>
+						<option value="0">#builder.category.cell.select.hide_sensitive_info.0</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="category">
+			<p class="label">#builder.category.label.chat_message_display</p>
+			<div class="category-row">
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.lang</p>
+					<select id="lang">
+						<option value="en">#builder.category.cell.select.lang.en</option>
+						<option value="ru">#builder.category.cell.select.lang.ru</option>
+					</select>
+				</div>
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.remove_msg</p>
+					<select id="remove_msg">
+						<option value="2">#builder.category.cell.select.remove_msg.2</option>
+						<option value="1">#builder.category.cell.select.remove_msg.1</option>
+						<option value="0">#builder.category.cell.select.remove_msg.0</option>
+					</select>
+				</div>
+			</div>
+			<div class="category-row">
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.size</p>
+					<div class="number-input" onclick="focusTextAreaOnClickDiv_onclick(this)">
+						<textarea id="size" onkeydown="textAreaOnlyNumbers_onkeydown(event)" maxlength="10"></textarea>
+						<p>#builder.category.cell.number-input.size</p>
+					</div>
+				</div>
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.indent</p>
+					<div class="number-input" onclick="focusTextAreaOnClickDiv_onclick(this)">
+						<textarea id="indent" onkeydown="textAreaOnlyNumbers_onkeydown(event)" maxlength="10"></textarea>
+						<p>#builder.category.cell.number-input.indent</p>
+					</div>
+				</div>
+			</div>
+			<div class="category-row">
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.fadeout</p>
+					<div class="number-input" onclick="focusTextAreaOnClickDiv_onclick(this)">
+						<textarea id="fadeout" onkeydown="textAreaOnlyNumbers_onkeydown(event)" maxlength="10"></textarea>
+						<p>#builder.category.cell.number-input.fadeout</p>
+					</div>
+				</div>
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.fadeout_duration</p>
+					<div class="number-input" onclick="focusTextAreaOnClickDiv_onclick(this)">
+						<textarea id="fadeout_duration" onkeydown="textAreaOnlyNumbers_onkeydown(event)" maxlength="10"></textarea>
+						<p>#builder.category.cell.number-input.fadeout_duration</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="category">
+			<p class="label">#builder.category.label.chatter_emotes_and_badges</p>
+			<div class="category-row">
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.twitch_emotes</p>
+					<select id="twitch_emotes">
+						<option value="1">#builder.category.cell.select.twitch_emotes.1</option>
+						<option value="0">#builder.category.cell.select.twitch_emotes.0</option>
+					</select>
+				</div>
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.twitch_badges</p>
+					<select id="twitch_badges">
+						<option value="1">#builder.category.cell.select.twitch_badges.1</option>
+						<option value="0">#builder.category.cell.select.twitch_badges.0</option>
+					</select>
+					<p class="footer">#builder.category.cell.footer.twitch_badges.info</p>
+				</div>
+			</div>
+			<div class="category-row">
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.7tv_emotes</p>
+					<select id="7tv_emotes">
+						<option value="1">#builder.category.cell.select.7tv_emotes.1</option>
+						<option value="0">#builder.category.cell.select.7tv_emotes.0</option>
+					</select>
+				</div>
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.bttv_emotes</p>
+					<div class="coming-soon">#builder.category.cell.coming_soon</div>
+				</div>
+			</div>
+		</div>
+		<div class="category output">
+			<p id="button_output" class="label">#builder.category.label.output</p>
+			<div id="textarea_output" class="textarea" onclick="selectTextRange(this, 0, this.innerText.length - 1)"></div>
+			<p class="footer">#builder.category.cell.footer.output.info</p>
+		</div>
 	</body>
 </html>
