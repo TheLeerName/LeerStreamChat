@@ -9,25 +9,6 @@ function focusTextAreaOnClickDiv_onclick(el) {
 	el.selectionStart = el.selectionEnd = getElementValue(el).length;
 }
 
-// from deepseek ai
-function getValue(obj, path) {
-    return path.split('.').reduce((acc, key) => acc && acc[key], obj);
-}
-
-// country codes from: https://gist.github.com/msikma/8912e62ed866778ff8cd
-function isUserRussianUnderstanding() { // maybe
-	const l = navigator.language;
-	return l == 'be' || l == 'be-BY' ||
-		   l == 'et' || l == 'et-EE' ||
-		   l == 'hy' || l == 'hy-AM' ||
-		   l == 'kk' || l == 'kk-KZ' ||
-		   l == 'lt' || l == 'lt-LT' ||
-		   l == 'lv' || l == 'lv-LV' ||
-		   l == 'ru' || l == 'ru-RU' ||
-		   l == 'uk' || l == 'uk-UA' || // <3
-		   l == 'uz' || l == 'uz-UZ'; // fun fact: im 50% uzbek
-}
-
 // https://stackoverflow.com/a/34748190
 function selectTextRange(obj, start, stop) {
 	var endNode, startNode = endNode = obj.firstChild
@@ -43,32 +24,6 @@ function selectTextRange(obj, start, stop) {
 		sel.removeAllRanges();
 		sel.addRange(range);
 	}
-}
-
-// https://stackoverflow.com/a/16861050
-const popupCenter = ({url, title, w, h}) => {
-    // Fixes dual-screen position                             Most browsers      Firefox
-    const dualScreenLeft = window.screenLeft !==  undefined ? window.screenLeft : window.screenX;
-    const dualScreenTop = window.screenTop !==  undefined   ? window.screenTop  : window.screenY;
-
-    const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-    const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-
-    const systemZoom = width / window.screen.availWidth;
-    const left = (width - w) / 2 / systemZoom + dualScreenLeft
-    const top = (height - h) / 2 / systemZoom + dualScreenTop
-    const newWindow = window.open(url, title, 
-      `
-      scrollbars=yes,
-      width=${w / systemZoom}, 
-      height=${h / systemZoom}, 
-      top=${top}, 
-      left=${left}
-      `
-    )
-
-    if (window.focus) newWindow.focus();
-	return newWindow;
 }
 
 function setElementValue(el, v) {
@@ -88,56 +43,37 @@ function updateHideSensitiveInfo(v) {
 	}
 }
 
-var twitchClientID = '7fjojtvr0o9307fp4vnkj8km3ngbwm';
-var twitchScopes = 'channel:read:redemptions'; // pro tip: use %20 instead of space
-var link = 'https://theleername.github.io/LeerStreamChat/frame';
-var twitchHelixSearchChannelsLink = 'https://api.twitch.tv/helix/search/channels';
-var twitchOAuth2ValidateLink = 'https://id.twitch.tv/oauth2/validate';
-var twitchOAuth2RevokeLink = `https://id.twitch.tv/oauth2/revoke`;
-var twitchOAuth2AuthorizeLink = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitchClientID}&redirect_uri=http://localhost&scope=${twitchScopes}`;
-var twitchOAuth2AuthorizePopupParameters = {url: twitchOAuth2AuthorizeLink, w: 436, h: 855};
-var defaultValues = {
-	twitch_access_token: '',
-	twitch_login: '',
-	hide_sensitive_info: '1',
-	lang: isUserRussianUnderstanding() ? 'ru' : 'en',
-	remove_msg: '2',
-	size: '16',
-	indent: '4',
-	fadeout: '0',
-	fadeout_duration: '0.5',
-	twitch_emotes: '1',
-	twitch_badges: '1',
-	'7tv_emotes': '1'
+config.twitch.links.authorize += `?response_type=token&client_id=${config.twitch.client_id}&redirect_uri=http://localhost&scope=${config.twitch.scopes.join('%20')}`;
+const values = {
+	default: {},
+	current: {
+		twitch_access_token: '',
+		twitch_login: '',
+		hide_sensitive_info: '1',
+		lang: isUserRussianUnderstanding ? 'ru' : 'en',
+		remove_msg: '2',
+		size: '16',
+		indent: '4',
+		fadeout: '0',
+		fadeout_duration: '0.5',
+		twitch_emotes: '1',
+		twitch_badges: '1',
+		'7tv_emotes': '1'
+	}
 };
-var values = null;
 
-var searchArgs = {};
-for (arg of window.location.search.substring(1).split('&')) {
-	if (!arg.includes('=')) continue;
-	arg = arg.split('=');
-	searchArgs[arg[0]] = arg[1];
-}
-
-var hashArgs = {};
-for (arg of window.location.hash.substring(1).split('&')) {
-	if (!arg.includes('=')) continue;
-	arg = arg.split('=');
-	hashArgs[arg[0]] = arg[1];
-}
-
-if (searchArgs.error == 'access_denied')
+if (args.search.error == 'access_denied')
 	window.close();
-if (hashArgs.access_token != null) {
-	localStorage.setItem('lsc_popupwindowclosed', true);
-	localStorage.setItem('lsc_access_token', hashArgs.access_token);
+if (args.hash.access_token != null) {
+	localStorage.setItem('popupwindowclosed', true);
+	localStorage.setItem('popupaccesstoken', args.hash.access_token);
 	window.close();
 }
 
 var curPopupWindow = null;
 /** starts listening popup window for access token or if it was closed */
 function startListenPopupWindow() {
-	curPopupWindow = popupCenter(twitchOAuth2AuthorizePopupParameters);
+	curPopupWindow = popupCenter({url: config.twitch.links.authorize, w: 436, h: 855});
 	listenPopupWindow();
 }
 /**
@@ -148,24 +84,21 @@ function startListenPopupWindow() {
  * logs to console the result
  */
 function listenPopupWindow() {
-	if (localStorage.getItem('lsc_popupwindowclosed')) {
-		localStorage.removeItem('lsc_popupwindowclosed');
-		var accessToken = localStorage.getItem('lsc_access_token');
-		console.log({status: 200, message: `access token received: ${accessToken}`});
-		values.twitch_access_token = accessToken;
-		setElementValue(textarea_twitch_access_token, accessToken);
-		localStorage.setItem('lsc_saveData', JSON.stringify(values));
-		twitchAccessTokenValidated = true;
-		message_twitch_access_token_invalid.classList.add('hidden');
+	if (localStorage.getItem('popupwindowclosed')) {
+		localStorage.removeItem('popupwindowclosed');
+		var accessToken = localStorage.getItem('popupaccesstoken');
+		localStorage.removeItem('popupaccesstoken');
 
+		console.log({status: 200, message: `Access token received: ${accessToken}`});
+		validateTwitchAccessToken(accessToken, () => setElementValue(textarea_twitch_access_token, accessToken));
 
 		curPopupWindow = null;
 	} else if (curPopupWindow?.closed) {
-		console.log({status: 400, message: `user denied: ${accessToken}`});
+		console.log({status: 400, message: `User denied: ${accessToken}`});
 		curPopupWindow = null;
 	} else {
 		setTimeout(listenPopupWindow, 750);
-		console.log({status: 100, message: `waiting for response...`});
+		console.log({status: 100, message: `Waiting for response...`});
 	}
 }
 
@@ -181,11 +114,11 @@ var twitchAccessTokenValidated = false;
 function validateTwitchAccessToken(accessToken, oncomplete) {
 	if (textarea_twitch_access_token.innerText.length < 0 || textarea_twitch_access_token.innerText.length > 30 || accessToken?.length == 0) return;
 
-	fetch(twitchOAuth2ValidateLink, {headers: {Authorization: `Bearer ${accessToken}`}})
+	fetch(config.twitch.links.validate, {headers: {Authorization: `Bearer ${accessToken}`}})
 	.then(r => r.json())
 	.then(r => {
-		values.twitch_access_token = accessToken;
-		localStorage.setItem('lsc_saveData', JSON.stringify(values));
+		values.current.twitch_access_token = accessToken;
+		localStorage.setItem('values', JSON.stringify(values.current));
 
 		twitchAccessTokenValidated = false;
 		message_twitch_access_token_invalid.classList.remove('hidden');
@@ -193,17 +126,17 @@ function validateTwitchAccessToken(accessToken, oncomplete) {
 
 		if (r.status != null)
 			return console.log(r);
-		if (r.client_id != twitchClientID)
-			return console.log({status: 401, message: 'access token belongs to wrong client_id, needed: "' + twitchClientID + '"'});
-		if ((r.scopes ?? "").join(' ') != twitchScopes)
-			return console.log({status: 401, message: 'access token has wrong scopes, needed: "' + twitchScopes + '"'});
+		if (r.client_id != config.twitch.client_id)
+			return console.log({status: 401, message: 'Access token belongs to wrong client_id, needed: "' + config.twitch.client_id + '"'});
+		if ((r.scopes ?? "").join(' ') != config.twitch.scopes.join(' '))
+			return console.log({status: 401, message: 'Access token has wrong scopes, needed: "' + config.twitch.scopes.join(' ') + '"'});
 
-		console.log({status: 400, message: 'access token validated'});
+		console.log({status: 200, message: 'Access token validated'});
 		twitchAccessTokenValidated = true;
 		message_twitch_access_token_invalid.classList.add('hidden');
 		message_twitch_access_token_expires_in.classList.remove('hidden');
 		access_token_expires_in = r.expires_in * 1000;
-		message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeDuration(access_token_expires_in, {largest: 2, language: values.lang, delimiter: ' and '}));
+		message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeDuration(access_token_expires_in, {largest: 2, language: values.current.lang, delimiter: ' and '}));
 
 		oncomplete?.();
 	}).catch(e => {
@@ -220,19 +153,19 @@ function validateTwitchAccessToken(accessToken, oncomplete) {
  * logs to console completed/error message
  */
 function revokeTwitchAccessToken(accessToken, oncomplete) {
-	fetch(`${twitchOAuth2RevokeLink}?client_id=${twitchClientID}&token=${accessToken}`, {
+	fetch(`${config.twitch.links.revoke}?client_id=${config.twitch.client_id}&token=${accessToken}`, {
 		method: "POST",
 		headers: {'Content-Type': 'application/x-www-form-urlencoded'}
 	})
 	.then(r => {
 		if (r.status == 200) {
-			values.twitch_access_token = '';
+			values.current.twitch_access_token = '';
 			setElementValue(textarea_twitch_access_token, '');
-			localStorage.setItem('lsc_saveData', JSON.stringify(values));
+			localStorage.setItem('values', JSON.stringify(values.current));
 	
 			twitchAccessTokenValidated = false;
 			if (!message_twitch_access_token_invalid.classList.contains('hidden')) message_twitch_access_token_invalid.classList.add('hidden');
-			console.log({status: 200, message: `access token revoked`});
+			console.log({status: 200, message: `Access token revoked`});
 			oncomplete?.();
 		} else
 			// error status, some of 400 401 404
@@ -244,20 +177,21 @@ function revokeTwitchAccessToken(accessToken, oncomplete) {
 var searchTwitchChannelController = new AbortController();
 var searchTwitchChannelWorking = false;
 function searchTwitchChannel() {
-	if (textarea_twitch_login.innerText == null || textarea_twitch_login.innerText.length < 1 || textarea_twitch_login.innerText == '\n') return;
+	textarea_twitch_login_placeholder.innerText = '';
+
+	if (textarea_twitch_login.innerText == null || textarea_twitch_login.innerText.length < 1 || textarea_twitch_login.innerText == '\n' || !twitchAccessTokenValidated) return;
 
 	if (searchTwitchChannelWorking) {
-		searchTwitchChannelController?.abort('aborted old request');
+		searchTwitchChannelController?.abort('Aborted old request');
 		searchTwitchChannelController = new AbortController();
 	}
 	searchTwitchChannelWorking = true;
-	textarea_twitch_login_placeholder.innerText = '';
 
 	var postFetch = null;
-	fetch(`${twitchHelixSearchChannelsLink}?first=1&query=${encodeURI(textarea_twitch_login.innerText)}`, {
+	fetch(`${config.twitch.links.search.channels}?first=1&query=${encodeURI(textarea_twitch_login.innerText)}`, {
 		signal: searchTwitchChannelController.signal,
 		headers: {
-			'Client-Id': twitchClientID,
+			'Client-Id': config.twitch.client_id,
 			'Authorization': `Bearer 6h454tp8j4yw9io99lmvxoy4nmujhq`
 		}
 	})
@@ -269,10 +203,10 @@ function searchTwitchChannel() {
 		var v = "";
 
 		if (postFetch.status == 200) {
-			if (r.data.length == 0) console.log({status: 400, message: `channel not found: ${textarea_twitch_login.innerText}`});
+			if (r.data.length == 0) console.log({status: 400, message: `Channel not found: ${textarea_twitch_login.innerText}`});
 			else {
 				v = r.data[0].broadcaster_login;
-				console.log({status: 200, message: `channel found: ${v}`});
+				console.log({status: 200, message: `Channel found: ${v}`});
 			}
 		} else
 			console.log(r);
@@ -297,13 +231,13 @@ async function createChatLink(cancel) {
 	if (createChatLinkWorking > 0) return;
 	createChatLinkWorking++;
 
-	var toadd = `${link}?`;
-	for (let arg of Object.keys(values)) {
+	var toadd = `${config.link}/frame?`;
+	for (let arg of Object.keys(values.current)) {
 		if (createChatLinkWorking > 1) return await createChatLink(true);
-		values[arg] = getElementValue(document.getElementById(arg)) ?? defaultValues[arg];
-		toadd += `${arg}=${values[arg]}&`;
+		values.current[arg] = getElementValue(document.getElementById(arg)) ?? values.default[arg];
+		toadd += `${arg}=${values.current[arg]}&`;
 	}
-	localStorage.setItem('lsc_saveData', JSON.stringify(values));
+	localStorage.setItem('values', JSON.stringify(values.current));
 	textarea_output.innerText = encodeURI(toadd);
 
 	createChatLinkWorking = false;
@@ -311,7 +245,7 @@ async function createChatLink(cancel) {
 
 var translatedNodes;
 function updateTranslation(langID) {
-	fetch(`lang/${langID ?? values.lang}.json`)
+	fetch(`lang/${langID ?? values.current.lang}.json`)
 	.then(r => r.json())
 	.then(r => {
 		lang = r;
@@ -325,7 +259,7 @@ function updateTranslation(langID) {
 		}
 
 		translatedNodes.forEach((node, id) => node.innerHTML = getValue(lang, id));
-		message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeDuration(access_token_expires_in, {largest: 2, language: values.lang, delimiter: ' and '}));
+		message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeDuration(access_token_expires_in, {largest: 2, language: values.current.lang, delimiter: ' and '}));
 	});
 }
 
@@ -333,12 +267,13 @@ document.addEventListener('DOMContentLoaded', (_, e) => main());
 
 async function main() {
 	// get input field values from browser cache
-	values = JSON.parse(localStorage.getItem('lsc_saveData') ?? '{}');
-	for (let [arg, defaultValue] of Object.entries(defaultValues))
-		values[arg] ??= defaultValue;
+	for (let [arg, value] of Object.entries(JSON.parse(localStorage.getItem('values') ?? '{}'))) {
+		values.default[arg] = values.current[arg];
+		values.current[arg] = value;
+	}
 
 	// iterate over all input fields
-	for (let [arg, value] of Object.entries(values)) {
+	for (let [arg, value] of Object.entries(values.current)) {
 		setElementValue(document.getElementById(arg), value);
 
 		// adding "change" event in each input field which will execute creating chat link,
@@ -391,7 +326,7 @@ async function main() {
 
 	// adding change event of hide_sensitive_info "checkbox" which will blur/show sensitive fields
 	document.getElementById('hide_sensitive_info').addEventListener('change', e => updateHideSensitiveInfo(e.target.value));
-	updateHideSensitiveInfo(values.hide_sensitive_info);
+	updateHideSensitiveInfo(values.current.hide_sensitive_info);
 
 	// needs to create chat link on page load lol
 	createChatLink(true);
