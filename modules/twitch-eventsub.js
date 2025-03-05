@@ -154,7 +154,7 @@ twitch.eventsub.makeRewardMessage = async(event) => {
 		{text: " redeemed ", cssClass: "message-chunk-text"},
 		{text: event.reward.title, cssClass: "message-chunk-text bold"},
 		{text: `${event.reward.cost} `, cssClass: "message-chunk-text bold reward"},
-		{type: "image", url: "/assets/twitch-channel-points.svg", text: "channel-points", cssClass: "message-chunk-image reward"},
+		{type: "image", url: "/LeerStreamChat/assets/twitch-channel-points.svg", text: "channel-points", cssClass: "message-chunk-image reward"},
 	);
 
 	div.setAttribute('message-id', event.id);

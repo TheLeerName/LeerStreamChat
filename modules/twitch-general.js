@@ -39,7 +39,7 @@ const twitch = {
 	],
 
 	links: {
-		icon: "/assets/twitch.png",
+		icon: "/LeerStreamChat/assets/twitch.png",
 
 		emoticons_v2: (id) => `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/${twitch.emoteSize}.0`,
 		cheermotes: (prefix, bits) => `https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${bits}/${twitch.emoteSize}.gif`,
