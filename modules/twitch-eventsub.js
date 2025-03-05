@@ -176,8 +176,11 @@ twitch.eventsub.makeChatMessage = async(event) => {
 
 	// chatter badges
 	if (args.search.twitch_badges) for (let badge of event.badges) {
-		const badgeURL = twitch.links.badges[badge.set_id]?.[badge.id];
-		if (badgeURL != null) messageChunks.push({type: "image", url: badgeURL, text: badge.set_id, cssClass: "message-chunk-image badge"});
+		const badgeSet = twitch.links.badges[badge.set_id];
+		if (badgeSet) {
+			const badgeURL = badgeSet[badge.id] ?? badgeSet['1'];
+			if (badgeURL) messageChunks.push({type: "image", url: badgeURL, text: badge.set_id, cssClass: "message-chunk-image badge"});
+		}
 	}
 
 	// chatter name

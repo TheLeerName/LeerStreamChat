@@ -100,8 +100,11 @@ twitch.irc.onPrivMsg = async(event) => {
 
 	if (event.badges) for (let fragment of event.badges.split(',')) {
 		const [badgeSetID, badgeID] = fragment.split('/');
-		const badgeURL = twitch.links.badges[badgeSetID]?.[badgeID];
-		if (badgeURL) messageChunks.push({type: "image", url: badgeURL, text: badgeSetID, cssClass: "message-chunk-image badge"});
+		const badgeSet = twitch.links.badges[badgeSetID];
+		if (badgeSet) {
+			const badgeURL = badgeSet[badgeID] ?? badgeSet['1'];
+			if (badgeURL) messageChunks.push({type: "image", url: badgeURL, text: badgeSetID, cssClass: "message-chunk-image badge"});
+		}
 	}
 
 	// chatter name
@@ -257,6 +260,6 @@ twitch.irc.parseMessageData = (data) => {
 		}
 	}
 
-	console.log(data, event);
+	//console.log(data, event);
 	return event;
 };
