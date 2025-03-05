@@ -3,7 +3,7 @@
 
 twitch.irc.connectWebSocket = () => {
 	twitch.irc.ws?.close();
-	twitch.irc.ws = new WebSocket('ws://irc-ws.chat.twitch.tv');
+	twitch.irc.ws = new WebSocket('wss://irc-ws.chat.twitch.tv');
 	twitch.irc.ws.addEventListener('open', twitch.irc.onOpen);
 	twitch.irc.ws.addEventListener('message', twitch.irc.onMessage);
 	twitch.irc.ws.addEventListener('error', twitch.irc.onError);
