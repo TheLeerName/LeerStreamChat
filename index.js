@@ -150,7 +150,7 @@ async function createChatLink(cancel) {
 
 var translatedNodes;
 function updateTranslation(langID) {
-	fetch(`lang/${langID ?? values.current.lang}.json`)
+	fetch(`/LeerStreamChat/lang/${langID ?? values.current.lang}.json`)
 	.then(r => r.json())
 	.then(r => {
 		lang = r;
