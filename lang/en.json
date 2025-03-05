@@ -4,7 +4,7 @@
 			"label": {
 				"general": "General",
 				"chat_message_display": "Chat message display",
-				"chatter_emotes_and_badges": "Chatter emotes & badges",
+				"additional_chat_features": "Additional chat features",
 				"output": "Generated link"
 			},
 			"cell": {
@@ -34,6 +34,10 @@
 						"1": "Remove message",
 						"0": "Do not remove message"
 					},
+					"twitch_reward_redemptions": {
+						"1": "Enabled",
+						"0": "Disabled"
+					},
 					"twitch_emotes": {
 						"1": "Enabled",
 						"0": "Disabled"
@@ -59,27 +63,107 @@
 					"fadeout": "Fade out timeout",
 					"fadeout_duration": "Fade out duration",
 					"twitch_emotes": "Twitch emotes",
+					"twitch_reward_redemptions": "Twitch reward redemptions",
 					"twitch_badges": "Twitch badges",
 					"7tv_emotes": "7TV emotes",
 					"bttv_emotes": "BetterTTV emotes"
 				},
 				"footer": {
 					"twitch_access_token": {
-						"invalid": "token isn't validated. try to generate new.",
+						"invalid": "token isn't valid. try to generate new.",
 						"expires_in": "this token expires in <b>$1</b>",
-						"info": "token is required for twitch chatter badges<br>token stores only in your browser cache, its not going to any 3rd-party servers<br>to see points redemptions in <b>YOUR</b> channel, you need the access token of <b>YOUR</b> channel, not someone else"
+						"info": "token is required for some features of chat, see options below<br>token stores only in your browser cache, its not going to any 3rd-party servers"
 					},
 					"twitch_login": {
-						"info": "autocompletes, if twitch access token is validated"
+						"info": "autocompletes, if twitch token is valid"
+					},
+					"twitch_reward_redemptions": {
+						"info": "displays, if twitch token belongs<br>to broadcaster of chat"
 					},
 					"twitch_badges": {
-						"info": "twitch access token is required"
+						"info": "displays only most usable,<br>if twitch token is invalid"
+					},
+					"7tv_emotes": {
+						"info": "loads only <b>AFTER</b> connecting to chat,<br>if twitch token is invalid"
 					},
 					"output": {
 						"info": "paste this URL to browser source of OBS or other streaming app"
 					}
 				}
 			}
+		}
+	},
+	"frame": {
+		"parameter": {
+			"not_found": {
+				"twitch_login": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"text": "Parameter ", "color": "@errorColor"},
+					{"text": "twitch_login", "color": "white"},
+					{"text": " isn't specified!", "color": "@errorColor"}
+				],
+				"twitch_access_token": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"text": "Parameter ", "color": "@warnColor"},
+					{"text": "twitch_access_token", "color": "white"},
+					{"text": " isn't specified! Some features might be not work", "color": "@warnColor"}
+				]
+			},
+			"error": {
+				"twitch_access_token": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"text": "Invalid token! Some features might be not work", "color": "@warnColor"}
+				],
+				"7tv_emotes": [
+					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon"},
+					{"text": "Emotes aren't loaded: ", "color": "@errorColor"},
+					{"text": "$1", "color": "white"}
+				],
+				"twitch_badges": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"text": "Badges aren't loaded: ", "color": "@errorColor"},
+					{"text": "$1", "color": "white"}
+				]
+			},
+			"loaded": {
+				"7tv_emotes": [
+					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon"},
+					{"text": "Emotes loaded ("},
+					{"text": "$1", "color": "white"},
+					{"text": ")"}
+				],
+				"twitch_badges": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"text": "Badges loaded ("},
+					{"text": "$1", "color": "white"},
+					{"text": ")"}
+				]
+			}
+		},
+		"eventsub": {
+			"token_belongs_to_other_channel": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+				{"text": "Token belongs to other channel, reward redemptions will be not seen", "color": "@warnColor"}
+			],
+			"connected": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+				{"text": "Chat connected to "},
+				{"text": "$1", "color": "#8000FF"}
+			]
+		},
+		"irc": {
+			"connected": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+				{"text": "Chat anonymously connected to "},
+				{"text": "$1", "color": "#8000FF"}
+			]
+		},
+		"general": {
+			"chat_cleared": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"text": "Chat was cleared!"}
+			],
+			"message_deleted": "<message deleted>"
 		}
 	}
 }

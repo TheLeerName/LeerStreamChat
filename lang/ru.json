@@ -4,7 +4,7 @@
 			"label": {
 				"general": "Общее",
 				"chat_message_display": "Отображение сообщений чата",
-				"chatter_emotes_and_badges": "Смайлики и значки чаттеров",
+				"additional_chat_features": "Дополнительные возможности чата",
 				"output": "Ссылка на чат"
 			},
 			"cell": {
@@ -38,6 +38,10 @@
 						"1": "Включены",
 						"0": "Отключены"
 					},
+					"twitch_reward_redemptions": {
+						"1": "Включены",
+						"0": "Отключены"
+					},
 					"twitch_badges": {
 						"1": "Включены",
 						"0": "Отключены"
@@ -59,6 +63,7 @@
 					"fadeout": "Задержка исчезновения сообщения",
 					"fadeout_duration": "Длительность исчезновения сообщения",
 					"twitch_emotes": "Twitch смайлики",
+					"twitch_reward_redemptions": "Траты баллов Twitch-канала",
 					"twitch_badges": "Twitch значки",
 					"7tv_emotes": "7TV смайлики",
 					"bttv_emotes": "BetterTTV смайлики"
@@ -67,19 +72,102 @@
 					"twitch_access_token": {
 						"invalid": "неверный токен. попробуй создать новый",
 						"expires_in": "этот токен истекает через <b>$1</b>",
-						"info": "токен нужен для значков twitch-чаттеров<br>токен содержится только в кэше твоего браузера, он не отправляется ни на какие сторонние сервера<br>чтобы видеть траты баллов на <b>ТВОЁМ</b> канале, тебе нужен токен именно <b>ТВОЕГО</b> канала, а не чужого"
+						"info": "токен нужен для некоторых функций чата, смотри настройки ниже<br>токен содержится только в кэше твоего браузера, он не отправляется ни на какие сторонние сервера"
 					},
 					"twitch_login": {
 						"info": "автозаполняет, если twitch-токен верный"
 					},
+					"twitch_reward_redemptions": {
+						"info": "показываются, если twitch-токен<br>принадлежит владельцу чата"
+					},
 					"twitch_badges": {
-						"info": "нужен twitch-токен"
+						"info": "отображает только некоторые,<br>если twitch-токен неверный"
+					},
+					"7tv_emotes": {
+						"info": "загружаются только <b>ПОСЛЕ</b> подключения к чату,<br>если twitch-токен неверный"
 					},
 					"output": {
 						"info": "вставь этот URL в Источники -> Браузер в OBS или в других стриминговых приложениях"
 					}
 				}
 			}
+		}
+	},
+	"frame": {
+		"parameter": {
+			"not_found": {
+				"twitch_login": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"text": "Параметр ", "color": "@errorColor"},
+					{"text": "twitch_login", "color": "white"},
+					{"text": " не указан!", "color": "@errorColor"}
+				],
+				"twitch_access_token": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"text": "Параметр ", "color": "@warnColor"},
+					{"text": "twitch_access_token", "color": "white"},
+					{"text": " не указан! Некоторые штучки могут не работать", "color": "@warnColor"}
+				]
+			},
+			"error": {
+				"twitch_access_token": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"text": "Неверный токен! Некоторые штучки могут не работать", "color": "@warnColor"}
+				],
+				"7tv_emotes": [
+					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "message-chunk-image badge"},
+					{"text": "Смайлики не загружены: ", "color": "@errorColor"},
+					{"text": "$1", "color": "white"}
+				],
+				"twitch_badges": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"text": "Значки не загружены: ", "color": "@errorColor"},
+					{"text": "$1", "color": "white"}
+				]
+			},
+			"loaded": {
+				"7tv_emotes": [
+					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "message-chunk-image badge"},
+					{"text": "Смайлики загружены ("},
+					{"text": "$1", "color": "white"},
+					{"text": ")"}
+				],
+				"twitch_badges": [
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"text": "Значки загружены ("},
+					{"text": "$1", "color": "white"},
+					{"text": ")"}
+				]
+			}
+		},
+		"eventsub": {
+			"token_belongs_to_other_channel": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"text": "Токен принадлежит другому каналу, покупки за баллы не будут видны", "color": "@warnColor"}
+			],
+			"connected": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"text": "Чат подключён к "},
+				{"text": "$1", "color": "$2"}
+			]
+		},
+		"irc": {
+			"connected": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"text": "Чат подключён анонимно к "},
+				{"text": "$1", "color": "white"}
+			],
+			"reconnecting": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"text": "Переподключение..."}
+			]
+		},
+		"general": {
+			"chat_cleared": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"text": "Чат был очищен!"}
+			],
+			"message_deleted": "<сообщение удалено>"
 		}
 	}
 }

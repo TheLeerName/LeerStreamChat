@@ -2,9 +2,15 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>LeerStreamChat</title>
+		<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+		<link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+		<link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+		<meta name="apple-mobile-web-app-title" content="LeerStreamChat" />
 		<link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
 		<script type="text/javascript" src="humanize-duration.js"></script>
 		<script type="text/javascript" src="general.js"></script>
+		<script type="text/javascript" src="modules/twitch-general.js"></script>
 		<script type="text/javascript" src="index.js"></script>
 		<link rel='stylesheet' type='text/css' media='screen' href='./index.css'>
 	</head>
@@ -15,7 +21,7 @@
 				<div class="category-cell">
 					<p class="label">#builder.category.cell.label.twitch_access_token</p>
 					<div class="access-token-input">
-						<div id="twitch_access_token" class="textarea" contenteditable="plaintext-only" onkeydown="return event.ctrlKey && (event.key == 'v' || event.key == 'c')"></div>
+						<div id="twitch_access_token" class="textarea" contenteditable="plaintext-only" onkeydown="return event.ctrlKey && (event.key === 'v' || event.key === 'c')"></div>
 						<div id="button_twitch_access_token_generate" class="button-generate">#builder.category.cell.button.twitch_access_token.generate</div>
 						<div id="button_twitch_access_token_revoke" class="button-revoke">#builder.category.cell.button.twitch_access_token.revoke</div>
 					</div>
@@ -27,7 +33,7 @@
 			<div class="category-row">
 				<div class="category-cell">
 					<p class="label">#builder.category.cell.label.twitch_login</p>
-					<div id="twitch_login-placeholder" class="textarea-twitch_login-placeholder" onclick="for (let node of event.target.parentElement.children) if (node.getAttribute('id') == 'twitch_login') { node.focus(); selectTextRange(node, node.innerText.length, node.innerText.length - 1); break;}"></div>
+					<div id="twitch_login-placeholder" class="textarea-twitch_login-placeholder" onclick="for (let node of event.target.parentElement.children) if (node.getAttribute('id') === 'twitch_login') { node.focus(); selectTextRange(node, node.innerText.length, node.innerText.length - 1); break;}"></div>
 					<div id="twitch_login" class="textarea-twitch_login-input" contenteditable="plaintext-only"></div>
 					<p class="footer">#builder.category.cell.footer.twitch_login.info</p>
 				</div>
@@ -93,7 +99,7 @@
 			</div>
 		</div>
 		<div class="category">
-			<p class="label">#builder.category.label.chatter_emotes_and_badges</p>
+			<p class="label">#builder.category.label.additional_chat_features</p>
 			<div class="category-row">
 				<div class="category-cell">
 					<p class="label">#builder.category.cell.label.twitch_emotes</p>
@@ -101,6 +107,14 @@
 						<option value="1">#builder.category.cell.select.twitch_emotes.1</option>
 						<option value="0">#builder.category.cell.select.twitch_emotes.0</option>
 					</select>
+				</div>
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.twitch_reward_redemptions</p>
+					<select id="twitch_reward_redemptions">
+						<option value="1">#builder.category.cell.select.twitch_reward_redemptions.1</option>
+						<option value="0">#builder.category.cell.select.twitch_reward_redemptions.0</option>
+					</select>
+					<p class="footer">#builder.category.cell.footer.twitch_reward_redemptions.info</p>
 				</div>
 				<div class="category-cell">
 					<p class="label">#builder.category.cell.label.twitch_badges</p>
@@ -118,6 +132,7 @@
 						<option value="1">#builder.category.cell.select.7tv_emotes.1</option>
 						<option value="0">#builder.category.cell.select.7tv_emotes.0</option>
 					</select>
+					<p class="footer">#builder.category.cell.footer.7tv_emotes.info</p>
 				</div>
 				<div class="category-cell">
 					<p class="label">#builder.category.cell.label.bttv_emotes</p>
