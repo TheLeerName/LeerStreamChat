@@ -38,7 +38,7 @@ twitch.eventsub.onConnect = async() => {
 }
 
 twitch.eventsub.onMessage = async(data) => {
-	if (twitch.eventsub.session.keepalive_timeout_id != null)
+	if (twitch.eventsub.session?.keepalive_timeout_id)
 		clearTimeout(twitch.eventsub.session.keepalive_timeout_id);
 
 	if (data.metadata?.message_type === 'session_welcome') twitch.eventsub.onSessionWelcome(data);
