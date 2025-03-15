@@ -231,12 +231,12 @@ twitch.eventsub.makeChatMessage = async(event) => {
 						chunkText = chunkText.substring(0, chunkText.length - chunk.length - chunkAfterComma.length - 1) + chunk + " ";
 					}
 
-					// add message fragment before mention/link as new chunk
+					// add message fragment before link as new chunk
 					chunkText = chunkText.substring(0, chunkText.length - chunk.length - 1);
 					messageChunks.push({text: chunkText, cssClass: "message-chunk-text chat"});
-					chunkText = "";
+					chunkText = " ";
 
-					// add mention/link chunk
+					// add link chunk
 					messageChunks.push({text: chunk, cssClass: "message-chunk-text", color: "#8000ff"});
 					prevEmote = false;
 
