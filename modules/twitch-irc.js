@@ -202,61 +202,59 @@ twitch.irc.parseMessageData = (data) => {
 	const event = {};
 	event.message = data;
 
-	for (let i = 0; i < 1; i++) {
-		if (data.startsWith('@')) {
-			data = data.substring(1); // remove @
+	if (data.startsWith('@')) {
+		data = data.substring(1); // remove @
 
-			index = data.indexOf(" :");
+		index = data.indexOf(" :");
+		if (index > -1) {
+			data.substring(0, index).split(';').forEach(tag => {
+				const [k, v] = tag.split('=', 2);
+				if (v?.length > 0) event[k] = v;
+			});
+		}
+
+		data = data.substring(index + 1);
+	}
+
+	if (data.startsWith(':')) {
+		data = data.substring(1); // remove :
+		index = data.indexOf(' ');
+		event.login = data.substring(0, index);
+		data = data.substring(index + 1);
+		if (event.login === "tmi.twitch.tv")
+			delete event.login;
+		else {
+			index = event.login.indexOf('.tmi.twitch.tv');
 			if (index > -1) {
-				data.substring(0, index).split(';').forEach(tag => {
-					const [k, v] = tag.split('=', 2);
-					if (v?.length > 0) event[k] = v;
+				event.login = event.login.substring(0, index);
+				index = event.login.indexOf('!');
+				if (index > -1) event.login = event.login.substring(0, index);
+			} else
+				delete event.login;
+		}
+
+		index = data.indexOf(' :');
+		if (index > -1) {
+			part = data.substring(0, index).split(' ');
+			event.type = part[0];
+			if (event.type === "CAP") {
+				event.type = part.join(' ');
+			}
+			else {
+				part.forEach((str, i) => {
+					if (str === "=" || i === 0) return;
+					if (str.startsWith('#')) event['broadcaster-login'] = str.substring(1);
+					else event.login = str;
 				});
 			}
 
-			data = data.substring(index + 1);
-		}
-
-		if (data.startsWith(':')) {
-			data = data.substring(1); // remove :
+			event.text = data = data.substring(index + 2);
+		} else {
 			index = data.indexOf(' ');
-			event.login = data.substring(0, index);
-			data = data.substring(index + 1);
-			if (event.login === "tmi.twitch.tv")
-				delete event.login;
-			else {
-				index = event.login.indexOf('.tmi.twitch.tv');
-				if (index > -1) {
-					event.login = event.login.substring(0, index);
-					index = event.login.indexOf('!');
-					if (index > -1) event.login = event.login.substring(0, index);
-				} else
-					delete event.login;
-			}
+			event.type = data.substring(0, index);
+			data = data.substring(index + 2);
 
-			index = data.indexOf(' :');
-			if (index > -1) {
-				part = data.substring(0, index).split(' ');
-				event.type = part[0];
-				if (event.type === "CAP") {
-					event.type = part.join(' ');
-				}
-				else {
-					part.forEach((str, i) => {
-						if (str === "=" || i === 0) return;
-						if (str.startsWith('#')) event['broadcaster-login'] = str.substring(1);
-						else event.login = str;
-					});
-				}
-
-				event.text = data = data.substring(index + 2);
-			} else {
-				index = data.indexOf(' ');
-				event.type = data.substring(0, index);
-				data = data.substring(index + 2);
-
-				event.text = event['broadcaster-login'] = data;
-			}
+			event.text = event['broadcaster-login'] = data;
 		}
 	}
 
