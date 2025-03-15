@@ -11,6 +11,7 @@ Stream chat for displaying on browser source in OBS
 - Anonymous connecting to chat via IRC (not all features allowed)
 - Russian translation
 - Blurring out sensitive info in link builder
+- To see logs in Ctrl+Shift+I just add `&debug=1` to link of link builder or chat frame
 
 ## TODO
 - viewer count
