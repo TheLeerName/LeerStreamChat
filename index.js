@@ -89,12 +89,11 @@ function listenPopupWindow() {
 		var accessToken = localStorage.getItem('popupaccesstoken');
 		localStorage.removeItem('popupaccesstoken');
 
-		if (args.search.debug) console.log({status: 200, message: `Access token received: ${accessToken}`});
+		if (args.search.debug) console.log({status: 200, message: `access token received: ${accessToken}`});
 		twitch.validateAccessToken(accessToken).then(r => {
-			if (requestIsOK(r.status)) {
+			if (requestIsOK(r.status))
 				twitch.addAccessToken(accessToken);
-				setElementValue(textarea_twitch_access_token, accessToken);
-			} else {
+			else {
 				twitch.removeAccessToken();
 				console.log(r);
 			}
@@ -102,15 +101,17 @@ function listenPopupWindow() {
 
 		curPopupWindow = null;
 	} else if (curPopupWindow?.closed) {
-		if (args.search.debug) console.log({status: 400, message: `User denied: ${accessToken}`});
+		if (args.search.debug) console.log({status: 400, message: `user denied: ${accessToken}`});
 		curPopupWindow = null;
 	} else {
 		setTimeout(listenPopupWindow, 750);
-		if (args.search.debug) console.log({status: 100, message: `Waiting for response...`});
+		if (args.search.debug) console.log({status: 100, message: `waiting for response...`});
 	}
 }
 
-twitch.addAccessToken = (newAccessToken) => {
+twitch.addAccessToken = (newAccessToken, ) => {
+	setElementValue(textarea_twitch_access_token, newAccessToken);
+	createChatLink();
 	values.current.twitch_access_token = newAccessToken;
 	localStorage.setItem('values', JSON.stringify(values.current));
 
@@ -119,6 +120,8 @@ twitch.addAccessToken = (newAccessToken) => {
 	message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeDuration(twitch.accessTokenData.expires_in * 1000, {largest: 2, language: values.current.lang, delimiter: ' and '}));
 };
 twitch.removeAccessToken = () => {
+	setElementValue(textarea_twitch_access_token, '');
+	createChatLink();
 	values.current.twitch_access_token = "";
 	localStorage.setItem('values', JSON.stringify(values.current));
 
@@ -221,8 +224,9 @@ async function main() {
 	// which displays on frontend if token was successfully validated
 	await lol(textarea_twitch_access_token.innerText);
 	textarea_twitch_access_token.addEventListener('paste', e => {
-		e.target.innerText = '';
 		lol(e.clipboardData.getData('Text'));
+		e.target.innerText = '';
+		e.preventDefault();
 	});
 
 	// adding click event which will open popup window with twitch auth:
@@ -231,8 +235,9 @@ async function main() {
 	// if access token already exists, it will be revoked and then it will open the popup
 	document.getElementById('button_twitch_access_token_generate').addEventListener('click', e => {
 		if (values.current.twitch_access_token != "") 
-			twitch.fetch.revoke(textarea_twitch_access_token.innerText).then(r => {
+			twitch.revokeAccessToken(values.current.twitch_access_token).then(r => {
 				if (!requestIsOK(r.status)) return console.log(r);
+				if (args.search.debug) console.log('access token revoked');
 				twitch.removeAccessToken();
 				startListenPopupWindow();
 			});
@@ -242,10 +247,10 @@ async function main() {
 	// adding click event which will revoke current access token and will remove it from input field,
 	// if access token isnt validated or not entered it does nothing
 	document.getElementById('button_twitch_access_token_revoke').addEventListener('click', e => {
-		if (values.current.twitch_access_token != "") twitch.fetch.revoke(textarea_twitch_access_token.innerText).then(r => {
+		if (values.current.twitch_access_token != "") twitch.revokeAccessToken(values.current.twitch_access_token).then(r => {
 			if (!requestIsOK(r.status)) return console.log(r);
+			if (args.search.debug) console.log('access token revoked');
 			twitch.removeAccessToken();
-			setElementValue(textarea_twitch_access_token, '');
 		});
 	});
 

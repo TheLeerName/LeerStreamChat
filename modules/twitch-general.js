@@ -186,6 +186,20 @@ const twitch = {
 		return output;
 	},
 
+	revokeAccessToken: async(accessToken) => {
+		let request, output = null;
+
+		try {
+			request = await twitch.fetch.revoke(accessToken);
+			if (requestIsOK(request.status)) output = {status: request.status};
+			else output = await request.json();
+		} catch(e) {
+			output = {status: 400, message: e.toString()};
+		}
+
+		return output;
+	},
+
 	/** https://dev.twitch.tv/docs/api/reference/#get-users */
 	getUsersData: async(accessToken, ...channelLogins) => {
 		let request, response, output = null;
