@@ -97,13 +97,13 @@
 		"parameter": {
 			"not_found": {
 				"twitch_login": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 					{"text": "Parameter ", "color": "@errorColor"},
 					{"text": "twitch_login", "color": "white"},
 					{"text": " isn't specified!", "color": "@errorColor"}
 				],
 				"twitch_access_token": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 					{"text": "Parameter ", "color": "@warnColor"},
 					{"text": "twitch_access_token", "color": "white"},
 					{"text": " isn't specified! Some features might be not work", "color": "@warnColor"}
@@ -111,29 +111,29 @@
 			},
 			"error": {
 				"twitch_access_token": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 					{"text": "Invalid token! Some features might be not work", "color": "@warnColor"}
 				],
 				"7tv_emotes": [
-					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon"},
+					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "message-chunk-image badge"},
 					{"text": "Emotes aren't loaded: ", "color": "@errorColor"},
 					{"text": "$1", "color": "white"}
 				],
 				"twitch_badges": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 					{"text": "Badges aren't loaded: ", "color": "@errorColor"},
 					{"text": "$1", "color": "white"}
 				]
 			},
 			"loaded": {
 				"7tv_emotes": [
-					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon"},
+					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "message-chunk-image badge"},
 					{"text": "Emotes loaded ("},
 					{"text": "$1", "color": "white"},
 					{"text": ")"}
 				],
 				"twitch_badges": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 					{"text": "Badges loaded ("},
 					{"text": "$1", "color": "white"},
 					{"text": ")"}
@@ -142,20 +142,24 @@
 		},
 		"eventsub": {
 			"token_belongs_to_other_channel": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 				{"text": "Token belongs to other channel, reward redemptions will be not seen", "color": "@warnColor"}
 			],
 			"connected": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 				{"text": "Chat connected to "},
-				{"text": "$1", "color": "#8000FF"}
+				{"text": "$1", "color": "$2"}
 			]
 		},
 		"irc": {
 			"connected": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon"},
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 				{"text": "Chat anonymously connected to "},
-				{"text": "$1", "color": "#8000FF"}
+				{"text": "$1", "color": "white"}
+			],
+			"reconnecting": [
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"text": "Reconnecting..."}
 			]
 		},
 		"general": {
