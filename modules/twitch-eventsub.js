@@ -35,9 +35,32 @@ twitch.eventsub.onConnect = async() => {
 		userColor = r.response[0].color;
 
 	makeMessage(...makeMessageArgumentsInfo(...replaceTagsInTranslation(translation.frame.eventsub.connected, twitch.broadcasterData.display_name, userColor)));
-}
+	twitch.eventsub.releaseMessages();
+};
+
+twitch.eventsub.delayMessagesEnabled = false;
+twitch.eventsub.delayedMessages = [];
+twitch.eventsub.delayMessages = () => {
+	if (twitch.eventsub.delayMessagesEnabled) return;
+
+	twitch.eventsub.delayMessagesEnabled = true;
+	while (twitch.eventsub.delayedMessages.length > 0)
+		twitch.eventsub.delayedMessages.splice(0, 1);
+};
+twitch.eventsub.releaseMessages = async() => {
+	if (!twitch.eventsub.delayMessagesEnabled) return;
+
+	twitch.eventsub.delayMessagesEnabled = false;
+	for (let message of twitch.eventsub.delayedMessages)
+		await twitch.eventsub.onMessage(message);
+	while (twitch.eventsub.delayedMessages.length > 0)
+		twitch.eventsub.delayedMessages.splice(0, 1);
+};
 
 twitch.eventsub.onMessage = async(data) => {
+	if (twitch.eventsub.delayMessagesEnabled)
+		return twitch.eventsub.delayedMessages.push(data);
+
 	if (twitch.eventsub.session?.keepalive_timeout_id)
 		clearTimeout(twitch.eventsub.session.keepalive_timeout_id);
 
@@ -53,6 +76,8 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 	twitch.eventsub.session = data.payload.session;
 
 	let r;
+
+	twitch.eventsub.delayMessages();
 
 	if (twitch.isSameChannel) {
 		r = await twitch.eventsub.subscribeToEvent({
