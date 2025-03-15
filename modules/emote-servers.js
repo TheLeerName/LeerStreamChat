@@ -4,7 +4,7 @@ const seventv = {
 	emoteSize: 4, // can be 1, 2, 3, 4
 
 	links: {
-		icon: `${link}/assets/7tv.svg`,
+		icon: `${app.link}/assets/7tv.svg`,
 
 		emotesets: (emoteSetID) => `https://7tv.io/v3/emote-sets/${emoteSetID}`,
 		users: {

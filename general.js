@@ -1,9 +1,14 @@
-const version = "v2.0.1";
-const appName = `LeerStreamChat`;
-const link = `https://theleername.github.io/${appName}`;
-const icon = `${link}/assets/leerstreamchat.png`;
+const app = {
+	version: "v2.0.1",
+	name: "LeerStreamChat",
 
-window.title = appName;
+	link: "https://theleername.github.io/LeerStreamChat",
+	twitch_channel_id: "7fjojtvr0o9307fp4vnkj8km3ngbwm",
+
+	icon: "/assets/leerstreamchat.png",
+};
+app.icon = app.link + app.icon;
+document.title = app.name;
 
 const regex = {
 	http_protocol: /https?:\/\//
@@ -13,6 +18,13 @@ const args = {
 	search: {},
 	hash: {}
 };
+
+// adds the <meta name="apple-mobile-web-app-title" content="LeerStreamChat" />
+let metaApple = document.createElement('meta');
+metaApple.setAttribute('name', 'apple-mobile-web-app-title');
+metaApple.setAttribute('content', app.name);
+if (document.currentScript) document.currentScript.parentNode.insertBefore(metaApple, document.currentScript);
+else document.head.appendChild(metaApple);
 
 for (let arg of window.location.search.substring(1).split('&')) {
 	if (!arg.includes('=')) continue;

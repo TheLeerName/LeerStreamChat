@@ -6,7 +6,7 @@ function getRandomInt(min, max) {
 }
 
 const twitch = {
-	client_id: "", // in assets/twitch_client_id
+	client_id: app.twitch_channel_id,
 	scopes: [
 		"channel:read:redemptions",
 		"user:read:chat"
@@ -39,12 +39,12 @@ const twitch = {
 	],
 
 	links: {
-		icon: `${link}/assets/twitch.png`,
-		icon_channel_points: `${link}/assets/twitch-channel-points.svg`,
+		icon: `${app.link}/assets/twitch.png`,
+		icon_channel_points: `${app.link}/assets/twitch-channel-points.svg`,
 
 		emoticons_v2: (id) => `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/${twitch.emoteSize}.0`,
 		cheermotes: (prefix, bits) => `https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${bits}/${twitch.emoteSize}.gif`,
-		authorize: () => `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitch.client_id}&redirect_uri=${link}&scope=${twitch.scopes.join('%20')}`,
+		authorize: () => `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${twitch.client_id}&redirect_uri=${app.link}&scope=${twitch.scopes.join('%20')}`,
 
 		// will be updated on loadBadges() if twitch_access_token is specified
 		badges: {
@@ -258,7 +258,3 @@ const twitch = {
 		return output;
 	}
 };
-
-fetch(`${link}/assets/twitch_channel_id`)
-.then(v => v.text())
-.then(v => twitch.client_id = v);

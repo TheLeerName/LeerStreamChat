@@ -1,3 +1,4 @@
+args.search.debug = args.search.debug == 1;
 if (args.search.error === 'access_denied')
 	window.close();
 if (args.hash.access_token != null) {
@@ -88,7 +89,7 @@ function listenPopupWindow() {
 		var accessToken = localStorage.getItem('popupaccesstoken');
 		localStorage.removeItem('popupaccesstoken');
 
-		console.log({status: 200, message: `Access token received: ${accessToken}`});
+		if (args.search.debug) console.log({status: 200, message: `Access token received: ${accessToken}`});
 		twitch.validateAccessToken(accessToken).then(r => {
 			if (requestIsOK(r.status)) {
 				twitch.addAccessToken(accessToken);
@@ -101,11 +102,11 @@ function listenPopupWindow() {
 
 		curPopupWindow = null;
 	} else if (curPopupWindow?.closed) {
-		console.log({status: 400, message: `User denied: ${accessToken}`});
+		if (args.search.debug) console.log({status: 400, message: `User denied: ${accessToken}`});
 		curPopupWindow = null;
 	} else {
 		setTimeout(listenPopupWindow, 750);
-		console.log({status: 100, message: `Waiting for response...`});
+		if (args.search.debug) console.log({status: 100, message: `Waiting for response...`});
 	}
 }
 
@@ -136,7 +137,7 @@ async function createChatLink(cancel) {
 	if (createChatLinkWorking > 0) return;
 	createChatLinkWorking++;
 
-	var toadd = `${link}/frame?`;
+	var toadd = `${app.link}/frame?`;
 	for (let arg of Object.keys(values.current)) {
 		if (createChatLinkWorking > 1) return await createChatLink(true);
 		values.current[arg] = getElementValue(document.getElementById(arg)) ?? values.default[arg];

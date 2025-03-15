@@ -2,6 +2,7 @@
 // (if twitch_access_token is specified)
 
 twitch.eventsub.connectWebSocket = () => {
+	twitch.eventsub.session = null;
 	twitch.eventsub.ws?.close();
 	twitch.eventsub.ws = new WebSocket('wss://eventsub.wss.twitch.tv/ws');
 	twitch.eventsub.ws.addEventListener('open', twitch.eventsub.onOpen);
@@ -20,7 +21,6 @@ twitch.eventsub.onError = async(e) => {
 
 twitch.eventsub.onClose = async(e) => {
 	//console.log(e);
-	twitch.eventsub.session = null;
 	setTimeout(twitch.eventsub.connectWebSocket, 500);
 };
 
@@ -44,7 +44,7 @@ twitch.eventsub.onMessage = async(data) => {
 	if (data.metadata?.message_type === 'session_welcome') twitch.eventsub.onSessionWelcome(data);
 	else if (data.metadata?.message_type === 'session_keepalive') twitch.eventsub.onSessionKeepalive(data);
 	else if (data.metadata?.message_type === 'notification') twitch.eventsub.onNotification(data);
-	else {
+	else if (args.search.debug) {
 		console.log('unsupported message type', data);
 	}
 };
@@ -126,7 +126,7 @@ twitch.eventsub.onNotification = async(data) => {
 	else if (subtype === "channel.chat.clear") twitch.eventsub.onChatClear(event);
 	else if (subtype === "channel.chat.clear_user_messages") twitch.eventsub.onChatClearUserMessages(event);
 	else if (event.message_type === 'text' || event.message_type === 'channel_points_highlighted' || event.message_type === 'power_ups_gigantified_emote' || event.message_type === 'power_ups_message_effect') twitch.eventsub.makeChatMessage(event);
-	else {
+	else if (args.search.debug) {
 		console.log('unsupported notification message type', data);
 	}
 };
@@ -147,7 +147,7 @@ twitch.eventsub.onMessageDelete = async(event) => {
 };
 
 twitch.eventsub.makeRewardMessage = async(event) => {
-	//console.log(event);
+	if (args.search.debug) console.log(event);
 
 	const div = makeMessage(
 		{text: event.user_name, cssClass: "message-chunk-text bold"},
@@ -165,7 +165,7 @@ twitch.eventsub.makeRewardMessage = async(event) => {
 };
 
 twitch.eventsub.makeChatMessage = async(event) => {
-	//console.log(event);
+	if (args.search.debug) console.log(event);
 
 	// TODO: maybe add message effects
 	// i found out these message effects (can be gotten with event.channel_points_animation_id): cosmic-abyss, simmer, rainbow-eclipse
@@ -259,7 +259,7 @@ twitch.eventsub.makeChatMessage = async(event) => {
 			prevEmote = false; // cuz it ends with bits count
 		}
 		else {
-			console.log('unsupported message fragment type', event);
+			if (args.search.debug) console.log('unsupported message fragment type', event);
 			prevEmote = false;
 		}
 	}

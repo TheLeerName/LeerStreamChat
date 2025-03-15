@@ -59,11 +59,11 @@ function makeMessage(...chunks) {
 		let chunkDiv;
 		if (chunk.type === "image") {
 			chunkDiv = createMessageChunkImage(chunk.url, chunk.cssClass, div);
-			consoleLogChunks.push({text: `%c${chunk.text} `, css: `color:${chunk.color ?? imagePlaceholderColor}`});
+			if (args.search.debug) consoleLogChunks.push({text: `%c${chunk.text} `, css: `color:${chunk.color ?? imagePlaceholderColor}`});
 		} else { // else if (chunk.type === "text")
 			chunkDiv = createMessageChunkText(chunk.text, chunk.cssClass, div);
 			if (chunk.color) chunkDiv.style.color = chunk.color;
-			consoleLogChunks.push({text: `%c${chunk.text}`, css: `color:${chunk.color ?? infoColor}`});
+			if (args.search.debug) consoleLogChunks.push({text: `%c${chunk.text}`, css: `color:${chunk.color ?? infoColor}`});
 		}
 
 		if (chunkDiv && chunk.attributes) for (let [k, v] of Object.entries(chunk.attributes))
@@ -81,7 +81,7 @@ function makeMessage(...chunks) {
 	if (args.search.fadeout > 0)
 		setTimeout(() => { div.className += " decaying" }, args.search.fadeout);
 
-	if (consoleLogChunks.length > 0) {
+	if (args.search.debug && consoleLogChunks.length > 0) {
 		let message = "";
 		const css = [];
 		consoleLogChunks.forEach(v => {
@@ -172,7 +172,7 @@ async function main() {
 	style.setProperty('--args_margin_top', args.search.indent * 0.5);
 	style.setProperty('--args_padding', args.search.indent * 0.5);
 
-	makeMessage(...makeMessageArgumentsInfo({type: "image", url: icon, text: "lsc_icon", cssClass: "message-chunk-image badge"}, {text: `${appName} ${version}`, cssClass: "message-chunk-text bold", color: "#8000ff"}));
+	makeMessage(...makeMessageArgumentsInfo({type: "image", url: app.icon, text: "lsc_icon", cssClass: "message-chunk-image badge"}, {text: `${app.name} ${app.version}`, cssClass: "message-chunk-text bold", color: "#8000ff"}));
 	await loadTranslation();
 
 	if (args.search.twitch_login == null)
@@ -189,10 +189,11 @@ async function main() {
 	args.search.indent = parseFloat(args.search.indent ?? '4');
 	args.search.fadeout = parseFloat(args.search.fadeout ?? '0') * 1000;
 	args.search.fadeout_duration = parseFloat(args.search.fadeout_duration ?? '0.5') * 1000;
-	args.search.twitch_emotes = args.search.twitch_emotes == 1 ? true : false;
-	args.search.twitch_reward_redemptions = args.search.twitch_reward_redemptions == 1 ? true : false;
-	args.search.twitch_badges = args.search.twitch_badges == 1 ? true : false;
-	args.search['7tv_emotes'] = args.search['7tv_emotes'] == 1 ? true : false;
+	args.search.twitch_emotes = args.search.twitch_emotes == 1;
+	args.search.twitch_reward_redemptions = args.search.twitch_reward_redemptions == 1;
+	args.search.twitch_badges = args.search.twitch_badges == 1;
+	args.search['7tv_emotes'] = args.search['7tv_emotes'] == 1;
+	args.search.debug = args.search.debug == 1;
 
 	if (!twitch.isAnonymous) {
 		var r = await twitch.validateAccessToken(args.search.twitch_access_token);

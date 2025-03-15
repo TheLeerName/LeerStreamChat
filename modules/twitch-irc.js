@@ -53,7 +53,7 @@ twitch.irc.onMessageChunk = async(data) => {
 		else if (type === "USERSTATE" || type === "NOTICE") {} // ignore
 		else if (type === "CAP * ACK" || type === "CAP * NAK") {} // ignore
 		else if (type === "001" || type === "002" || type === "003" || type === "004" || type === "353" || type === "366" || type === "372" || type === "375" || type === "376") {} // ignore
-		else
+		else if (args.search.debug) 
 			console.log(`unsupported message type: ${type}`, event);
 	} catch(e) {
 		console.error(e, chunk);
@@ -260,6 +260,6 @@ twitch.irc.parseMessageData = (data) => {
 		}
 	}
 
-	//console.log(data, event);
+	if (args.search.debug) console.log(data, event);
 	return event;
 };
