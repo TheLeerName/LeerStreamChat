@@ -157,7 +157,7 @@ function removeAllUserMessages(userID) {
 
 const translation = {};
 async function loadTranslation() {
-	const request = await fetch(`/LeerStreamChat/lang/${args.search.lang}.json`);
+	const request = await fetch(`../lang/${args.search.lang}.json`);
 	const response = await request.json();
 	for (let [k, v] of Object.entries(response)) translation[k] = v;
 }

@@ -1,7 +1,9 @@
 const version = "v2.0.1";
 const appName = `LeerStreamChat`;
 const link = `https://theleername.github.io/${appName}`;
-const icon = `/${appName}/assets/leerstreamchat.png`;
+const icon = `${link}/assets/leerstreamchat.png`;
+
+window.title = appName;
 
 const regex = {
 	http_protocol: /https?:\/\//

@@ -6,7 +6,7 @@ function getRandomInt(min, max) {
 }
 
 const twitch = {
-	client_id: "7fjojtvr0o9307fp4vnkj8km3ngbwm",
+	client_id: "", // in assets/twitch_client_id
 	scopes: [
 		"channel:read:redemptions",
 		"user:read:chat"
@@ -39,7 +39,8 @@ const twitch = {
 	],
 
 	links: {
-		icon: "/LeerStreamChat/assets/twitch.png",
+		icon: `${link}/assets/twitch.png`,
+		icon_channel_points: `${link}/assets/twitch-channel-points.svg`,
 
 		emoticons_v2: (id) => `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/${twitch.emoteSize}.0`,
 		cheermotes: (prefix, bits) => `https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${bits}/${twitch.emoteSize}.gif`,
@@ -257,3 +258,7 @@ const twitch = {
 		return output;
 	}
 };
+
+fetch(`${link}/assets/twitch_channel_id`)
+.then(v => v.text())
+.then(v => twitch.client_id = v);
