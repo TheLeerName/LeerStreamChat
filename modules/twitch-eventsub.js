@@ -45,7 +45,7 @@ twitch.eventsub.onMessage = async(data) => {
 	else if (data.metadata?.message_type === 'session_keepalive') twitch.eventsub.onSessionKeepalive(data);
 	else if (data.metadata?.message_type === 'notification') twitch.eventsub.onNotification(data);
 	else if (args.search.debug) {
-		console.log('unsupported message type', data);
+		console.warn('unsupported message type', data);
 	}
 };
 
@@ -127,7 +127,7 @@ twitch.eventsub.onNotification = async(data) => {
 	else if (subtype === "channel.chat.clear_user_messages") twitch.eventsub.onChatClearUserMessages(event);
 	else if (event.message_type === 'text' || event.message_type === 'channel_points_highlighted' || event.message_type === 'power_ups_gigantified_emote' || event.message_type === 'power_ups_message_effect') twitch.eventsub.makeChatMessage(event);
 	else if (args.search.debug) {
-		console.log('unsupported notification message type', data);
+		console.warn('unsupported notification message type', data);
 	}
 };
 
@@ -259,7 +259,7 @@ twitch.eventsub.makeChatMessage = async(event) => {
 			prevEmote = false; // cuz it ends with bits count
 		}
 		else {
-			if (args.search.debug) console.log('unsupported message fragment type', event);
+			if (args.search.debug) console.warn('unsupported message fragment type', event);
 			prevEmote = false;
 		}
 	}

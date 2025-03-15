@@ -75,7 +75,7 @@ const twitch = {
 			subscriptions: (accessToken, body) => advancedFetch("https://api.twitch.tv/helix/eventsub/subscriptions", {method: "POST", headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json"}, body: JSON.stringify(body)})
 		},
 		chat: {
-			color: (accessToken, user_id) => advancedFetch(`https://api.twitch.tv/helix/chat/color?user_id=${user_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
+			color: (accessToken, user_id, ignoreAbort) => advancedFetch(`https://api.twitch.tv/helix/chat/color?user_id=${user_id}`, {ignoreAbort, headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
 			badges: (accessToken, broadcaster_id) => advancedFetch(`https://api.twitch.tv/helix/chat/badges?broadcaster_id=${broadcaster_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
 			badges_global: (accessToken) => advancedFetch(`https://api.twitch.tv/helix/chat/badges/global`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
 		}
@@ -116,7 +116,7 @@ const twitch = {
 		let request, response, output = null;
 
 		try {
-			request = await twitch.fetch.chat.color(accessToken, usersID.join('&'));
+			request = await twitch.fetch.chat.color(accessToken, usersID.join('&'), true);
 			response = await request.json();
 
 			if (response.status != null) output = response;
