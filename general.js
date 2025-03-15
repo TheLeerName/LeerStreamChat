@@ -85,6 +85,10 @@ const requestIsOK = (code) => code > 199 && code < 300;
 const fetchTimeout = 5000;
 const abortControllers = {};
 function advancedFetch(input, init) {
+	init ??= {};
+
+	if (init.ignoreAbort) return fetch(input, init);
+
 	const inputWithoutSearch = input.substring(0, input.includes('?') ? input.indexOf('?') : input.length);
 	if (abortControllers[inputWithoutSearch] != null) {
 		abortControllers[inputWithoutSearch].abort('Request was aborted, because a new one was started');
@@ -93,7 +97,6 @@ function advancedFetch(input, init) {
 
 	const controller = new AbortController();
 	abortControllers[inputWithoutSearch] = controller;
-	init ??= {};
 	init.signal = controller.signal;
 
 	const timeoutID = setTimeout(() => {
@@ -111,5 +114,6 @@ function advancedFetch(input, init) {
 		clearTimeout(timeoutID);
 		return e;
 	});
+
 	return request;
 }
