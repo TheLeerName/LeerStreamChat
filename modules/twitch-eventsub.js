@@ -79,16 +79,18 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 
 	twitch.eventsub.delayMessages();
 
-	if (twitch.isSameChannel) {
-		r = await twitch.eventsub.subscribeToEvent({
-			type: "channel.channel_points_custom_reward_redemption.add",
-			version: "1",
-			condition: { broadcaster_user_id: twitch.accessTokenData.user_id },
-			transport: { method: "websocket", session_id: twitch.eventsub.session.id }
-		});
-		if (!requestIsOK(r.status)) return console.log(r);
-	} else
-		makeMessage(...makeMessageArgumentsInfo(...translation.frame.eventsub.token_belongs_to_other_channel));
+	if (args.search.twitch_reward_redemptions) {
+		if (twitch.isSameChannel) {
+			r = await twitch.eventsub.subscribeToEvent({
+				type: "channel.channel_points_custom_reward_redemption.add",
+				version: "1",
+				condition: { broadcaster_user_id: twitch.accessTokenData.user_id },
+				transport: { method: "websocket", session_id: twitch.eventsub.session.id }
+			});
+			if (!requestIsOK(r.status)) return console.log(r);
+		} else
+			makeMessage(...makeMessageArgumentsInfo(...translation.frame.eventsub.token_belongs_to_other_channel));
+	}
 
 	r = await twitch.eventsub.subscribeToEvent({
 		type: "channel.chat.message",
