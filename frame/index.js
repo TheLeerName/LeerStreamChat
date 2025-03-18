@@ -55,20 +55,28 @@ function makeMessage(...chunks) {
 	div.className = "message";
 
 	const consoleLogChunks = [];
-	for (let chunk of chunks) {
-		let chunkDiv;
-		if (chunk.type === "image") {
-			chunkDiv = createMessageChunkImage(chunk.url, chunk.cssClass, div);
-			if (args.search.debug) consoleLogChunks.push({text: `%c${chunk.text} `, css: `color:${chunk.color ?? imagePlaceholderColor}`});
-		} else { // else if (chunk.type === "text")
-			chunkDiv = createMessageChunkText(chunk.text, chunk.cssClass, div);
-			if (chunk.color) chunkDiv.style.color = chunk.color;
-			if (args.search.debug) consoleLogChunks.push({text: `%c${chunk.text}`, css: `color:${chunk.color ?? infoColor}`});
-		}
+	function addChunks(chunks, appendTo) {
+		for (let chunk of chunks) {
+			let chunkDiv;
+			if (chunk.type === "image") {
+				chunkDiv = createMessageChunkImage(chunk.url, chunk.cssClass, appendTo);
+				if (args.search.debug) consoleLogChunks.push({text: `%c${chunk.text} `, css: `color:${chunk.color ?? imagePlaceholderColor}`});
+			} else if (chunk.type === "group") {
+				chunkDiv = document.createElement('div');
+				chunkDiv.className = chunk.cssClass ?? "";
+				addChunks(chunk.chunks, chunkDiv);
+				appendTo.appendChild(chunkDiv);
+			} else { // else if (chunk.type === "text")
+				chunkDiv = createMessageChunkText(chunk.text, chunk.cssClass, appendTo);
+				if (chunk.color) chunkDiv.style.color = chunk.color;
+				if (args.search.debug) consoleLogChunks.push({text: `%c${chunk.text}`, css: `color:${chunk.color ?? infoColor}`});
+			}
 
-		if (chunkDiv && chunk.attributes) for (let [k, v] of Object.entries(chunk.attributes))
-			chunkDiv.setAttribute(k, v);
+			if (chunkDiv && chunk.attributes) for (let [k, v] of Object.entries(chunk.attributes))
+				chunkDiv.setAttribute(k, v);
+		}
 	}
+	addChunks(chunks, div);
 
 	// adding message to messages div
 	chatMessagesDiv.appendChild(div);
@@ -88,6 +96,7 @@ function makeMessage(...chunks) {
 			message += v.text;
 			css.push(v.css);
 		});
+		//console.log(div);
 		console.log(message, ...css);
 	}
 

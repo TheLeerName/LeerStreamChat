@@ -175,11 +175,15 @@ twitch.eventsub.makeRewardMessage = async(event) => {
 	if (args.search.debug) console.log(event);
 
 	const div = makeMessage(
-		{text: event.user_name, cssClass: "message-chunk-text bold"},
-		{text: " redeemed ", cssClass: "message-chunk-text"},
-		{text: event.reward.title, cssClass: "message-chunk-text bold"},
-		{text: `${event.reward.cost} `, cssClass: "message-chunk-text bold reward"},
-		{type: "image", url: twitch.links.icon_channel_points, text: "channel-points", cssClass: "message-chunk-image reward"},
+		{type: "group", cssClass: "container-text", chunks: [
+			{text: event.user_name, cssClass: "message-chunk-text bold"},
+			{text: " redeemed ", cssClass: "message-chunk-text"},
+			{text: event.reward.title, cssClass: "message-chunk-text bold"},
+		]},
+		{type: "group", cssClass: "container-reward", chunks: [
+			{type: "image", url: twitch.links.icon_channel_points, text: "channel-points", cssClass: "message-chunk-image reward"},
+			{text: `${event.reward.cost}`, cssClass: "message-chunk-text bold reward"},
+		]}
 	);
 
 	div.setAttribute('message-id', event.id);

@@ -9,7 +9,7 @@ body {
 	width: 100%;
 	min-height: 100%;
 	display: grid;
-	  align-content: end;
+	align-content: end;
 }
 
 .message.message-reward {
@@ -23,14 +23,23 @@ body {
 	border-style: solid;
 
 	padding: 5px 20px 5px 16px;
+
+	display: flex;
+	align-items: center;
 }
-.message.message-reward .reward {
-	float: right;
+.message.message-reward .container-text {
+	flex-grow: 1;
 }
-.message.message-reward .message-chunk-image.reward {
-	margin-right: 3px;
-	height: 100%;
-	display: inline-block;
+.message.message-reward .container-reward {
+	min-width: fit-content;
+	font-size: 0;
+	margin-left: 10px;
+}
+.message.message-reward .container-reward * {
+	display: inline;
+	vertical-align: middle;
+	margin: 0 1.5px 0 1.5px;
+	font-weight: 700;
 }
 
 .message {
