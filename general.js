@@ -1,5 +1,5 @@
 const app = {
-	version: "v2.1.1",
+	version: "v2.1.2",
 	name: "LeerStreamChat",
 
 	link: "https://theleername.github.io/LeerStreamChat",
@@ -84,16 +84,17 @@ const requestIsOK = (code) => code > 199 && code < 300;
 
 const fetchTimeout = 5000;
 const abortControllers = {};
-function singleInstanceFetch(input, init) {
+function advancedFetch(input, init) {
+	init ??= {};
+
 	const inputWithoutSearch = input.substring(0, input.includes('?') ? input.indexOf('?') : input.length);
-	if (abortControllers[inputWithoutSearch] != null) {
+	if (init.abortIfNewStarted && abortControllers[inputWithoutSearch] != null) {
 		abortControllers[inputWithoutSearch].abort('Request was aborted, because a new one was started');
 		delete abortControllers[inputWithoutSearch];
 	}
 
 	const controller = new AbortController();
 	abortControllers[inputWithoutSearch] = controller;
-	init ??= {};
 	init.signal = controller.signal;
 
 	const timeoutID = setTimeout(() => {

@@ -48,7 +48,7 @@ const seventv = {
 		let request, response, output = null;
 
 		try {
-			request = await fetch(seventv.links.emotesets(seventv.globalEmoteSetID));
+			request = await advancedFetch(seventv.links.emotesets(seventv.globalEmoteSetID));
 			response = await request.json();
 
 			if (response.error_code != null) output = {status: request.status, message: `(${response.status}) ${response.error}`};
@@ -64,7 +64,7 @@ const seventv = {
 		let request, response, output = null;
 
 		try {
-			request = await fetch(seventv.links.users.twitch(channelID));
+			request = await advancedFetch(seventv.links.users.twitch(channelID));
 			response = await request.json();
 
 			if (response.error_code != null) output = {status: request.status, message: `(${response.status}) ${response.error}`};

@@ -65,25 +65,25 @@ const twitch = {
 		}
 	},
 	fetch: {
-		revoke: (accessToken) => fetch(`https://id.twitch.tv/oauth2/revoke?client_id=${twitch.client_id}&token=${accessToken}`, {method: "POST", headers: {'Content-Type': 'application/x-www-form-urlencoded'}}),
-		validate: (accessToken) => fetch("https://id.twitch.tv/oauth2/validate", {headers: {Authorization: `Bearer ${accessToken}`}}),
+		revoke: (accessToken) => advancedFetch(`https://id.twitch.tv/oauth2/revoke?client_id=${twitch.client_id}&token=${accessToken}`, {method: "POST", headers: {'Content-Type': 'application/x-www-form-urlencoded'}}),
+		validate: (accessToken) => advancedFetch("https://id.twitch.tv/oauth2/validate", {headers: {Authorization: `Bearer ${accessToken}`}}),
 		users: {
-			byID: (accessToken, user_id) => fetch(`https://api.twitch.tv/helix/users?id=${user_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
-			byLogin: (accessToken, user_login) => fetch(`https://api.twitch.tv/helix/users?login=${encodeURI(user_login)}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}})
+			byID: (accessToken, user_id) => advancedFetch(`https://api.twitch.tv/helix/users?id=${user_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
+			byLogin: (accessToken, user_login) => advancedFetch(`https://api.twitch.tv/helix/users?login=${encodeURI(user_login)}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}})
 		},
 		shared_chat: {
-			session: (accessToken, broadcaster_id) => fetch(`https://api.twitch.tv/helix/shared_chat/session?broadcaster_id=${broadcaster_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
+			session: (accessToken, broadcaster_id) => advancedFetch(`https://api.twitch.tv/helix/shared_chat/session?broadcaster_id=${broadcaster_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
 		},
 		search: {
-			channels: (accessToken, query) => singleInstanceFetch(`https://api.twitch.tv/helix/search/channels?first=1&query=${encodeURI(query)}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}})
+			channels: (accessToken, query) => advancedFetch(`https://api.twitch.tv/helix/search/channels?first=1&query=${encodeURI(query)}`, {abortIfNewStarted: true, headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}})
 		},
 		eventsub: {
-			subscriptions: (accessToken, body) => fetch("https://api.twitch.tv/helix/eventsub/subscriptions", {method: "POST", headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json"}, body: JSON.stringify(body)})
+			subscriptions: (accessToken, body) => advancedFetch("https://api.twitch.tv/helix/eventsub/subscriptions", {method: "POST", headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json"}, body: JSON.stringify(body)})
 		},
 		chat: {
-			color: (accessToken, user_id) => fetch(`https://api.twitch.tv/helix/chat/color?user_id=${user_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
-			badges: (accessToken, broadcaster_id) => fetch(`https://api.twitch.tv/helix/chat/badges?broadcaster_id=${broadcaster_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
-			badges_global: (accessToken) => fetch(`https://api.twitch.tv/helix/chat/badges/global`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
+			color: (accessToken, user_id) => advancedFetch(`https://api.twitch.tv/helix/chat/color?user_id=${user_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
+			badges: (accessToken, broadcaster_id) => advancedFetch(`https://api.twitch.tv/helix/chat/badges?broadcaster_id=${broadcaster_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
+			badges_global: (accessToken) => advancedFetch(`https://api.twitch.tv/helix/chat/badges/global`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
 		}
 	},
 
