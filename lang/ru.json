@@ -167,7 +167,44 @@
 				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 				{"text": "Чат был очищен!"}
 			],
-			"message_deleted": "<сообщение удалено>"
+			"sub": {
+				"text_bold": "Оформлена подписка",
+				"text_prime": "через Prime",
+				"text_tier": "$1 уровня",
+				"text_tochannel": "у $1",
+
+				"text_resub": "Пользователь подписан",
+				"text_resub_streak": ", $1 подряд",
+
+				"text_month": "$1 месяц",
+				"text_months": "$1 месяцев",
+				"text_months2": "$1 месяца",
+				"text_months3": "$1 месяца",
+				"text_months4": "$1 месяца"
+			},
+			"sub_gift": {
+				"text": "дарит подписку $1 уровня",
+				"text_tochannel": "на канал $1"
+			},
+			"community_sub_gift": {
+				"text": "дарит $1 $2 уровня каналу $3",
+				"text_total": "Пользователь подарил уже $1 на этот канал!",
+
+				"text_sub": "$1 подписку",
+				"text_subs": "$1 подписок",
+				"text_subs2": "$1 подписки",
+				"text_subs3": "$1 подписки",
+				"text_subs4": "$1 подписки"
+			},
+			"raid": {
+				"text": "рейдит этот канал с",
+				"text_shared_chat": "рейдит канал $1 с",
+
+				"text_viewer": "$1 зрителем",
+				"text_viewers": "$1 зрителями"
+			},
+			"message_deleted": "<сообщение удалено>",
+			"anonymous_user": "Анонимный пользователь"
 		}
 	}
 }

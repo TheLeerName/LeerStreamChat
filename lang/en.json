@@ -167,7 +167,38 @@
 				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
 				{"text": "Chat was cleared!"}
 			],
-			"message_deleted": "<message deleted>"
+			"sub": {
+				"text_bold": "Subscribed",
+				"text_prime": "with Prime",
+				"text_tier": "with Tier $1",
+				"text_tochannel": "to $1",
+
+				"text_resub": "They've subscribed for",
+				"text_resub_streak": ", $1 in a row",
+
+				"text_month": "$1 month",
+				"text_months": "$1 months"
+			},
+			"sub_gift": {
+				"text": "gifted a Tier $1 sub to",
+				"text_tochannel": "to channel $1"
+			},
+			"community_sub_gift": {
+				"text": "is gifting $1 of Tier $2 to $3's community",
+				"text_total": "They've gifted a total of $1 in the channel!",
+
+				"text_sub": "$1 sub",
+				"text_subs": "$1 subs"
+			},
+			"raid": {
+				"text": "is raiding this channel with",
+				"text_shared_chat": "is raiding $1 channel with",
+
+				"text_viewer": "$1 viewer",
+				"text_viewers": "$1 viewers"
+			},
+			"message_deleted": "<message deleted>",
+			"anonymous_user": "An anonymous user"
 		}
 	}
 }

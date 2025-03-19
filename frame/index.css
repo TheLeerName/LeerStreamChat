@@ -3,6 +3,9 @@ body {
 	bottom: 0;
 	margin: 0;
 	padding: 0;
+	overflow: hidden;
+	overscroll-behavior-y: contain;
+	scroll-snap-type: y proximity;
 }
 .messages {
 	overflow: hidden;
@@ -15,11 +18,11 @@ body {
 .message.message-reward {
 	background-color: rgba(128, 128, 128, 0.15);
 
-	border-left: 3px;
+	border-left: 4px;
 	border-top: 0;
 	border-bottom: 0;
-	border-right: 3px;
-	border-color: rgb(54, 5, 129);
+	border-right: 4px;
+	border-color: #8268d3;
 	border-style: solid;
 
 	padding: 5px 20px 5px 16px;
@@ -40,6 +43,43 @@ body {
 	vertical-align: middle;
 	margin: 0 1.5px 0 1.5px;
 	font-weight: 700;
+}
+
+.message.message-sub {
+	background-color: rgba(128, 128, 128, 0.15);
+
+	border-left: 4px;
+	border-top: 0;
+	border-bottom: 0;
+	border-right: 0;
+	border-color: #8268d3;
+	border-style: solid;
+
+	padding: 5px 20px 5px 16px;
+}
+.message.message-sub .container-header * {
+  display: inline;
+  vertical-align: middle;
+}
+.message.message-sub .container-header p {
+  color: #ce9fff;
+}
+.message.message-sub .container-description {
+  margin-left: calc(var(--args_size) * 1.875);
+  margin-bottom: calc(var(--args_size) / 4);
+}
+
+.message.message-sub-gift {
+	background-color: rgba(128, 128, 128, 0.15);
+
+	border-left: 4px;
+	border-top: 0;
+	border-bottom: 0;
+	border-right: 0;
+	border-color: #8268d3;
+	border-style: solid;
+
+	padding: 5px 20px 5px 16px;
 }
 
 .message {

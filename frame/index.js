@@ -65,6 +65,7 @@ function makeMessage(...chunks) {
 				chunkDiv = document.createElement('div');
 				chunkDiv.className = chunk.cssClass ?? "";
 				addChunks(chunk.chunks, chunkDiv);
+				if (args.search.debug) consoleLogChunks.push({text: "\n"});
 				appendTo.appendChild(chunkDiv);
 			} else { // else if (chunk.type === "text")
 				chunkDiv = createMessageChunkText(chunk.text, chunk.cssClass, appendTo);
@@ -84,6 +85,7 @@ function makeMessage(...chunks) {
 	// removing out of bounds message
 	while (chatMessagesDiv.getBoundingClientRect().height > window.innerHeight)
 		chatMessagesDiv.removeChild(chatMessagesDiv.children[0]);
+	document.body.scrollTop = document.body.scrollHeight;
 
 	// starting fadeout of message (if allowed)
 	if (args.search.fadeout > 0)
@@ -94,7 +96,7 @@ function makeMessage(...chunks) {
 		const css = [];
 		consoleLogChunks.forEach(v => {
 			message += v.text;
-			css.push(v.css);
+			if (v.css) css.push(v.css);
 		});
 		//console.log(div);
 		console.log(message, ...css);
@@ -147,23 +149,6 @@ function removeAllUserMessages(userID) {
 	});
 }
 
-
-	// TODO: test this and make it work
-	// old code btw
-	/*
-
-	// adding avatar of channel as img element from where message was posted
-	// (works only if twitch_client_id and twitch_token specified in url parameters)
-	// source-room-id is null = shared chat is not enabled
-	if (extra['source-room-id'] != null) {
-		div.setAttribute('source-room-id', extra['source-room-id']);
-		logMessage = `(${extra['source-room-id']}) ` + logMessage;
-		var channelAvatar = await getChannelAvatar(extra['source-room-id']);
-		if (channelAvatar != null)
-			createMessageChunkImage(channelAvatar, null, div);
-	}
-	*/
-
 const translation = {};
 async function loadTranslation() {
 	const request = await fetch(`../lang/${args.search.lang}.json`);
@@ -214,9 +199,13 @@ async function main() {
 		}
 
 		if (!twitch.isAnonymous) {
-			r = await twitch.getUsersData(args.search.twitch_access_token, args.search.twitch_login.toLowerCase());
-			if (!requestIsOK(r.status)) return console.log(r);
-			else twitch.broadcasterData = r.response[0];
+			r = await twitch.getUserData(args.search.twitch_access_token, args.search.twitch_login.toLowerCase());
+			if (!requestIsOK(r.status)) return console.error(r);
+			else {
+				twitch.broadcasterData = r.response;
+				// put the broadcaster avatar to userAvatars to use it for shared chat later
+				twitch.userAvatars[twitch.broadcasterData.login] = twitch.userAvatars.profile_image_url;
+			}
 
 			if (args.search.twitch_badges) {
 				let r = await twitch.loadBadges(args.search.twitch_access_token, twitch.broadcasterData.id);

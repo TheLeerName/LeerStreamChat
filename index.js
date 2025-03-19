@@ -236,7 +236,7 @@ async function main() {
 	document.getElementById('button_twitch_access_token_generate').addEventListener('click', e => {
 		if (values.current.twitch_access_token != "") 
 			twitch.revokeAccessToken(values.current.twitch_access_token).then(r => {
-				if (!requestIsOK(r.status)) return console.log(r);
+				if (!requestIsOK(r.status)) return console.error(r);
 				if (args.search.debug) console.log('access token revoked');
 				twitch.removeAccessToken();
 				startListenPopupWindow();
@@ -248,7 +248,7 @@ async function main() {
 	// if access token isnt validated or not entered it does nothing
 	document.getElementById('button_twitch_access_token_revoke').addEventListener('click', e => {
 		if (values.current.twitch_access_token != "") twitch.revokeAccessToken(values.current.twitch_access_token).then(r => {
-			if (!requestIsOK(r.status)) return console.log(r);
+			if (!requestIsOK(r.status)) return console.error(r);
 			if (args.search.debug) console.log('access token revoked');
 			twitch.removeAccessToken();
 		});
@@ -266,10 +266,10 @@ async function main() {
 
 		if (textarea_twitch_login.innerText == null || textarea_twitch_login.innerText.length < 1 || textarea_twitch_login.innerText === '\n' || values.current.twitch_access_token == "") return;
 
-		twitch.getChannelsByQuery(values.current.twitch_access_token, 1, textarea_twitch_login.innerText)
+		twitch.getChannelByQuery(values.current.twitch_access_token, textarea_twitch_login.innerText)
 		.then(r => {
-			if (!requestIsOK(r.status)) return console.log(r);
-			textarea_twitch_login_placeholder.innerText = r.response[0].broadcaster_login;
+			if (!requestIsOK(r.status)) return console.error(r);
+			textarea_twitch_login_placeholder.innerText = r.response.broadcaster_login;
 		});
 	});
 }

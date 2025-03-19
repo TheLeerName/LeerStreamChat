@@ -4,8 +4,11 @@ Stream chat for displaying on browser source in OBS
 ## Features
 - 7TV channel and global emotes
 - Twitch channel and global emotes
-- Twitch channel and global badges
+- Twitch channel and global badges (only with twitch token)
 - Twitch channel points reward redemptions (only if twitch token belongs to broadcaster of chat)
+- Twitch subscriptions and gifts display
+- Twitch raid notification in chat
+- Twitch announcements in chat
 - Removing message
 - Fade out of message
 - Anonymous connecting to chat via IRC (not all features allowed)
