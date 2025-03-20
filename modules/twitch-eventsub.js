@@ -376,9 +376,12 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 
 				// add new chunk
 				if (chunkText.length > 0) messageChunks.push({text: chunkText, cssClass: "message-chunk-text chat"});
-			} else if (args.search.twitch_emotes && fragment.type === 'emote') {
-				messageChunks.push({type: "image", url: twitch.links.emoticons_v2(fragment.emote.id), text: fragment.text, cssClass: isGigantifiedEmote ? "message-chunk-image gigantified" : "message-chunk-image"});
-				prevEmote = true;
+			}
+			else if (fragment.type === 'emote') {
+				if (args.search.twitch_emotes) {
+					messageChunks.push({type: "image", url: twitch.links.emoticons_v2(fragment.emote.id), text: fragment.text, cssClass: isGigantifiedEmote ? "message-chunk-image gigantified" : "message-chunk-image"});
+					prevEmote = true;
+				}
 			}
 			else if (fragment.type === 'mention') {
 				let color = twitch.userColors[fragment.mention.user_id];
@@ -391,10 +394,12 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 				messageChunks.push({text: fragment.text, color, cssClass: "message-chunk-text bold"});
 				if (fragment.text.toLowerCase() === `@${args.search.twitch_login}`) isHighlighted = true;
 			}
-			else if (args.search.twitch_emotes && fragment.type === 'cheermote') {
-				messageChunks.push({type: "image", url: twitch.links.cheermotes(fragment.cheermote.prefix, fragment.cheermote.bits), text: fragment.text, cssClass: isGigantifiedEmote ? "message-chunk-image gigantified" : "message-chunk-image"});
-				messageChunks.push({text: fragment.cheermote.bits, cssClass: "message-chunk-text bits", color: twitch.bitsTextColor[fragment.cheermote.bits]});
-				prevEmote = false; // cuz it ends with bits count
+			else if (fragment.type === 'cheermote') {
+				if (args.search.twitch_emotes) {
+					messageChunks.push({type: "image", url: twitch.links.cheermotes(fragment.cheermote.prefix, fragment.cheermote.bits), text: fragment.text, cssClass: isGigantifiedEmote ? "message-chunk-image gigantified" : "message-chunk-image"});
+					messageChunks.push({text: fragment.cheermote.bits, cssClass: "message-chunk-text bits", color: twitch.bitsTextColor[fragment.cheermote.bits]});
+					prevEmote = false; // cuz it ends with bits count
+				}
 			}
 			else {
 				if (args.search.debug) console.warn('unsupported message fragment type', event);
