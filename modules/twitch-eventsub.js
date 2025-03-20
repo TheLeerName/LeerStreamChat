@@ -169,7 +169,7 @@ twitch.eventsub.onChatNotification = async(event) => {
 			{text: event.chatter_is_anonymous ? translation.frame.eventsub.anonymous_user : event.chatter_user_name, cssClass: "message-chunk-text" + (event.chatter_is_anonymous ? "" : " bold")},
 			{text: ` ${translationEvent.text.replace('$1', (noticeinfo.total > 1 ? (translationEvent[`text_subs${noticeinfo.total}`] ?? translationEvent.text_subs) : translationEvent.text_sub).replace('$1', noticeinfo.total)).replace('$2', noticeinfo.sub_tier.substring(0, 1)).replace('$3', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}.${noticeinfo.cumulativeTotal > 0 ? ` ${translationEvent.text_total.replace('$1', noticeinfo.cumulative_total)}` : ""}`, cssClass: "message-chunk-text"}
 		);
-		div.classList.add('message-sub-gift');
+		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
 		return div;
@@ -182,7 +182,7 @@ twitch.eventsub.onChatNotification = async(event) => {
 			{text: noticeinfo.recipient_user_name, cssClass: "message-chunk-text bold"},
 			{text: (twitch.eventsub.sharedChatEnabled ? ` ${translationEvent.text_tochannel.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}` : "") + "!", cssClass: "message-chunk-text"}
 		);
-		div.classList.add('message-sub-gift');
+		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
 		return div;
@@ -195,7 +195,7 @@ twitch.eventsub.onChatNotification = async(event) => {
 			{text: (noticeinfo.viewer_count > 1 ? (translationEvent[`text_viewers${noticeinfo.viewer_count}`] ?? translationEvent.text_viewers) : translationEvent.text_viewer).replace('$1', noticeinfo.viewer_count), cssClass: "message-chunk-text bold"},
 			{text: "!", cssClass: "message-chunk-text"}
 		);
-		div.classList.add('message-sub-gift');
+		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
 		return div;

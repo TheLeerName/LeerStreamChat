@@ -133,7 +133,7 @@ twitch.irc.onUserNotice = async(event) => {
 			{text: event['msg-param-recipient-display-name'], cssClass: "message-chunk-text bold"},
 			{text: "!", cssClass: "message-chunk-text"}
 		);
-		div.classList.add('message-sub-gift');
+		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.id);
 		div.setAttribute('user-id', event['user-id']);
 		return div;
@@ -146,7 +146,7 @@ twitch.irc.onUserNotice = async(event) => {
 			{text: (event['msg-param-viewerCount'] > 1 ? (translationEvent[`text_viewers${event['msg-param-viewerCount']}`] ?? translationEvent.text_viewers) : translationEvent.text_viewer).replace('$1', event['msg-param-viewerCount']), cssClass: "message-chunk-text bold"},
 			{text: "!", cssClass: "message-chunk-text"}
 		);
-		div.classList.add('message-sub-gift');
+		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
 		return div;
