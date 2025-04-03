@@ -6,7 +6,7 @@ function getRandomInt(min, max) {
 }
 
 const twitch = {
-	client_id: app.twitch_channel_id,
+	client_id: app.twitch_client_id,
 	scopes: [
 		"channel:read:redemptions",
 		"user:read:chat"

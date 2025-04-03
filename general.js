@@ -3,7 +3,7 @@ const app = {
 	name: "LeerStreamChat",
 
 	link: "https://theleername.github.io/LeerStreamChat",
-	twitch_channel_id: "7fjojtvr0o9307fp4vnkj8km3ngbwm",
+	twitch_client_id: "7fjojtvr0o9307fp4vnkj8km3ngbwm",
 
 	icon: "/assets/leerstreamchat.png",
 };
