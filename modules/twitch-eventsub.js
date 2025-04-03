@@ -141,12 +141,12 @@ twitch.eventsub.onChatNotification = async(event) => {
 		const translationEvent = translation.frame.general.sub;
 		const messageChunks = [
 			{type: "group", cssClass: "container-header", chunks: [
-				{type: "image", url: twitch.links[isprime ? 'icon_sub_prime' : 'icon_sub'], text: isprime ? "sub-prime" : "sub", cssClass: "message-chunk-image"},
-				{text: event.chatter_user_name, cssClass: "message-chunk-text bold"},
+				{type: "image", url: twitch.links[isprime ? 'icon_sub_prime' : 'icon_sub'], text: isprime ? "sub-prime" : "sub", cssClass: "image"},
+				{text: event.chatter_user_name, cssClass: "text bold"},
 			]},
 			{type: "group", cssClass: "container-description", chunks: [
-				{text: translationEvent.text_bold, cssClass: "message-chunk-text chat bold"},
-				{text: ` ${isprime ? translationEvent.text_prime : translationEvent.text_tier.replace('$1', noticeinfo.sub_tier.substring(0, 1))}` + (twitch.eventsub.sharedChatEnabled ? ` ${translationEvent.text_tochannel.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}` : "") + ".", cssClass: "message-chunk-text chat"},
+				{text: translationEvent.text_bold, cssClass: "text chat bold"},
+				{text: ` ${isprime ? translationEvent.text_prime : translationEvent.text_tier.replace('$1', noticeinfo.sub_tier.substring(0, 1))}` + (twitch.eventsub.sharedChatEnabled ? ` ${translationEvent.text_tochannel.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}` : "") + ".", cssClass: "text chat"},
 			]},
 		];
 		if (noticetype === "resub") {
@@ -154,8 +154,8 @@ twitch.eventsub.onChatNotification = async(event) => {
 			chunk.chunks[1].text += ` ${translationEvent.text_resub} `;
 			const months = noticeinfo[`${isprime ? 'duration' : 'cumulative'}_months`];
 			chunk.chunks.push(
-				{text: (months > 1 ? (translationEvent[`text_months${months}`] ?? translationEvent.text_months) : translationEvent.text_month).replace('$1', months), cssClass: "message-chunk-text chat bold"},
-				{text: (!isprime && noticeinfo.streak_months ? translationEvent.text_resub_streak.replace('$1', noticeinfo.streak_months) : "") + "!", cssClass: "message-chunk-text chat"}
+				{text: (months > 1 ? (translationEvent[`text_months${months}`] ?? translationEvent.text_months) : translationEvent.text_month).replace('$1', months), cssClass: "text chat bold"},
+				{text: (!isprime && noticeinfo.streak_months ? translationEvent.text_resub_streak.replace('$1', noticeinfo.streak_months) : "") + "!", cssClass: "text chat"}
 			);
 		}
 
@@ -166,8 +166,8 @@ twitch.eventsub.onChatNotification = async(event) => {
 	if (noticetype === "community_sub_gift" || noticetype === "shared_chat_community_sub_gift") {
 		const translationEvent = translation.frame.general.community_sub_gift;
 		const div = makeMessage(
-			{text: event.chatter_is_anonymous ? translation.frame.eventsub.anonymous_user : event.chatter_user_name, cssClass: "message-chunk-text" + (event.chatter_is_anonymous ? "" : " bold")},
-			{text: ` ${translationEvent.text.replace('$1', (noticeinfo.total > 1 ? (translationEvent[`text_subs${noticeinfo.total}`] ?? translationEvent.text_subs) : translationEvent.text_sub).replace('$1', noticeinfo.total)).replace('$2', noticeinfo.sub_tier.substring(0, 1)).replace('$3', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}.${noticeinfo.cumulativeTotal > 0 ? ` ${translationEvent.text_total.replace('$1', noticeinfo.cumulative_total)}` : ""}`, cssClass: "message-chunk-text"}
+			{text: event.chatter_is_anonymous ? translation.frame.eventsub.anonymous_user : event.chatter_user_name, cssClass: "text" + (event.chatter_is_anonymous ? "" : " bold")},
+			{text: ` ${translationEvent.text.replace('$1', (noticeinfo.total > 1 ? (translationEvent[`text_subs${noticeinfo.total}`] ?? translationEvent.text_subs) : translationEvent.text_sub).replace('$1', noticeinfo.total)).replace('$2', noticeinfo.sub_tier.substring(0, 1)).replace('$3', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}.${noticeinfo.cumulativeTotal > 0 ? ` ${translationEvent.text_total.replace('$1', noticeinfo.cumulative_total)}` : ""}`, cssClass: "text"}
 		);
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
@@ -177,10 +177,10 @@ twitch.eventsub.onChatNotification = async(event) => {
 	if (noticetype === "sub_gift" || noticetype === "shared_chat_sub_gift") {
 		const translationEvent = translation.frame.general.sub_gift;
 		const div = makeMessage(
-			{text: event.chatter_is_anonymous ? translation.frame.eventsub.anonymous_user : event.chatter_user_name, cssClass: "message-chunk-text" + (event.chatter_is_anonymous ? "" : " bold")},
-			{text: ` ${translationEvent.text.replace('$1', noticeinfo.sub_tier.substring(0, 1))} `, cssClass: "message-chunk-text"},
-			{text: noticeinfo.recipient_user_name, cssClass: "message-chunk-text bold"},
-			{text: (twitch.eventsub.sharedChatEnabled ? ` ${translationEvent.text_tochannel.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}` : "") + "!", cssClass: "message-chunk-text"}
+			{text: event.chatter_is_anonymous ? translation.frame.eventsub.anonymous_user : event.chatter_user_name, cssClass: "text" + (event.chatter_is_anonymous ? "" : " bold")},
+			{text: ` ${translationEvent.text.replace('$1', noticeinfo.sub_tier.substring(0, 1))} `, cssClass: "text"},
+			{text: noticeinfo.recipient_user_name, cssClass: "text bold"},
+			{text: (twitch.eventsub.sharedChatEnabled ? ` ${translationEvent.text_tochannel.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}` : "") + "!", cssClass: "text"}
 		);
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
@@ -190,10 +190,10 @@ twitch.eventsub.onChatNotification = async(event) => {
 	if (noticetype === "raid" || noticetype === "shared_chat_raid") {
 		const translationEvent = translation.frame.general.raid;
 		const div = makeMessage(
-			{text: noticeinfo.user_name, cssClass: "message-chunk-text bold"},
-			{text: ` ${twitch.eventsub.sharedChatEnabled ? translationEvent.text_shared_chat.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name) : translationEvent.text} `, cssClass: "message-chunk-text"},
-			{text: (noticeinfo.viewer_count > 1 ? (translationEvent[`text_viewers${noticeinfo.viewer_count}`] ?? translationEvent.text_viewers) : translationEvent.text_viewer).replace('$1', noticeinfo.viewer_count), cssClass: "message-chunk-text bold"},
-			{text: "!", cssClass: "message-chunk-text"}
+			{text: noticeinfo.user_name, cssClass: "text bold"},
+			{text: ` ${twitch.eventsub.sharedChatEnabled ? translationEvent.text_shared_chat.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name) : translationEvent.text} `, cssClass: "text"},
+			{text: (noticeinfo.viewer_count > 1 ? (translationEvent[`text_viewers${noticeinfo.viewer_count}`] ?? translationEvent.text_viewers) : translationEvent.text_viewer).replace('$1', noticeinfo.viewer_count), cssClass: "text bold"},
+			{text: "!", cssClass: "text"}
 		);
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
@@ -254,13 +254,13 @@ twitch.eventsub.makeRewardMessage = async(event) => {
 
 	const div = makeMessage(
 		{type: "group", cssClass: "container-text", chunks: [
-			{text: event.user_name, cssClass: "message-chunk-text bold"},
-			{text: " redeemed ", cssClass: "message-chunk-text"},
-			{text: event.reward.title, cssClass: "message-chunk-text bold"},
+			{text: event.user_name, cssClass: "text bold"},
+			{text: " redeemed ", cssClass: "text"},
+			{text: event.reward.title, cssClass: "text bold"},
 		]},
 		{type: "group", cssClass: "container-reward", chunks: [
-			{type: "image", url: twitch.links.icon_channel_points, text: "channel-points", cssClass: "message-chunk-image"},
-			{text: `${event.reward.cost}`, cssClass: "message-chunk-text bold reward"},
+			{type: "image", url: twitch.links.icon_channel_points, text: "channel-points", cssClass: "image"},
+			{text: `${event.reward.cost}`, cssClass: "text bold reward"},
 		]}
 	);
 
@@ -289,7 +289,7 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 		// chatter badges
 
 		// TODO: for youtube chat in future
-		//messageChunks.push({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "message-chunk-image badge"});
+		//messageChunks.push({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"});
 
 		if (args.search.twitch_badges) {
 			let badges = event.badges;
@@ -302,7 +302,7 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 
 				let r = await twitch.getUserAvatar(args.search.twitch_access_token, broadcasterLogin);
 				if (!requestIsOK(r.status)) console.error(r);
-				else messageChunks.push({type: "image", url: r.response, text: broadcasterLogin, cssClass: "message-chunk-image badge"});
+				else messageChunks.push({type: "image", url: r.response, text: broadcasterLogin, cssClass: "image badge"});
 			}
 
 			// chatter badges
@@ -310,7 +310,7 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 				const badgeSet = twitch.links.badges[badge.set_id];
 				if (badgeSet) {
 					const badgeURL = badgeSet[badge.id] ?? badgeSet['1'];
-					if (badgeURL) messageChunks.push({type: "image", url: badgeURL, text: badge.set_id, cssClass: "message-chunk-image badge"});
+					if (badgeURL) messageChunks.push({type: "image", url: badgeURL, text: badge.set_id, cssClass: "image badge"});
 				}
 			}
 		}
@@ -323,10 +323,10 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 			color = r.response;
 		} else
 			twitch.userColors[event.chatter_user_id] = color;
-		messageChunks.push({text: event.chatter_user_name, cssClass: "message-chunk-text bold", color});
+		messageChunks.push({text: event.chatter_user_name, cssClass: "text bold", color});
 
 		// separator from name and message
-		messageChunks.push({text: ": ", cssClass: "message-chunk-text chat", attributes: {isseparator: ''}});
+		messageChunks.push({text: ": ", cssClass: "text chat", attributes: {isseparator: ''}});
 
 		let prevEmote = false;
 		for (let fragment of event.message.fragments) {
@@ -347,15 +347,15 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 
 						// add message fragment before link as new chunk
 						chunkText = chunkText.substring(0, chunkText.length - chunk.length - 1);
-						messageChunks.push({text: chunkText, cssClass: "message-chunk-text chat"});
+						messageChunks.push({text: chunkText, cssClass: "text chat"});
 						chunkText = " ";
 
 						// add link chunk
-						messageChunks.push({text: chunk, cssClass: "message-chunk-text", color: "#8000ff"});
+						messageChunks.push({text: chunk, cssClass: "text", color: "#8000ff"});
 						prevEmote = false;
 
 						if (chunkAfterComma)
-							messageChunks.push({text: chunkAfterComma, cssClass: "message-chunk-text chat"});
+							messageChunks.push({text: chunkAfterComma, cssClass: "text chat"});
 						continue;
 					}
 					if (args.search['7tv_emotes']) {
@@ -363,11 +363,11 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 						if (emote) {
 							// add message fragment before emote as new chunk
 							chunkText = chunkText.substring(0, chunkText.length - chunk.length - 1);
-							messageChunks.push({text: chunkText, cssClass: "message-chunk-text chat"});
+							messageChunks.push({text: chunkText, cssClass: "text chat"});
 							chunkText = "";
 
 							// add emote chunk
-							messageChunks.push({type: "image", url: emote.url, text: chunk, cssClass: prevEmote && emote.isZeroWidth ? "message-chunk-image zero-width" : "message-chunk-image"});
+							messageChunks.push({type: "image", url: emote.url, text: chunk, cssClass: prevEmote && emote.isZeroWidth ? "image zero-width" : "image"});
 							prevEmote = true;
 							continue;
 						}
@@ -375,11 +375,11 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 				}
 
 				// add new chunk
-				if (chunkText.length > 0) messageChunks.push({text: chunkText, cssClass: "message-chunk-text chat"});
+				if (chunkText.length > 0) messageChunks.push({text: chunkText, cssClass: "text chat"});
 			}
 			else if (fragment.type === 'emote') {
 				if (args.search.twitch_emotes) {
-					messageChunks.push({type: "image", url: twitch.links.emoticons_v2(fragment.emote.id), text: fragment.text, cssClass: isGigantifiedEmote ? "message-chunk-image gigantified" : "message-chunk-image"});
+					messageChunks.push({type: "image", url: twitch.links.emoticons_v2(fragment.emote.id), text: fragment.text, cssClass: isGigantifiedEmote ? "image gigantified" : "image"});
 					prevEmote = true;
 				}
 			}
@@ -391,13 +391,13 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 					color = r.response;
 				}
 
-				messageChunks.push({text: fragment.text, color, cssClass: "message-chunk-text bold"});
+				messageChunks.push({text: fragment.text, color, cssClass: "text bold"});
 				if (fragment.text.toLowerCase() === `@${args.search.twitch_login}`) isHighlighted = true;
 			}
 			else if (fragment.type === 'cheermote') {
 				if (args.search.twitch_emotes) {
-					messageChunks.push({type: "image", url: twitch.links.cheermotes(fragment.cheermote.prefix, fragment.cheermote.bits), text: fragment.text, cssClass: isGigantifiedEmote ? "message-chunk-image gigantified" : "message-chunk-image"});
-					messageChunks.push({text: fragment.cheermote.bits, cssClass: "message-chunk-text bits", color: twitch.bitsTextColor[fragment.cheermote.bits]});
+					messageChunks.push({type: "image", url: twitch.links.cheermotes(fragment.cheermote.prefix, fragment.cheermote.bits), text: fragment.text, cssClass: isGigantifiedEmote ? "image gigantified" : "image"});
+					messageChunks.push({text: fragment.cheermote.bits, cssClass: "text bits", color: twitch.bitsTextColor[fragment.cheermote.bits]});
 					prevEmote = false; // cuz it ends with bits count
 				}
 			}

@@ -97,13 +97,13 @@
 		"parameter": {
 			"not_found": {
 				"twitch_login": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 					{"text": "Параметр ", "color": "@errorColor"},
 					{"text": "twitch_login", "color": "white"},
 					{"text": " не указан!", "color": "@errorColor"}
 				],
 				"twitch_access_token": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 					{"text": "Параметр ", "color": "@warnColor"},
 					{"text": "twitch_access_token", "color": "white"},
 					{"text": " не указан! Некоторые штучки могут не работать", "color": "@warnColor"}
@@ -111,29 +111,29 @@
 			},
 			"error": {
 				"twitch_access_token": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 					{"text": "Неверный токен! Некоторые штучки могут не работать", "color": "@warnColor"}
 				],
 				"7tv_emotes": [
-					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "message-chunk-image badge"},
+					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "image badge"},
 					{"text": "Смайлики не загружены: ", "color": "@errorColor"},
 					{"text": "$1", "color": "white"}
 				],
 				"twitch_badges": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 					{"text": "Значки не загружены: ", "color": "@errorColor"},
 					{"text": "$1", "color": "white"}
 				]
 			},
 			"loaded": {
 				"7tv_emotes": [
-					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "message-chunk-image badge"},
+					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "image badge"},
 					{"text": "Смайлики загружены ("},
 					{"text": "$1", "color": "white"},
 					{"text": ")"}
 				],
 				"twitch_badges": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 					{"text": "Значки загружены ("},
 					{"text": "$1", "color": "white"},
 					{"text": ")"}
@@ -142,29 +142,29 @@
 		},
 		"eventsub": {
 			"token_belongs_to_other_channel": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 				{"text": "Токен принадлежит другому каналу, покупки за баллы не будут видны", "color": "@warnColor"}
 			],
 			"connected": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 				{"text": "Чат подключён к "},
 				{"text": "$1", "color": "$2"}
 			]
 		},
 		"irc": {
 			"connected": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 				{"text": "Чат подключён анонимно к "},
 				{"text": "$1", "color": "white"}
 			],
 			"reconnecting": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 				{"text": "Переподключение..."}
 			]
 		},
 		"general": {
 			"chat_cleared": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "message-chunk-image badge"},
+				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 				{"text": "Чат был очищен!"}
 			],
 			"sub": {

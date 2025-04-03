@@ -103,12 +103,12 @@ twitch.irc.onUserNotice = async(event) => {
 		const translationEvent = translation.frame.general.sub;
 		const messageChunks = [
 			{type: "group", cssClass: "container-header", chunks: [
-				{type: "image", url: twitch.links[isprime ? 'icon_sub_prime' : 'icon_sub'], text: isprime ? "sub-prime" : "sub", cssClass: "message-chunk-image"},
-				{text: event['display-name'], cssClass: "message-chunk-text bold"},
+				{type: "image", url: twitch.links[isprime ? 'icon_sub_prime' : 'icon_sub'], text: isprime ? "sub-prime" : "sub", cssClass: "image"},
+				{text: event['display-name'], cssClass: "text bold"},
 			]},
 			{type: "group", cssClass: "container-description", chunks: [
-				{text: translationEvent.text_bold, cssClass: "message-chunk-text chat bold"},
-				{text: ` ${isprime ? translationEvent.text_prime : translationEvent.text_tier.replace('$1', event['msg-param-sub-plan'].substring(0, 1))}.`, cssClass: "message-chunk-text chat"},
+				{text: translationEvent.text_bold, cssClass: "text chat bold"},
+				{text: ` ${isprime ? translationEvent.text_prime : translationEvent.text_tier.replace('$1', event['msg-param-sub-plan'].substring(0, 1))}.`, cssClass: "text chat"},
 			]},
 		];
 		if (msgid === "resub") {
@@ -116,8 +116,8 @@ twitch.irc.onUserNotice = async(event) => {
 			chunk.chunks[1].text += ` ${translationEvent.text_resub} `;
 			const months = event['msg-param-cumulative-months'];
 			chunk.chunks.push(
-				{text: (months > 1 ? (translationEvent[`text_months${months}`] ?? translationEvent.text_months) : translationEvent.text_month).replace('$1', months), cssClass: "message-chunk-text chat bold"},
-				{text: (!isprime && event['msg-param-streak-months'] ? translationEvent.text_resub_streak.replace('$1', event['msg-param-streak-months']) : "") + "!", cssClass: "message-chunk-text chat"}
+				{text: (months > 1 ? (translationEvent[`text_months${months}`] ?? translationEvent.text_months) : translationEvent.text_month).replace('$1', months), cssClass: "text chat bold"},
+				{text: (!isprime && event['msg-param-streak-months'] ? translationEvent.text_resub_streak.replace('$1', event['msg-param-streak-months']) : "") + "!", cssClass: "text chat"}
 			);
 		}
 
@@ -128,10 +128,10 @@ twitch.irc.onUserNotice = async(event) => {
 	else if (msgid === "subgift") {
 		const translationEvent = translation.frame.general.sub_gift;
 		const div = makeMessage(
-			{text: event['display-name'], cssClass: "message-chunk-text bold"},
-			{text: ` ${translationEvent.text.replace('$1', event['msg-param-sub-plan'].substring(0, 1))} `, cssClass: "message-chunk-text"},
-			{text: event['msg-param-recipient-display-name'], cssClass: "message-chunk-text bold"},
-			{text: "!", cssClass: "message-chunk-text"}
+			{text: event['display-name'], cssClass: "text bold"},
+			{text: ` ${translationEvent.text.replace('$1', event['msg-param-sub-plan'].substring(0, 1))} `, cssClass: "text"},
+			{text: event['msg-param-recipient-display-name'], cssClass: "text bold"},
+			{text: "!", cssClass: "text"}
 		);
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.id);
@@ -141,10 +141,10 @@ twitch.irc.onUserNotice = async(event) => {
 	else if (msgid === "raid") {
 		const translationEvent = translation.frame.general.raid;
 		const div = makeMessage(
-			{text: event['display-name'], cssClass: "message-chunk-text bold"},
-			{text: ` ${translationEvent.text} `, cssClass: "message-chunk-text"},
-			{text: (event['msg-param-viewerCount'] > 1 ? (translationEvent[`text_viewers${event['msg-param-viewerCount']}`] ?? translationEvent.text_viewers) : translationEvent.text_viewer).replace('$1', event['msg-param-viewerCount']), cssClass: "message-chunk-text bold"},
-			{text: "!", cssClass: "message-chunk-text"}
+			{text: event['display-name'], cssClass: "text bold"},
+			{text: ` ${translationEvent.text} `, cssClass: "text"},
+			{text: (event['msg-param-viewerCount'] > 1 ? (translationEvent[`text_viewers${event['msg-param-viewerCount']}`] ?? translationEvent.text_viewers) : translationEvent.text_viewer).replace('$1', event['msg-param-viewerCount']), cssClass: "text bold"},
+			{text: "!", cssClass: "text"}
 		);
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
@@ -164,7 +164,7 @@ twitch.irc.makeChatMessage = async(event, prefixChunks) => {
 
 	if (event.text.length > 0 && event.text != event['broadcaster-login']) {
 		// TODO: for youtube chat in future
-		//messageChunks.push({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "message-chunk-image badge"});
+		//messageChunks.push({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"});
 
 		let badges = event.badges;
 		if (event['source-room-id']) badges = event['source-badges'];
@@ -173,7 +173,7 @@ twitch.irc.makeChatMessage = async(event, prefixChunks) => {
 			const badgeSet = twitch.links.badges[badgeSetID];
 			if (badgeSet) {
 				const badgeURL = badgeSet[badgeID] ?? badgeSet['1'];
-				if (badgeURL) messageChunks.push({type: "image", url: badgeURL, text: badgeSetID, cssClass: "message-chunk-image badge"});
+				if (badgeURL) messageChunks.push({type: "image", url: badgeURL, text: badgeSetID, cssClass: "image badge"});
 			}
 		}
 
@@ -183,10 +183,10 @@ twitch.irc.makeChatMessage = async(event, prefixChunks) => {
 			color = (await twitch.getUserColor(null, event['user-id'])).response;
 		else
 			twitch.userColors[event['user-id']] = color;
-		messageChunks.push({text: event['display-name'], cssClass: "message-chunk-text bold", color});
+		messageChunks.push({text: event['display-name'], cssClass: "text bold", color});
 
 		// separator from name and message
-		messageChunks.push({text: ": ", cssClass: "message-chunk-text chat", attributes: {isseparator: ''}});
+		messageChunks.push({text: ": ", cssClass: "text chat", attributes: {isseparator: ''}});
 
 		const emoteURLs = {};
 		if (event.emotes) event.emotes.split('/').forEach(a => {
@@ -217,18 +217,18 @@ twitch.irc.makeChatMessage = async(event, prefixChunks) => {
 
 				// add message fragment before mention/link as new chunk
 				chunkText = chunkText.substring(0, chunkText.length - chunk.length - 1);
-				messageChunks.push({text: chunkText, cssClass: "message-chunk-text chat"});
+				messageChunks.push({text: chunkText, cssClass: "text chat"});
 				chunkText = " ";
 
 				let color = "#8000ff";
 				if (!isLink) color = twitch.userColors[chunk.substring(1).toLowerCase()] ?? color;
 
 				// add mention/link chunk
-				messageChunks.push({text: chunk, cssClass: isLink ? "message-chunk-text" : "message-chunk-text bold", color});
+				messageChunks.push({text: chunk, cssClass: isLink ? "text" : "text bold", color});
 				prevEmote = false;
 
 				if (chunkAfterComma)
-					messageChunks.push({text: chunkAfterComma, cssClass: "message-chunk-text chat"});
+					messageChunks.push({text: chunkAfterComma, cssClass: "text chat"});
 				continue;
 			}
 			if (args.search.twitch_emotes) {
@@ -236,11 +236,11 @@ twitch.irc.makeChatMessage = async(event, prefixChunks) => {
 				if (emote) {
 					// add message fragment before mention/link as new chunk
 					chunkText = chunkText.substring(0, chunkText.length - chunk.length - 1);
-					messageChunks.push({text: chunkText, cssClass: "message-chunk-text chat"});
+					messageChunks.push({text: chunkText, cssClass: "text chat"});
 					chunkText = " ";
 
 					// add emote chunk
-					messageChunks.push({type: "image", url: emote, text: chunk, cssClass: "message-chunk-image"});
+					messageChunks.push({type: "image", url: emote, text: chunk, cssClass: "image"});
 					prevEmote = true;
 					continue;
 				}
@@ -250,17 +250,17 @@ twitch.irc.makeChatMessage = async(event, prefixChunks) => {
 				if (emote) {
 					// add message fragment before mention/link as new chunk
 					chunkText = chunkText.substring(0, chunkText.length - chunk.length - 1);
-					messageChunks.push({text: chunkText, cssClass: "message-chunk-text chat"});
+					messageChunks.push({text: chunkText, cssClass: "text chat"});
 					chunkText = " ";
 
 					// add emote chunk
-					messageChunks.push({type: "image", url: emote.url, text: chunk, cssClass: prevEmote && emote.isZeroWidth ? "message-chunk-image zero-width" : "message-chunk-image"});
+					messageChunks.push({type: "image", url: emote.url, text: chunk, cssClass: prevEmote && emote.isZeroWidth ? "image zero-width" : "image"});
 					prevEmote = true;
 					continue;
 				}
 			}
 		}
-		if (chunkText.length > 0) messageChunks.push({text: chunkText, cssClass: "message-chunk-text chat"});
+		if (chunkText.length > 0) messageChunks.push({text: chunkText, cssClass: "text chat"});
 	}
 
 	const div = makeMessage(...messageChunks);

@@ -14,7 +14,7 @@ function findInStruct(struct, nameToFind) {
 function createMessageChunkImage(src, cssClass, appendTo) {
 	const chunk = document.createElement('img');
 	chunk.src = src;
-	chunk.className = cssClass ?? "message-chunk-image";
+	chunk.className = cssClass ?? "image";
 	chunk.loading = "lazy";
 	chunk.decoding = "async";
 	if (appendTo != null) appendTo.appendChild(chunk);
@@ -23,7 +23,7 @@ function createMessageChunkImage(src, cssClass, appendTo) {
 
 function createMessageChunkText(text, cssClass, appendTo) {
 	const chunk = document.createElement('p');
-	chunk.className = cssClass ?? "message-chunk-text";
+	chunk.className = cssClass ?? "text";
 	chunk.innerText = text;
 	if (appendTo != null) appendTo.appendChild(chunk);
 	return chunk;
@@ -166,7 +166,7 @@ async function main() {
 	style.setProperty('--args_margin_top', args.search.indent * 0.5);
 	style.setProperty('--args_padding', args.search.indent * 0.5);
 
-	makeMessage(...makeMessageArgumentsInfo({type: "image", url: app.icon, text: "lsc_icon", cssClass: "message-chunk-image badge"}, {text: `${app.name} ${app.version}`, cssClass: "message-chunk-text bold", color: "#8000ff"}));
+	makeMessage(...makeMessageArgumentsInfo({type: "image", url: app.icon, text: "lsc_icon", cssClass: "image badge"}, {text: `${app.name} ${app.version}`, cssClass: "text bold", color: "#8000ff"}));
 	await loadTranslation();
 
 	if (args.search.twitch_login == null)

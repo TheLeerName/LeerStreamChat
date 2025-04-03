@@ -81,7 +81,7 @@ body {
 	transition-duration: var(--args_decay_duration);
 	transition-delay: var(--args_decay);
 }
-.message .message-chunk-text {
+.text {
 	overflow: hidden;
 	word-break: break-word;
 	font-family: Inter, Roobert, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -94,31 +94,31 @@ body {
 	font-weight: 400;
 	margin: 0;
 }
-.message .message-chunk-text.chat {
+.text.chat {
 	color: rgb(239, 239, 241);
 }
-.message .message-chunk-text.bold {
+.text.bold {
 	font-weight: 700;
 }
-.message .message-chunk-text.bits {
+.text.bits {
 	font-weight: 700;
 	margin-left: calc(var(--args_size) / -8);
 }
-.message .message-chunk-image {
+.image {
 	display: inline;
 	vertical-align: middle;
 
 	height: calc(var(--args_size) * 1.75);
 	margin-right: calc(var(--args_size) / 8);
 }
-.message .message-chunk-image.gigantified {
+.image.gigantified {
 	display: block;
 	height: calc(var(--args_size) * 1.75 * 5);
 	margin-top: calc(var(--args_size) / 2);
 }
-.message .message-chunk-image.zero-width {
+.image.zero-width {
 	margin-left: calc(var(--args_size) * -1.75 - var(--args_size) / 8);
 }
-.message .message-chunk-image.badge {
+.image.badge {
 	height: calc(var(--args_size) * 1.25);
 }
