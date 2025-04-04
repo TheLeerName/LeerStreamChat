@@ -24,9 +24,9 @@ twitch.eventsub.onClose = async(e) => {
 	setTimeout(twitch.eventsub.connectWebSocket, 500);
 };
 
-twitch.eventsub.isConnected = false;
+twitch.eventsub.connected = false;
 twitch.eventsub.onConnect = async() => {
-	twitch.eventsub.isConnected = true;
+	twitch.eventsub.connected = true;
 
 	let r = await twitch.getUserColor(args.search.twitch_access_token, twitch.broadcasterData.id);
 	if (!requestIsOK(r.status)) console.error(r);
@@ -80,23 +80,37 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 	const broadcaster_user_id = twitch.broadcasterData.id; // id of broadcaster, see how twitch.broadcasterData is defined in start of main() in index.js
 	const user_id = twitch.accessTokenData.user_id; // id of current user
 
-	if (args.search.twitch_reward_redemptions) {
-		if (twitch.isSameChannel) {
-			r = await twitch.eventsub.subscribeToEvent("channel.channel_points_custom_reward_redemption.add", {broadcaster_user_id});
-			if (!requestIsOK(r.status)) return console.error(r);
-		} else
-			makeMessage(...makeMessageArgumentsInfo(...translation.frame.eventsub.token_belongs_to_other_channel));
+	if (args.search.twitch_dashboard) {
+		r = await twitch.eventsub.subscribeToEvent("stream.online", {broadcaster_user_id});
+		if (!requestIsOK(r.status)) return console.error(r);
+		r = await twitch.eventsub.subscribeToEvent("stream.offline", {broadcaster_user_id});
+		if (!requestIsOK(r.status)) return console.error(r);
+
+		// if stream already started, show viewers on dashboard
+		r = await twitch.getStreamData(args.search.twitch_access_token, broadcaster_user_id);
+		if (!requestIsOK(r.status)) return console.error(r);
+		if (r.response) twitch.dashboard.showViewers(r.response.viewer_count);
+
+		// channel followers will be updated with timeout of 5 min
+		// or will be increased by 1 on channel.follow
+		await twitch.dashboard.updateFollowers();
+		setInterval(twitch.dashboard.updateFollowers, 300000);
+
+		// channel subscribers will be updated with timeout of 5 min
+		// or will be increased by 1 on channel.chat.notification if its sub
+		if (await twitch.dashboard.updateSubscribers())
+			setInterval(twitch.dashboard.updateSubscribers, 300000);
+	}
+
+	if (args.search.twitch_notifications_follow) {
+		r = await twitch.eventsub.subscribeToEvent("channel.follow", {broadcaster_user_id, moderator_user_id: user_id}, "2");
+		if (r.status === 403) makeMessage({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"}, {text: translation.frame.eventsub.unauthorized.twitch_notifications_follow.text + ": ", color: warnColor}, {text: translation.frame.eventsub.unauthorized.twitch_notifications_follow.reason, color: "white"});
+		else if (!requestIsOK(r.status)) return console.error(r);
 	}
 
 	r = await twitch.eventsub.subscribeToEvent("channel.chat.message", {broadcaster_user_id, user_id});
 	if (!requestIsOK(r.status)) return console.error(r);
-	r = await twitch.eventsub.subscribeToEvent("channel.chat.notification",{broadcaster_user_id, user_id});
-	if (!requestIsOK(r.status)) return console.error(r);
-
-	twitch.eventsub.sharedChatEnabled = (await twitch.getSharedChatSession(args.search.twitch_access_token, twitch.broadcasterData.id)).response != null;
-	r = await twitch.eventsub.subscribeToEvent("channel.shared_chat.begin", {broadcaster_user_id});
-	if (!requestIsOK(r.status)) return console.error(r);
-	r = await twitch.eventsub.subscribeToEvent("channel.shared_chat.end", {broadcaster_user_id});
+	r = await twitch.eventsub.subscribeToEvent("channel.chat.notification", {broadcaster_user_id, user_id});
 	if (!requestIsOK(r.status)) return console.error(r);
 
 	if (args.search.remove_msg != 0) {
@@ -108,7 +122,19 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 		if (!requestIsOK(r.status)) return console.error(r);
 	}
 
-	if (!twitch.eventsub.isConnected) twitch.eventsub.onConnect();
+	if (args.search.twitch_notifications_reward_redemption) {
+		r = await twitch.eventsub.subscribeToEvent("channel.channel_points_custom_reward_redemption.add", {broadcaster_user_id});
+		if (r.status === 403) makeMessage({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"}, {text: translation.frame.eventsub.unauthorized.twitch_notifications_reward_redemption.text + ": ", color: warnColor}, {text: translation.frame.eventsub.unauthorized.twitch_notifications_reward_redemption.reason, color: "white"});
+		else if (!requestIsOK(r.status)) return console.error(r);
+	}
+
+	twitch.eventsub.sharedChatEnabled = (await twitch.getSharedChatSession(args.search.twitch_access_token, twitch.broadcasterData.id)).response != null;
+	r = await twitch.eventsub.subscribeToEvent("channel.shared_chat.begin", {broadcaster_user_id});
+	if (!requestIsOK(r.status)) return console.error(r);
+	r = await twitch.eventsub.subscribeToEvent("channel.shared_chat.end", {broadcaster_user_id});
+	if (!requestIsOK(r.status)) return console.error(r);
+
+	if (!twitch.eventsub.connected) twitch.eventsub.onConnect();
 };
 
 twitch.eventsub.onSessionKeepalive = async(data) => {
@@ -125,10 +151,46 @@ twitch.eventsub.onNotification = async(data) => {
 	else if (subtype === "channel.chat.notification") twitch.eventsub.onChatNotification(event);
 	else if (subtype === "channel.shared_chat.begin") twitch.eventsub.onSharedChatBegin(event);
 	else if (subtype === "channel.shared_chat.end") twitch.eventsub.onSharedChatEnd(event);
+	else if (subtype === "stream.online") twitch.eventsub.onStreamOnline(event);
+	else if (subtype === "stream.offline") twitch.eventsub.onStreamOffline(event);
+	else if (subtype === "channel.follow") twitch.eventsub.onChannelFollow(event);
+	else if (subtype === "channel.subscribe") twitch.eventsub.onChannelSubscribe(event);
 	else if (event.message_type === 'text' || event.message_type === 'channel_points_highlighted' || event.message_type === 'power_ups_gigantified_emote' || event.message_type === 'power_ups_message_effect') twitch.eventsub.makeChatMessage(event);
 	else if (args.search.debug) {
 		console.warn('unsupported notification message type', data);
 	}
+};
+
+twitch.eventsub.onChannelFollow = async(event) => {
+	if (args.search.debug) console.log(event);
+
+	if (args.search.twitch_dashboard)
+		twitch.dashboard.addFollowers(1);
+
+	const div = makeMessage(
+		{type: "group", cssClass: "container-header", chunks: [
+			{type: "image", url: twitch.links.icon_follow, text: "follow", cssClass: "image"},
+			{text: event.user_name, cssClass: "text bold"},
+		]},
+		{type: "group", cssClass: "container-description", chunks: [
+			{text: translation.frame.eventsub.follow.text, cssClass: "text chat"}
+		]}
+	);
+	div.classList.add('message-sub');
+	div.setAttribute('user-id', event.user_id);
+	return div;
+};
+
+twitch.eventsub.onStreamOnline = async(event) => {
+	if (args.search.debug) console.log(event);
+
+	twitch.dashboard.showViewers();
+};
+
+twitch.eventsub.onStreamOffline = async(event) => {
+	if (args.search.debug) console.log(event);
+
+	twitch.dashboard.hideViewers();
 };
 
 twitch.eventsub.onChatNotification = async(event) => {
@@ -136,6 +198,10 @@ twitch.eventsub.onChatNotification = async(event) => {
 
 	const noticetype = event.notice_type;
 	const noticeinfo = event[noticetype];
+
+	if (args.search.twitch_dashboard && twitch.dashboard.subscribers.added && (noticetype === "sub" || (noticetype === "shared_chat_sub" && !event.source_broadcaster_user_name) || noticetype === "sub_gift" || (noticetype === "shared_chat_sub_gift" && !event.source_broadcaster_user_name)))
+		twitch.dashboard.setSubscribers(1);
+
 	if (noticetype === "sub" || noticetype === "resub" || noticetype === "shared_chat_sub" || noticetype === "shared_chat_resub") {
 		const isprime = noticeinfo.is_prime;
 		const translationEvent = translation.frame.general.sub;

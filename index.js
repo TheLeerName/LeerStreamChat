@@ -64,9 +64,11 @@ const values = {
 		fadeout: '0',
 		fadeout_duration: '0.5',
 		twitch_emotes: '1',
-		twitch_reward_redemptions: '1',
 		twitch_badges: '1',
-		'7tv_emotes': '1'
+		'7tv_emotes': '1',
+		twitch_dashboard: '0',
+		twitch_notifications_follow: '1',
+		twitch_notifications_reward_redemption: '1'
 	}
 };
 
@@ -86,7 +88,7 @@ function startListenPopupWindow() {
 function listenPopupWindow() {
 	if (localStorage.getItem('popupwindowclosed')) {
 		localStorage.removeItem('popupwindowclosed');
-		var accessToken = localStorage.getItem('popupaccesstoken');
+		const accessToken = localStorage.getItem('popupaccesstoken');
 		localStorage.removeItem('popupaccesstoken');
 
 		if (args.search.debug) console.log({status: 200, message: `access token received: ${accessToken}`});
@@ -94,7 +96,7 @@ function listenPopupWindow() {
 			if (requestIsOK(r.status))
 				twitch.addAccessToken(accessToken);
 			else {
-				twitch.removeAccessToken();
+				twitch.removeAccessToken(accessToken);
 				console.log(r);
 			}
 		});
@@ -109,7 +111,7 @@ function listenPopupWindow() {
 	}
 }
 
-twitch.addAccessToken = (newAccessToken, ) => {
+twitch.addAccessToken = (newAccessToken) => {
 	setElementValue(textarea_twitch_access_token, newAccessToken);
 	createChatLink();
 	values.current.twitch_access_token = newAccessToken;
@@ -119,7 +121,11 @@ twitch.addAccessToken = (newAccessToken, ) => {
 	message_twitch_access_token_expires_in.classList.remove('hidden');
 	message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeDuration(twitch.accessTokenData.expires_in * 1000, {largest: 2, language: values.current.lang, delimiter: ' and '}));
 };
-twitch.removeAccessToken = () => {
+twitch.removeAccessToken = async(accessToken) => {
+	const r = await twitch.revokeAccessToken(accessToken);
+
+	if (args.search.debug) console[requestIsOK(r.status) ? 'log' : 'error'](r);
+
 	setElementValue(textarea_twitch_access_token, '');
 	createChatLink();
 	values.current.twitch_access_token = "";
@@ -176,10 +182,11 @@ document.addEventListener('DOMContentLoaded', (_, e) => main());
 
 async function main() {
 	// get input field values from browser cache
-	for (let [arg, value] of Object.entries(JSON.parse(localStorage.getItem('values') ?? '{}'))) {
-		values.default[arg] = values.current[arg];
-		values.current[arg] = value;
-	}
+	for (let [arg, value] of Object.entries(values.current))
+		values.default[arg] = value;
+	const cache = JSON.parse(localStorage.getItem('values') ?? '{}');
+	for (let [arg, value] of Object.entries(values.default))
+		values.current[arg] = cache[arg] ?? value;
 
 	// iterate over all input fields
 	for (let [arg, value] of Object.entries(values.current)) {
@@ -216,8 +223,8 @@ async function main() {
 		if (requestIsOK(r.status))
 			twitch.addAccessToken(textarea_twitch_access_token.innerText);
 		else {
-			twitch.removeAccessToken();
-			console.log(r);
+			twitch.removeAccessToken(textarea_twitch_access_token.innerText);
+			console.error(r);
 		}
 	}
 	// pasting text to twitch_access_token input field will validate access token in twitch api,
@@ -235,23 +242,14 @@ async function main() {
 	// if access token already exists, it will be revoked and then it will open the popup
 	document.getElementById('button_twitch_access_token_generate').addEventListener('click', e => {
 		if (values.current.twitch_access_token != "") 
-			twitch.revokeAccessToken(values.current.twitch_access_token).then(r => {
-				if (!requestIsOK(r.status)) return console.error(r);
-				if (args.search.debug) console.log('access token revoked');
-				twitch.removeAccessToken();
-				startListenPopupWindow();
-			});
+			twitch.removeAccessToken(values.current.twitch_access_token).then(_ => startListenPopupWindow());
 		else startListenPopupWindow();
 	});
 
 	// adding click event which will revoke current access token and will remove it from input field,
 	// if access token isnt validated or not entered it does nothing
 	document.getElementById('button_twitch_access_token_revoke').addEventListener('click', e => {
-		if (values.current.twitch_access_token != "") twitch.revokeAccessToken(values.current.twitch_access_token).then(r => {
-			if (!requestIsOK(r.status)) return console.error(r);
-			if (args.search.debug) console.log('access token revoked');
-			twitch.removeAccessToken();
-		});
+		if (values.current.twitch_access_token != "") twitch.removeAccessToken(values.current.twitch_access_token);
 	});
 
 	// adding change event of hide_sensitive_info "checkbox" which will blur/show sensitive fields

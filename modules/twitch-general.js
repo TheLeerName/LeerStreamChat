@@ -9,7 +9,9 @@ const twitch = {
 	client_id: app.twitch_client_id,
 	scopes: [
 		"channel:read:redemptions",
-		"user:read:chat"
+		"channel:read:subscriptions",
+		"moderator:read:followers",
+		"user:read:chat",
 	],
 
 	emoteSize: 4, // can be 1, 2, 3, 4
@@ -44,6 +46,8 @@ const twitch = {
 		icon_channel_points: `${app.link}/assets/twitch-channel-points.svg`,
 		icon_sub: `${app.link}/assets/twitch-sub.svg`,
 		icon_sub_prime: `${app.link}/assets/twitch-sub-prime.svg`,
+		icon_viewers: `${app.link}/assets/twitch-viewers.svg`,
+		icon_follow: `${app.link}/assets/twitch-follow.svg`,
 
 		emoticons_v2: (id) => `https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/${twitch.emoteSize}.0`,
 		cheermotes: (prefix, bits) => `https://d3aqoihi2n8ty8.cloudfront.net/actions/${prefix}/dark/animated/${bits}/${twitch.emoteSize}.gif`,
@@ -67,6 +71,11 @@ const twitch = {
 	fetch: {
 		revoke: (accessToken) => advancedFetch(`https://id.twitch.tv/oauth2/revoke?client_id=${twitch.client_id}&token=${accessToken}`, {method: "POST", headers: {'Content-Type': 'application/x-www-form-urlencoded'}}),
 		validate: (accessToken) => advancedFetch("https://id.twitch.tv/oauth2/validate", {headers: {Authorization: `Bearer ${accessToken}`}}),
+		streams: (accessToken, user_id) => advancedFetch(`https://api.twitch.tv/helix/streams?user_id=${user_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
+		subscriptions: (accessToken, broadcaster_id) => advancedFetch(`https://api.twitch.tv/helix/subscriptions?broadcaster_id=${broadcaster_id}&first=1`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
+		channels: {
+			followers: (accessToken, broadcaster_id) => advancedFetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${broadcaster_id}&first=1`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
+		},
 		users: {
 			byID: (accessToken, user_id) => advancedFetch(`https://api.twitch.tv/helix/users?id=${user_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),
 			byLogin: (accessToken, user_login) => advancedFetch(`https://api.twitch.tv/helix/users?login=${encodeURI(user_login)}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}})
@@ -139,6 +148,7 @@ const twitch = {
 		if (avatar) return {status: 200, response: avatar};
 
 		const r = await twitch.getUserData(accessToken, userLogin);
+		if (!r.response) return {status: 400, message: `User not found: ${userLogin}`};
 		if (!requestIsOK(r.status)) return r;
 
 		let output = {status: r.status, response: r.response.profile_image_url};
@@ -235,6 +245,23 @@ const twitch = {
 		return output;
 	},
 
+	/** https://dev.twitch.tv/docs/api/reference/#get-streams */
+	getStreamData: async(accessToken, channelID) => {
+		let request, response, output = null;
+
+		try {
+			request = await twitch.fetch.streams(accessToken, channelID);
+			response = await request.json();
+
+			if (response.status != null) output = response;
+			else output = {status: request.status, response: response.data[0]};
+		} catch(e) {
+			output = {status: 400, message: e.toString()};
+		}
+
+		return output;
+	},
+
 	/** https://dev.twitch.tv/docs/api/reference/#get-users */
 	getUserData: async(accessToken, channelLogin) => {
 		let request, response, output = null;
@@ -244,8 +271,38 @@ const twitch = {
 			response = await request.json();
 
 			if (response.status != null) output = response;
-			else if (response.data.length === 0) throw `Channel not found: ${channelLogin}`;
 			else output = {status: request.status, response: response.data[0]};
+		} catch(e) {
+			output = {status: 400, message: e.toString()};
+		}
+
+		return output;
+	},
+
+	/** https://dev.twitch.tv/docs/api/reference/#get-channel-followers */
+	getChannelFollowers: async(accessToken, channelID) => {
+		let request, output = null;
+
+		try {
+			request = await twitch.fetch.channels.followers(accessToken, channelID);
+			response = await request.json();
+
+			if (response.status != null) output = response;
+			else output = {status: request.status, response: response};
+		} catch(e) {
+			output = {status: 400, message: e.toString()};
+		}
+
+		return output;
+	},
+
+	/** https://dev.twitch.tv/docs/api/reference/#get-broadcaster-subscriptions */
+	getChannelSubscribers: async(accessToken, channelID) => {
+		let request, output = null;
+
+		try {
+			request = await twitch.fetch.subscriptions(accessToken, channelID);
+			output = await request.json();
 		} catch(e) {
 			output = {status: 400, message: e.toString()};
 		}

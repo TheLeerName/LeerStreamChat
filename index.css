@@ -309,6 +309,8 @@ body {
 	text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 .category.output .footer {
+	color: rgb(212, 212, 212);
+
 	font-size: 12px;
 	font-family: Inter;
 

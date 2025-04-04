@@ -17,8 +17,7 @@ Stream chat for displaying on browser source in OBS
 - To see logs in Ctrl+Shift+I just add `&debug=1` to link of link builder or chat frame
 
 ## TODO
-- viewer count
-- somehow make info messages more visible (i didnt came up with how to design it yet)
+- redo translations to use just strings and not styles
 - YouTube stream chat
 - BetterTTV emotes
 

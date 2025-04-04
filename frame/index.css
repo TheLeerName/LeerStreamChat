@@ -4,6 +4,27 @@ body {
 	margin: 0;
 	padding: 0;
 }
+
+.dashboard {
+	overflow: hidden;
+	background: rgb(32, 32, 32);
+	position: absolute;
+	width: 100%;
+	display: flex;
+	padding: calc(var(--args_size) / 4);
+	align-items: center;
+	justify-content: space-around;
+	box-sizing: border-box;
+}
+.dashboard * {
+	display: inline;
+	vertical-align: middle;
+}
+.dashboard .container-viewer * {
+	color: rgb(255, 130, 128);
+	margin-right: calc(var(--args_size) / 4);
+}
+
 .messages {
 	overflow: hidden;
 	overscroll-behavior-y: contain;

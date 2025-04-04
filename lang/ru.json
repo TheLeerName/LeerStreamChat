@@ -5,6 +5,7 @@
 				"general": "Общее",
 				"chat_message_display": "Отображение сообщений чата",
 				"additional_chat_features": "Дополнительные возможности чата",
+				"chat_notifications": "Оповещения в чате",
 				"output": "Ссылка на чат"
 			},
 			"cell": {
@@ -38,15 +39,27 @@
 						"1": "Включены",
 						"0": "Отключены"
 					},
-					"twitch_reward_redemptions": {
+					"7tv_emotes": {
 						"1": "Включены",
 						"0": "Отключены"
+					},
+					"twitch_dashboard": {
+						"1": "Включена",
+						"0": "Отключена"
 					},
 					"twitch_badges": {
 						"1": "Включены",
 						"0": "Отключены"
 					},
-					"7tv_emotes": {
+					"twitch_notifications_reward_redemption": {
+						"1": "Включены",
+						"0": "Отключены"
+					},
+					"twitch_notifications_follow": {
+						"1": "Включены",
+						"0": "Отключены"
+					},
+					"twitch_notifications_subscribe": {
 						"1": "Включены",
 						"0": "Отключены"
 					}
@@ -63,10 +76,13 @@
 					"fadeout": "Задержка исчезновения сообщения",
 					"fadeout_duration": "Длительность исчезновения сообщения",
 					"twitch_emotes": "Twitch смайлики",
-					"twitch_reward_redemptions": "Траты баллов Twitch-канала",
-					"twitch_badges": "Twitch значки",
 					"7tv_emotes": "7TV смайлики",
-					"bttv_emotes": "BetterTTV смайлики"
+					"bttv_emotes": "BetterTTV смайлики",
+					"twitch_dashboard": "Twitch-панель статистики",
+					"twitch_badges": "Twitch значки",
+					"twitch_notifications_reward_redemption": "Траты баллов Twitch-канала",
+					"twitch_notifications_follow": "Новые фолловеры Twitch-канала",
+					"twitch_notifications_subscribe": "Новые подписчики Twitch-канала"
 				},
 				"footer": {
 					"twitch_access_token": {
@@ -77,14 +93,20 @@
 					"twitch_login": {
 						"info": "автозаполняет, если twitch-токен верный"
 					},
-					"twitch_reward_redemptions": {
-						"info": "показываются, если twitch-токен<br>принадлежит владельцу чата"
+					"7tv_emotes": {
+						"info": "загружаются только <b>ПОСЛЕ</b> подключения к чату,<br>если twitch-токен неверный"
+					},
+					"twitch_dashboard": {
+						"info": "отображает кол-во зрителей/фолловеров/подписчиков, если twitch-токен верный"
 					},
 					"twitch_badges": {
 						"info": "отображает только некоторые,<br>если twitch-токен неверный"
 					},
-					"7tv_emotes": {
-						"info": "загружаются только <b>ПОСЛЕ</b> подключения к чату,<br>если twitch-токен неверный"
+					"twitch_notifications_reward_redemption": {
+						"info": "показываются, если twitch-токен<br>принадлежит владельцу канала"
+					},
+					"twitch_notifications_follow": {
+						"info": "показываются, если twitch-токен принадлежит<br>модератору/владельцу канала"
 					},
 					"output": {
 						"info": "вставь этот URL в Источники -> Браузер в OBS или в других стриминговых приложениях"
@@ -141,10 +163,26 @@
 			}
 		},
 		"eventsub": {
-			"token_belongs_to_other_channel": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Токен принадлежит другому каналу, покупки за баллы не будут видны", "color": "@warnColor"}
-			],
+			"channel_not_found": {
+				"text": "Канал не найден"
+			},
+			"unauthorized": {
+				"twitch_notifications_follow": {
+					"text": "Оповещения о новых фолловерах отключены",
+					"reason": "Вы не модератор/владелец канала"
+				},
+				"twitch_notifications_subscribe": {
+					"text": "Оповещения о подписках отключены",
+					"reason": "Вы не владелец канала"
+				},
+				"twitch_notifications_reward_redemption": {
+					"text": "Оповещения о покупках за баллы канала отключены",
+					"reason": "Вы не владелец канала"
+				}
+			},
+			"follow": {
+				"text": "Начинает отслеживать этот канал"
+			},
 			"connected": [
 				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 				{"text": "Чат подключён к "},
@@ -205,6 +243,10 @@
 			},
 			"message_deleted": "<сообщение удалено>",
 			"anonymous_user": "Анонимный пользователь"
+		},
+		"dashboard": {
+			"followers": "фолловеров",
+			"subscribers": "подписчиков"
 		}
 	}
 }

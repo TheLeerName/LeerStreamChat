@@ -5,6 +5,7 @@
 				"general": "General",
 				"chat_message_display": "Chat message display",
 				"additional_chat_features": "Additional chat features",
+				"chat_notifications": "Chat notifications",
 				"output": "Generated link"
 			},
 			"cell": {
@@ -34,11 +35,15 @@
 						"1": "Remove message",
 						"0": "Do not remove message"
 					},
-					"twitch_reward_redemptions": {
+					"twitch_emotes": {
 						"1": "Enabled",
 						"0": "Disabled"
 					},
-					"twitch_emotes": {
+					"7tv_emotes": {
+						"1": "Enabled",
+						"0": "Disabled"
+					},
+					"twitch_dashboard": {
 						"1": "Enabled",
 						"0": "Disabled"
 					},
@@ -46,7 +51,11 @@
 						"1": "Enabled",
 						"0": "Disabled"
 					},
-					"7tv_emotes": {
+					"twitch_notifications_reward_redemption": {
+						"1": "Enabled",
+						"0": "Disabled"
+					},
+					"twitch_notifications_follow": {
 						"1": "Enabled",
 						"0": "Disabled"
 					}
@@ -63,10 +72,12 @@
 					"fadeout": "Fade out timeout",
 					"fadeout_duration": "Fade out duration",
 					"twitch_emotes": "Twitch emotes",
-					"twitch_reward_redemptions": "Twitch reward redemptions",
-					"twitch_badges": "Twitch badges",
 					"7tv_emotes": "7TV emotes",
-					"bttv_emotes": "BetterTTV emotes"
+					"bttv_emotes": "BetterTTV emotes",
+					"twitch_dashboard": "Twitch dashboard",
+					"twitch_badges": "Twitch badges",
+					"twitch_notifications_reward_redemption": "Twitch reward redemptions",
+					"twitch_notifications_follow": "Twitch new followers"
 				},
 				"footer": {
 					"twitch_access_token": {
@@ -77,14 +88,20 @@
 					"twitch_login": {
 						"info": "autocompletes, if twitch token is valid"
 					},
-					"twitch_reward_redemptions": {
-						"info": "displays, if twitch token belongs<br>to broadcaster of chat"
+					"7tv_emotes": {
+						"info": "loads only <b>AFTER</b> connecting to chat,<br>if twitch token is invalid"
+					},
+					"twitch_dashboard": {
+						"info": "displays count of viewers/followers/subscribers, if twitch token is valid"
 					},
 					"twitch_badges": {
 						"info": "displays only most usable,<br>if twitch token is invalid"
 					},
-					"7tv_emotes": {
-						"info": "loads only <b>AFTER</b> connecting to chat,<br>if twitch token is invalid"
+					"twitch_notifications_reward_redemption": {
+						"info": "displays, if twitch token belongs<br>to broadcaster of channel"
+					},
+					"twitch_notifications_follow": {
+						"info": "displays, if twitch token belongs<br>to moderator/broadcaster of channel"
 					},
 					"output": {
 						"info": "paste this URL to browser source of OBS or other streaming app"
@@ -141,10 +158,22 @@
 			}
 		},
 		"eventsub": {
-			"token_belongs_to_other_channel": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Token belongs to other channel, reward redemptions will be not seen", "color": "@warnColor"}
-			],
+			"channel_not_found": {
+				"text": "Channel not found"
+			},
+			"unauthorized": {
+				"twitch_notifications_follow": {
+					"text": "Follow notifications are disabled",
+					"reason": "You aren't moderator/broadcaster of channel"
+				},
+				"twitch_notifications_reward_redemption": {
+					"text": "Reward redemption notifications are disabled",
+					"reason": "You aren't broadcaster of channel"
+				}
+			},
+			"follow": {
+				"text": "Started following this channel"
+			},
 			"connected": [
 				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
 				{"text": "Chat connected to "},
@@ -199,6 +228,10 @@
 			},
 			"message_deleted": "<message deleted>",
 			"anonymous_user": "An anonymous user"
+		},
+		"dashboard": {
+			"followers": "followers",
+			"subscribers": "subscribers"
 		}
 	}
 }
