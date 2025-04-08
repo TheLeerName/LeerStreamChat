@@ -32,7 +32,7 @@ twitch.eventsub.onConnect = async() => {
 	if (!requestIsOK(r.status)) console.error(r);
 	let userColor = r.response;
 
-	makeMessage(...makeMessageArgumentsInfo(...replaceTagsInTranslation(translation.frame.eventsub.connected, twitch.broadcasterData.display_name, userColor)));
+	makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.connected}, {text: twitch.broadcasterData.display_name, color: userColor});
 	twitch.eventsub.releaseMessages();
 };
 
@@ -102,9 +102,11 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 			setInterval(twitch.dashboard.updateSubscribers, 300000);
 	}
 
+	const t = translation.frame.twitch.eventsub;
+
 	if (args.search.twitch_notifications_follow) {
 		r = await twitch.eventsub.subscribeToEvent("channel.follow", {broadcaster_user_id, moderator_user_id: user_id}, "2");
-		if (r.status === 403) makeMessage({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"}, {text: translation.frame.eventsub.unauthorized.twitch_notifications_follow.text + ": ", color: warnColor}, {text: translation.frame.eventsub.unauthorized.twitch_notifications_follow.reason, color: "white"});
+		if (r.status === 403) makeMessage(messageChunks.twitch_icon, {text: t.twitch_notifications_follow.unauthorized[0], color: warnColor}, {text: t.twitch_notifications_follow.unauthorized[1], color: "white"});
 		else if (!requestIsOK(r.status)) return console.error(r);
 	}
 
@@ -124,7 +126,8 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 
 	if (args.search.twitch_notifications_reward_redemption) {
 		r = await twitch.eventsub.subscribeToEvent("channel.channel_points_custom_reward_redemption.add", {broadcaster_user_id});
-		if (r.status === 403) makeMessage({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"}, {text: translation.frame.eventsub.unauthorized.twitch_notifications_reward_redemption.text + ": ", color: warnColor}, {text: translation.frame.eventsub.unauthorized.twitch_notifications_reward_redemption.reason, color: "white"});
+		if (r.status === 403)
+			makeMessage(messageChunks.twitch_icon, {text: t.twitch_notifications_reward_redemption.unauthorized[0], color: warnColor}, {text: t.twitch_notifications_reward_redemption.unauthorized[1], color: "white"});
 		else if (!requestIsOK(r.status)) return console.error(r);
 	}
 
@@ -169,11 +172,11 @@ twitch.eventsub.onChannelFollow = async(event) => {
 
 	const div = makeMessage(
 		{type: "group", cssClass: "container-header", chunks: [
-			{type: "image", url: twitch.links.icon_follow, text: "follow", cssClass: "image"},
+			{type: "image", url: twitch.links.icon_follow, text: "twitch_follow", cssClass: "image"},
 			{text: event.user_name, cssClass: "text bold"},
 		]},
 		{type: "group", cssClass: "container-description", chunks: [
-			{text: translation.frame.eventsub.follow.text, cssClass: "text chat"}
+			{text: translation.frame.twitch.eventsub.twitch_notifications_follow.text, cssClass: "text chat"}
 		]}
 	);
 	div.classList.add('message-sub');
@@ -204,24 +207,24 @@ twitch.eventsub.onChatNotification = async(event) => {
 
 	if (noticetype === "sub" || noticetype === "resub" || noticetype === "shared_chat_sub" || noticetype === "shared_chat_resub") {
 		const isprime = noticeinfo.is_prime;
-		const translationEvent = translation.frame.general.sub;
+		const t = translation.frame.twitch.general.sub;
 		const messageChunks = [
 			{type: "group", cssClass: "container-header", chunks: [
 				{type: "image", url: twitch.links[isprime ? 'icon_sub_prime' : 'icon_sub'], text: isprime ? "sub-prime" : "sub", cssClass: "image"},
 				{text: event.chatter_user_name, cssClass: "text bold"},
 			]},
 			{type: "group", cssClass: "container-description", chunks: [
-				{text: translationEvent.text_bold, cssClass: "text chat bold"},
-				{text: ` ${isprime ? translationEvent.text_prime : translationEvent.text_tier.replace('$1', noticeinfo.sub_tier.substring(0, 1))}` + (twitch.eventsub.sharedChatEnabled ? ` ${translationEvent.text_tochannel.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}` : "") + ".", cssClass: "text chat"},
+				{text: t.text_bold, cssClass: "text chat bold"},
+				{text: ` ${isprime ? t.text_prime : t.text_tier.replace('$1', noticeinfo.sub_tier.substring(0, 1))}` + (twitch.eventsub.sharedChatEnabled ? ` ${t.text_tochannel.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}` : "") + ".", cssClass: "text chat"},
 			]},
 		];
 		if (noticetype === "resub") {
 			const chunk = messageChunks[1];
-			chunk.chunks[1].text += ` ${translationEvent.text_resub} `;
+			chunk.chunks[1].text += ` ${t.text_resub} `;
 			const months = noticeinfo[`${isprime ? 'duration' : 'cumulative'}_months`];
 			chunk.chunks.push(
-				{text: (months > 1 ? (translationEvent[`text_months${months}`] ?? translationEvent.text_months) : translationEvent.text_month).replace('$1', months), cssClass: "text chat bold"},
-				{text: (!isprime && noticeinfo.streak_months ? translationEvent.text_resub_streak.replace('$1', noticeinfo.streak_months) : "") + "!", cssClass: "text chat"}
+				{text: (months > 1 ? (t[`text_months${months}`] ?? t.text_months) : t.text_month).replace('$1', months), cssClass: "text chat bold"},
+				{text: (!isprime && noticeinfo.streak_months ? t.text_resub_streak.replace('$1', noticeinfo.streak_months) : "") + "!", cssClass: "text chat"}
 			);
 		}
 
@@ -229,36 +232,36 @@ twitch.eventsub.onChatNotification = async(event) => {
 		div.classList.add('message-sub');
 		return div;
 	}
-	if (noticetype === "community_sub_gift" || noticetype === "shared_chat_community_sub_gift") {
-		const translationEvent = translation.frame.general.community_sub_gift;
+	else if (noticetype === "community_sub_gift" || noticetype === "shared_chat_community_sub_gift") {
+		const t = translation.frame.twitch.general.community_sub_gift;
 		const div = makeMessage(
-			{text: event.chatter_is_anonymous ? translation.frame.eventsub.anonymous_user : event.chatter_user_name, cssClass: "text" + (event.chatter_is_anonymous ? "" : " bold")},
-			{text: ` ${translationEvent.text.replace('$1', (noticeinfo.total > 1 ? (translationEvent[`text_subs${noticeinfo.total}`] ?? translationEvent.text_subs) : translationEvent.text_sub).replace('$1', noticeinfo.total)).replace('$2', noticeinfo.sub_tier.substring(0, 1)).replace('$3', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}.${noticeinfo.cumulativeTotal > 0 ? ` ${translationEvent.text_total.replace('$1', noticeinfo.cumulative_total)}` : ""}`, cssClass: "text"}
+			{text: event.chatter_is_anonymous ? translation.frame.twitch.general.anonymous_user : event.chatter_user_name, cssClass: "text" + (event.chatter_is_anonymous ? "" : " bold")},
+			{text: ` ${t.text.replace('$1', (noticeinfo.total > 1 ? (t[`text_subs${noticeinfo.total}`] ?? t.text_subs) : t.text_sub).replace('$1', noticeinfo.total)).replace('$2', noticeinfo.sub_tier.substring(0, 1)).replace('$3', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}.${noticeinfo.cumulativeTotal > 0 ? ` ${t.text_total.replace('$1', noticeinfo.cumulative_total)}` : ""}`, cssClass: "text"}
 		);
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
 		return div;
 	}
-	if (noticetype === "sub_gift" || noticetype === "shared_chat_sub_gift") {
-		const translationEvent = translation.frame.general.sub_gift;
+	else if (noticetype === "sub_gift" || noticetype === "shared_chat_sub_gift") {
+		const t = translation.frame.twitch.general.sub_gift;
 		const div = makeMessage(
-			{text: event.chatter_is_anonymous ? translation.frame.eventsub.anonymous_user : event.chatter_user_name, cssClass: "text" + (event.chatter_is_anonymous ? "" : " bold")},
-			{text: ` ${translationEvent.text.replace('$1', noticeinfo.sub_tier.substring(0, 1))} `, cssClass: "text"},
+			{text: event.chatter_is_anonymous ? translation.frame.twitch.general.anonymous_user : event.chatter_user_name, cssClass: "text" + (event.chatter_is_anonymous ? "" : " bold")},
+			{text: ` ${t.text.replace('$1', noticeinfo.sub_tier.substring(0, 1))} `, cssClass: "text"},
 			{text: noticeinfo.recipient_user_name, cssClass: "text bold"},
-			{text: (twitch.eventsub.sharedChatEnabled ? ` ${translationEvent.text_tochannel.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}` : "") + "!", cssClass: "text"}
+			{text: (twitch.eventsub.sharedChatEnabled ? ` ${t.text_tochannel.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name)}` : "") + "!", cssClass: "text"}
 		);
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
 		return div;
 	}
-	if (noticetype === "raid" || noticetype === "shared_chat_raid") {
-		const translationEvent = translation.frame.general.raid;
+	else if (noticetype === "raid" || noticetype === "shared_chat_raid") {
+		const t = translation.frame.twitch.general.raid;
 		const div = makeMessage(
 			{text: noticeinfo.user_name, cssClass: "text bold"},
-			{text: ` ${twitch.eventsub.sharedChatEnabled ? translationEvent.text_shared_chat.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name) : translationEvent.text} `, cssClass: "text"},
-			{text: (noticeinfo.viewer_count > 1 ? (translationEvent[`text_viewers${noticeinfo.viewer_count}`] ?? translationEvent.text_viewers) : translationEvent.text_viewer).replace('$1', noticeinfo.viewer_count), cssClass: "text bold"},
+			{text: ` ${twitch.eventsub.sharedChatEnabled ? t.text_shared_chat.replace('$1', event.source_broadcaster_user_name ?? event.broadcaster_user_name) : t.text} `, cssClass: "text"},
+			{text: (noticeinfo.viewer_count > 1 ? (t[`text_viewers${noticeinfo.viewer_count}`] ?? t.text_viewers) : t.text_viewer).replace('$1', noticeinfo.viewer_count), cssClass: "text bold"},
 			{text: "!", cssClass: "text"}
 		);
 		div.classList.add('message-sub');
@@ -266,9 +269,9 @@ twitch.eventsub.onChatNotification = async(event) => {
 		div.setAttribute('user-id', event.chatter_user_id);
 		return div;
 	}
-	if (noticetype === "unraid")
+	else if (noticetype === "unraid")
 		return null;
-	if (noticetype === "announcement" || noticetype === "shared_chat_announcement") {
+	else if (noticetype === "announcement" || noticetype === "shared_chat_announcement") {
 		// TODO: remake this with current announcement message design in default twitch chat
 		event.message_type = "channel_points_highlighted";
 		const div = await twitch.eventsub.makeChatMessage(event, null, true);
@@ -320,12 +323,12 @@ twitch.eventsub.makeRewardMessage = async(event) => {
 
 	const div = makeMessage(
 		{type: "group", cssClass: "container-text", chunks: [
-			{text: event.user_name, cssClass: "text bold"},
-			{text: " redeemed ", cssClass: "text"},
-			{text: event.reward.title, cssClass: "text bold"},
+			{text: `${event.user_name} `, cssClass: "text bold"},
+			{text: translation.frame.twitch.eventsub.twitch_notifications_reward_redemption.text, cssClass: "text"},
+			{text: ` ${event.reward.title}`, cssClass: "text bold"},
 		]},
 		{type: "group", cssClass: "container-reward", chunks: [
-			{type: "image", url: twitch.links.icon_channel_points, text: "channel-points", cssClass: "image"},
+			{type: "image", url: twitch.links.icon_channel_points, text: "twitch_channel_points", cssClass: "image"},
 			{text: `${event.reward.cost}`, cssClass: "text bold reward"},
 		]}
 	);
@@ -355,7 +358,7 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 		// chatter badges
 
 		// TODO: for youtube chat in future
-		//messageChunks.push({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"});
+		//messageChunks.push(messageChunks.twitch_icon);
 
 		if (args.search.twitch_badges) {
 			let badges = event.badges;

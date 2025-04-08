@@ -116,137 +116,91 @@
 		}
 	},
 	"frame": {
-		"parameter": {
-			"not_found": {
-				"twitch_login": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Параметр ", "color": "@errorColor"},
-					{"text": "twitch_login", "color": "white"},
-					{"text": " не указан!", "color": "@errorColor"}
-				],
-				"twitch_access_token": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Параметр ", "color": "@warnColor"},
-					{"text": "twitch_access_token", "color": "white"},
-					{"text": " не указан! Некоторые штучки могут не работать", "color": "@warnColor"}
-				]
-			},
-			"error": {
-				"twitch_access_token": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Неверный токен! Некоторые штучки могут не работать", "color": "@warnColor"}
-				],
-				"7tv_emotes": [
-					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "image badge"},
-					{"text": "Смайлики не загружены: ", "color": "@errorColor"},
-					{"text": "$1", "color": "white"}
-				],
-				"twitch_badges": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Значки не загружены: ", "color": "@errorColor"},
-					{"text": "$1", "color": "white"}
-				]
-			},
-			"loaded": {
-				"7tv_emotes": [
-					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "image badge"},
-					{"text": "Смайлики загружены ("},
-					{"text": "$1", "color": "white"},
-					{"text": ")"}
-				],
-				"twitch_badges": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Значки загружены ("},
-					{"text": "$1", "color": "white"},
-					{"text": ")"}
-				]
-			}
-		},
-		"eventsub": {
-			"channel_not_found": {
-				"text": "Канал не найден"
-			},
-			"unauthorized": {
-				"twitch_notifications_follow": {
-					"text": "Оповещения о новых фолловерах отключены",
-					"reason": "Вы не модератор/владелец канала"
-				},
-				"twitch_notifications_subscribe": {
-					"text": "Оповещения о подписках отключены",
-					"reason": "Вы не владелец канала"
-				},
-				"twitch_notifications_reward_redemption": {
-					"text": "Оповещения о покупках за баллы канала отключены",
-					"reason": "Вы не владелец канала"
-				}
-			},
-			"follow": {
-				"text": "Начинает отслеживать этот канал"
-			},
-			"connected": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Чат подключён к "},
-				{"text": "$1", "color": "$2"}
-			]
-		},
-		"irc": {
-			"connected": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Чат подключён анонимно к "},
-				{"text": "$1", "color": "white"}
-			],
-			"reconnecting": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Переподключение..."}
-			]
-		},
 		"general": {
-			"chat_cleared": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Чат был очищен!"}
-			],
-			"sub": {
-				"text_bold": "Оформлена подписка",
-				"text_prime": "через Prime",
-				"text_tier": "$1 уровня",
-				"text_tochannel": "у $1",
-
-				"text_resub": "Пользователь подписан",
-				"text_resub_streak": ", $1 подряд",
-
-				"text_month": "$1 месяц",
-				"text_months": "$1 месяцев",
-				"text_months2": "$1 месяца",
-				"text_months3": "$1 месяца",
-				"text_months4": "$1 месяца"
-			},
-			"sub_gift": {
-				"text": "дарит подписку $1 уровня",
-				"text_tochannel": "на канал $1"
-			},
-			"community_sub_gift": {
-				"text": "дарит $1 $2 уровня каналу $3",
-				"text_total": "Пользователь подарил уже $1 на этот канал!",
-
-				"text_sub": "$1 подписку",
-				"text_subs": "$1 подписок",
-				"text_subs2": "$1 подписки",
-				"text_subs3": "$1 подписки",
-				"text_subs4": "$1 подписки"
-			},
-			"raid": {
-				"text": "рейдит этот канал с",
-				"text_shared_chat": "рейдит канал $1 с",
-
-				"text_viewer": "$1 зрителем",
-				"text_viewers": "$1 зрителями"
-			},
+			"chat_cleared": "Чат очищен!",
 			"message_deleted": "<сообщение удалено>",
-			"anonymous_user": "Анонимный пользователь"
+			"twitch_login": {
+				"not_found": ["Параметр", "не найден!"],
+				"invalid": ["Канал", "не найден!"]
+			},
+			"twitch_access_token": {
+				"not_found": ["Параметр", "не найден! Использую анонимное соединение..."],
+				"invalid": "Неверный токен! Использую анонимное соединение..."
+			},
+			"7tv_emotes": {
+				"not_loaded": "Смайлики не загружены: ",
+				"loaded": ["Смайлики загружены (", ")"]
+			},
+			"twitch_badges": {
+				"not_loaded": "Значки не загружены: ",
+				"loaded": ["Значки загружены (", ")"]
+			}
 		},
 		"dashboard": {
 			"followers": "фолловеров",
 			"subscribers": "подписчиков"
+		},
+		"twitch": {
+			"eventsub": {
+				"connected": "Чат подключён к ",
+				"twitch_notifications_follow": {
+					"unauthorized": [
+						"Оповещения о новых фолловерах отключены: ",
+						"Вы не модератор/владелец канала"
+					],
+					"text": "Начинает отслеживать этот канал"
+				},
+				"twitch_notifications_reward_redemption": {
+					"unauthorized": [
+						"Оповещения о покупках за баллы канала отключены: ",
+						"Вы не владелец канала"
+					],
+					"text": "получил(а)"
+				}
+			},
+			"irc": {
+				"connected": "Чат подключён анонимно к ",
+				"reconnecting": "Переподключение..."
+			},
+			"general": {
+				"sub": {
+					"text_bold": "Оформлена подписка",
+					"text_prime": "через Prime",
+					"text_tier": "$1 уровня",
+					"text_tochannel": "у $1",
+
+					"text_resub": "Пользователь подписан",
+					"text_resub_streak": ", $1 подряд",
+
+					"text_month": "$1 месяц",
+					"text_months": "$1 месяцев",
+					"text_months2": "$1 месяца",
+					"text_months3": "$1 месяца",
+					"text_months4": "$1 месяца"
+				},
+				"sub_gift": {
+					"text": "дарит подписку $1 уровня",
+					"text_tochannel": "на канал $1"
+				},
+				"community_sub_gift": {
+					"text": "дарит $1 $2 уровня каналу $3",
+					"text_total": "Пользователь подарил уже $1 на этот канал!",
+
+					"text_sub": "$1 подписку",
+					"text_subs": "$1 подписок",
+					"text_subs2": "$1 подписки",
+					"text_subs3": "$1 подписки",
+					"text_subs4": "$1 подписки"
+				},
+				"raid": {
+					"text": "рейдит этот канал с",
+					"text_shared_chat": "рейдит канал $1 с",
+
+					"text_viewer": "$1 зрителем",
+					"text_viewers": "$1 зрителями"
+				},
+				"anonymous_user": "Анонимный пользователь"
+			}
 		}
 	}
 }

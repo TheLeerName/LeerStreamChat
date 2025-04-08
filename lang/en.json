@@ -111,127 +111,85 @@
 		}
 	},
 	"frame": {
-		"parameter": {
-			"not_found": {
-				"twitch_login": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Parameter ", "color": "@errorColor"},
-					{"text": "twitch_login", "color": "white"},
-					{"text": " isn't specified!", "color": "@errorColor"}
-				],
-				"twitch_access_token": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Parameter ", "color": "@warnColor"},
-					{"text": "twitch_access_token", "color": "white"},
-					{"text": " isn't specified! Some features might be not work", "color": "@warnColor"}
-				]
-			},
-			"error": {
-				"twitch_access_token": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Invalid token! Some features might be not work", "color": "@warnColor"}
-				],
-				"7tv_emotes": [
-					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "image badge"},
-					{"text": "Emotes aren't loaded: ", "color": "@errorColor"},
-					{"text": "$1", "color": "white"}
-				],
-				"twitch_badges": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Badges aren't loaded: ", "color": "@errorColor"},
-					{"text": "$1", "color": "white"}
-				]
-			},
-			"loaded": {
-				"7tv_emotes": [
-					{"type": "image", "url": "@seventv.links.icon", "text": "7tv_icon", "cssClass": "image badge"},
-					{"text": "Emotes loaded ("},
-					{"text": "$1", "color": "white"},
-					{"text": ")"}
-				],
-				"twitch_badges": [
-					{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-					{"text": "Badges loaded ("},
-					{"text": "$1", "color": "white"},
-					{"text": ")"}
-				]
-			}
-		},
-		"eventsub": {
-			"channel_not_found": {
-				"text": "Channel not found"
-			},
-			"unauthorized": {
-				"twitch_notifications_follow": {
-					"text": "Follow notifications are disabled",
-					"reason": "You aren't moderator/broadcaster of channel"
-				},
-				"twitch_notifications_reward_redemption": {
-					"text": "Reward redemption notifications are disabled",
-					"reason": "You aren't broadcaster of channel"
-				}
-			},
-			"follow": {
-				"text": "Started following this channel"
-			},
-			"connected": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Chat connected to "},
-				{"text": "$1", "color": "$2"}
-			]
-		},
-		"irc": {
-			"connected": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Chat anonymously connected to "},
-				{"text": "$1", "color": "white"}
-			],
-			"reconnecting": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Reconnecting..."}
-			]
-		},
 		"general": {
-			"chat_cleared": [
-				{"type": "image", "url": "@twitch.links.icon", "text": "twitch_icon", "cssClass": "image badge"},
-				{"text": "Chat was cleared!"}
-			],
-			"sub": {
-				"text_bold": "Subscribed",
-				"text_prime": "with Prime",
-				"text_tier": "with Tier $1",
-				"text_tochannel": "to $1",
-
-				"text_resub": "They've subscribed for",
-				"text_resub_streak": ", $1 in a row",
-
-				"text_month": "$1 month",
-				"text_months": "$1 months"
-			},
-			"sub_gift": {
-				"text": "gifted a Tier $1 sub to",
-				"text_tochannel": "to channel $1"
-			},
-			"community_sub_gift": {
-				"text": "is gifting $1 of Tier $2 to $3's community",
-				"text_total": "They've gifted a total of $1 in the channel!",
-
-				"text_sub": "$1 sub",
-				"text_subs": "$1 subs"
-			},
-			"raid": {
-				"text": "is raiding this channel with",
-				"text_shared_chat": "is raiding $1 channel with",
-
-				"text_viewer": "$1 viewer",
-				"text_viewers": "$1 viewers"
-			},
+			"chat_cleared": "Chat cleared!",
 			"message_deleted": "<message deleted>",
-			"anonymous_user": "An anonymous user"
+			"twitch_login": {
+				"not_found": ["Parameter", "isn't specified!"],
+				"invalid": ["Channel", "not found!"]
+			},
+			"twitch_access_token": {
+				"not_found": ["Parameter", "isn't specified! Connecting to chat anonymously..."],
+				"invalid": "Invalid token! Connecting to chat anonymously..."
+			},
+			"7tv_emotes": {
+				"not_loaded": "Emotes aren't loaded: ",
+				"loaded": ["Emotes loaded (", ")"]
+			},
+			"twitch_badges": {
+				"not_loaded": "Badges aren't loaded: ",
+				"loaded": ["Badges loaded (", ")"]
+			}
 		},
 		"dashboard": {
 			"followers": "followers",
 			"subscribers": "subscribers"
+		},
+		"twitch": {
+			"eventsub": {
+				"connected": "Chat connected to ",
+				"twitch_notifications_follow": {
+					"unauthorized": [
+						"Follow notifications are disabled: ",
+						"You aren't moderator/broadcaster of channel"
+					],
+					"text": "Started following this channel"
+				},
+				"twitch_notifications_reward_redemption": {
+					"unauthorized": [
+						"Reward redemption notifications are disabled: ",
+						"You aren't broadcaster of channel"
+					],
+					"text": "redeemed"
+				}
+			},
+			"irc": {
+				"connected": "Chat anonymously connected to ",
+				"reconnecting": "Reconnecting..."
+			},
+			"general": {
+				"sub": {
+					"text_bold": "Subscribed",
+					"text_prime": "with Prime",
+					"text_tier": "with Tier $1",
+					"text_tochannel": "to $1",
+
+					"text_resub": "They've subscribed for",
+					"text_resub_streak": ", $1 in a row",
+
+					"text_month": "$1 month",
+					"text_months": "$1 months"
+				},
+				"sub_gift": {
+					"text": "gifted a Tier $1 sub to",
+					"text_tochannel": "to channel $1"
+				},
+				"community_sub_gift": {
+					"text": "is gifting $1 of Tier $2 to $3's community",
+					"text_total": "They've gifted a total of $1 in the channel!",
+
+					"text_sub": "$1 sub",
+					"text_subs": "$1 subs"
+				},
+				"raid": {
+					"text": "is raiding this channel with",
+					"text_shared_chat": "is raiding $1 channel with",
+
+					"text_viewer": "$1 viewer",
+					"text_viewers": "$1 viewers"
+				},
+				"anonymous_user": "An anonymous user"
+			}
 		}
 	}
 }

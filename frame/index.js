@@ -29,27 +29,9 @@ function createMessageChunkText(text, cssClass, appendTo) {
 	return chunk;
 }
 
-function replaceTagsInTranslation(arguments, ...tagReplacements) {
-	arguments = JSON.parse(JSON.stringify(arguments));
-	arguments.forEach(argument => {
-		tagReplacements.forEach((tagReplacement, i) => {
-			for (let [k, v] of Object.entries(argument))
-				if (v === `$${i+1}`) argument[k] = tagReplacement;
-		})
-	});
-	return arguments;
-}
-
-function makeMessageArgumentsInfo(...arguments) {
-	arguments.forEach(argument => {
-		if (argument != null) {
-			for (let [k, v] of Object.entries(argument)) if (v != null && typeof v === "string" && v.startsWith('@'))
-				argument[k] = eval(v.substring(1));
-		}
-	});
-	return arguments;
-}
-
+const messageChunks = {
+	twitch_icon: {type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"}
+};
 function makeMessage(...chunks) {
 	const div = document.createElement('div');
 	div.className = "message";
@@ -137,7 +119,10 @@ function removeAllMessages() {
 	chatMessagesDiv.childNodes.forEach(message => {
 		if (message != null) removeMessageFromDiv(message)
 	});
-	makeMessage(...makeMessageArgumentsInfo(...translation.frame.general.chat_cleared));
+	makeMessage(
+		messageChunks.twitch_icon,
+		{text: translation.frame.general.chat_cleared}
+	);
 }
 
 function removeAllUserMessages(userID) {
@@ -166,14 +151,16 @@ async function main() {
 	style.setProperty('--args_margin_top', args.search.indent * 0.5);
 	style.setProperty('--args_padding', args.search.indent * 0.5);
 
-	makeMessage(...makeMessageArgumentsInfo({type: "image", url: app.icon, text: "lsc_icon", cssClass: "image badge"}, {text: `${app.name} ${app.version}`, cssClass: "text bold", color: "#8000ff"}));
+	makeMessage({type: "image", url: app.icon, text: "lsc_icon", cssClass: "image badge"}, {text: `${app.name} ${app.version}`, cssClass: "text bold", color: "#8000ff"});
 	await loadTranslation();
 
-	if (args.search.twitch_login == null)
-		return makeMessage(...makeMessageArgumentsInfo(...translation.frame.parameter.not_found.twitch_login));
-	if (args.search.twitch_access_token == null) {
+	const t = translation.frame.general;
+
+	if (!args.search.twitch_login)
+		return makeMessage(messageChunks.twitch_icon, {text: t.twitch_login.not_found[0], color: errorColor}, {text: "twitch_login", color: "white"}, {text: t.twitch_login.not_found[1], color: errorColor});
+	if (!args.search.twitch_access_token) {
 		twitch.isAnonymous = true;
-		makeMessage(...makeMessageArgumentsInfo(...translation.frame.parameter.not_found.twitch_access_token));
+		makeMessage(messageChunks.twitch_icon, {text: t.twitch_access_token.not_found[0], color: warnColor}, {text: "twitch_access_token", color: "white"}, {text: t.twitch_access_token.not_found[1], color: warnColor});
 	}
 
 	args.search.twitch_login = args.search.twitch_login.toLowerCase();
@@ -197,13 +184,13 @@ async function main() {
 		if(!requestIsOK(r.status)) {
 			twitch.isAnonymous = true;
 			delete args.search.twitch_access_token;
-			makeMessage(...makeMessageArgumentsInfo(...translation.frame.parameter.error.twitch_access_token));
-			console.log(r);
+			makeMessage(messageChunks.twitch_icon, {text: t.twitch_access_token.invalid, color: warnColor});
+			console.error(r);
 		}
 
 		if (!twitch.isAnonymous) {
-			r = await twitch.getUserData(args.search.twitch_access_token, args.search.twitch_login.toLowerCase());
-			if (!r.response) return makeMessage({type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"}, {text: translation.frame.eventsub.channel_not_found.text, color: errorColor});
+			r = await twitch.getUserData(args.search.twitch_access_token, args.search.twitch_login);
+			if (!r.response) return makeMessage(messageChunks.twitch_icon, {text: t.twitch_login.invalid[0], color: errorColor}, {text: args.search.twitch_login, color: "white"}, {text: t.twitch_login.invalid[1], color: errorColor});
 			else if (!requestIsOK(r.status)) return console.error(r);
 			else {
 				twitch.broadcasterData = r.response;
@@ -213,14 +200,14 @@ async function main() {
 
 			if (args.search.twitch_badges) {
 				let r = await twitch.loadBadges(args.search.twitch_access_token, twitch.broadcasterData.id);
-				if (requestIsOK(r.status)) makeMessage(...makeMessageArgumentsInfo(...replaceTagsInTranslation(translation.frame.parameter.loaded.twitch_badges, r.response.count)));
-				else makeMessage(...makeMessageArgumentsInfo(...replaceTagsInTranslation(translation.frame.parameter.error.twitch_badges, r.message)));
+				if (requestIsOK(r.status)) makeMessage(messageChunks.twitch_icon, {text: t.twitch_badges.loaded[0]}, {text: `${r.response.count}`, color: "white"}, {text: t.twitch_badges.loaded[1]});
+				else makeMessage(messageChunks.twitch_icon, {text: t.twitch_badges.not_loaded, color: errorColor}, {text: r.message, color: "white"});
 			}
 
 			if (args.search['7tv_emotes']) {
 				let r = await seventv.loadEmotes(twitch.broadcasterData.id);
-				if (requestIsOK(r.status)) makeMessage(...makeMessageArgumentsInfo(...replaceTagsInTranslation(translation.frame.parameter.loaded['7tv_emotes'], r.response.count)));
-				else makeMessage(...makeMessageArgumentsInfo(...replaceTagsInTranslation(translation.frame.parameter.error['7tv_emotes'], r.message)));
+				if (requestIsOK(r.status)) makeMessage(messageChunks.twitch_icon, {text: t['7tv_emotes'].loaded[0]}, {text: `${r.response.count}`, color: "white"},{text: t['7tv_emotes'].loaded[1]});
+				else makeMessage(messageChunks.twitch_icon,{text: t['7tv_emotes'].not_loaded, color: errorColor},{text: r.message, color: "white"});
 			}
 		}
 	}

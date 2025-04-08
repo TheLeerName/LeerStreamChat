@@ -62,19 +62,22 @@ twitch.irc.onMessageChunk = async(data) => {
 };
 
 twitch.irc.onJoin = async(event) => {
-	makeMessage(...makeMessageArgumentsInfo(...replaceTagsInTranslation(translation.frame.irc.connected, args.search.twitch_login)));
+	makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.irc.connected}, {text: args.search.twitch_login, color: "white"});
 };
 
 twitch.irc.onReconnect = async(event) => {
-	makeMessage(...makeMessageArgumentsInfo(...translation.frame.irc.reconnecting));
+	makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.irc.reconnecting});
 	twitch.irc.connectWebSocket();
 };
 
 twitch.irc.onRoomState = async(event) => {
 	if (args.search['7tv_emotes'] && !seventv.isEmotesLoaded) {
+		const t = translation.frame.general;
 		let r = await seventv.loadEmotes(event['room-id']);
-		if (requestIsOK(r.status)) makeMessage(...makeMessageArgumentsInfo(...replaceTagsInTranslation(translation.frame.parameter.loaded['7tv_emotes'], r.response.count)));
-		else makeMessage(...makeMessageArgumentsInfo(...replaceTagsInTranslation(translation.frame.parameter.error['7tv_emotes'], r.message)));
+		if (requestIsOK(r.status))
+			makeMessage(messageChunks.twitch_icon, {text: t['7tv_emotes'].loaded[0]}, {text: `${r.response.count}`, color: "white"}, {text: t['7tv_emotes'].loaded[1]});
+		else
+			makeMessage(messageChunks.twitch_icon, {text: t['7tv_emotes'].not_loaded, color: errorColor}, {text: r.message, color: "white"});
 	}
 };
 
@@ -100,24 +103,24 @@ twitch.irc.onUserNotice = async(event) => {
 	}
 	else if (msgid === 'sub' || msgid === 'resub') {
 		const isprime = event['msg-param-sub-plan'] === "Prime";
-		const translationEvent = translation.frame.general.sub;
+		const t = translation.frame.twitch.general.sub;
 		const messageChunks = [
 			{type: "group", cssClass: "container-header", chunks: [
 				{type: "image", url: twitch.links[isprime ? 'icon_sub_prime' : 'icon_sub'], text: isprime ? "sub-prime" : "sub", cssClass: "image"},
 				{text: event['display-name'], cssClass: "text bold"},
 			]},
 			{type: "group", cssClass: "container-description", chunks: [
-				{text: translationEvent.text_bold, cssClass: "text chat bold"},
-				{text: ` ${isprime ? translationEvent.text_prime : translationEvent.text_tier.replace('$1', event['msg-param-sub-plan'].substring(0, 1))}.`, cssClass: "text chat"},
+				{text: t.text_bold, cssClass: "text chat bold"},
+				{text: ` ${isprime ? t.text_prime : t.text_tier.replace('$1', event['msg-param-sub-plan'].substring(0, 1))}.`, cssClass: "text chat"},
 			]},
 		];
 		if (msgid === "resub") {
 			const chunk = messageChunks[1];
-			chunk.chunks[1].text += ` ${translationEvent.text_resub} `;
+			chunk.chunks[1].text += ` ${t.text_resub} `;
 			const months = event['msg-param-cumulative-months'];
 			chunk.chunks.push(
-				{text: (months > 1 ? (translationEvent[`text_months${months}`] ?? translationEvent.text_months) : translationEvent.text_month).replace('$1', months), cssClass: "text chat bold"},
-				{text: (!isprime && event['msg-param-streak-months'] ? translationEvent.text_resub_streak.replace('$1', event['msg-param-streak-months']) : "") + "!", cssClass: "text chat"}
+				{text: (months > 1 ? (t[`text_months${months}`] ?? t.text_months) : t.text_month).replace('$1', months), cssClass: "text chat bold"},
+				{text: (!isprime && event['msg-param-streak-months'] ? t.text_resub_streak.replace('$1', event['msg-param-streak-months']) : "") + "!", cssClass: "text chat"}
 			);
 		}
 
@@ -126,10 +129,10 @@ twitch.irc.onUserNotice = async(event) => {
 		return div;
 	}
 	else if (msgid === "subgift") {
-		const translationEvent = translation.frame.general.sub_gift;
+		const t = translation.frame.twitch.general.sub_gift;
 		const div = makeMessage(
 			{text: event['display-name'], cssClass: "text bold"},
-			{text: ` ${translationEvent.text.replace('$1', event['msg-param-sub-plan'].substring(0, 1))} `, cssClass: "text"},
+			{text: ` ${t.text.replace('$1', event['msg-param-sub-plan'].substring(0, 1))} `, cssClass: "text"},
 			{text: event['msg-param-recipient-display-name'], cssClass: "text bold"},
 			{text: "!", cssClass: "text"}
 		);
@@ -139,11 +142,11 @@ twitch.irc.onUserNotice = async(event) => {
 		return div;
 	}
 	else if (msgid === "raid") {
-		const translationEvent = translation.frame.general.raid;
+		const t = translation.frame.twitch.general.raid;
 		const div = makeMessage(
 			{text: event['display-name'], cssClass: "text bold"},
-			{text: ` ${translationEvent.text} `, cssClass: "text"},
-			{text: (event['msg-param-viewerCount'] > 1 ? (translationEvent[`text_viewers${event['msg-param-viewerCount']}`] ?? translationEvent.text_viewers) : translationEvent.text_viewer).replace('$1', event['msg-param-viewerCount']), cssClass: "text bold"},
+			{text: ` ${t.text} `, cssClass: "text"},
+			{text: (event['msg-param-viewerCount'] > 1 ? (t[`text_viewers${event['msg-param-viewerCount']}`] ?? t.text_viewers) : t.text_viewer).replace('$1', event['msg-param-viewerCount']), cssClass: "text bold"},
 			{text: "!", cssClass: "text"}
 		);
 		div.classList.add('message-sub');
