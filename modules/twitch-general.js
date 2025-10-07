@@ -1,10 +1,3 @@
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#getting_a_random_integer_between_two_values
-function getRandomInt(min, max) {
-	const minCeiled = Math.ceil(min);
-	const maxFloored = Math.floor(max);
-	return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
-}
-
 const twitch = {
 	client_id: app.twitch_client_id,
 	scopes: [
@@ -22,24 +15,6 @@ const twitch = {
 		5000: '#0099fe',
 		10000: '#f43021'
 	},
-	defaultUserColors: [
-		"#ff0000",
-		"#0000ff",
-		"#008000",
-		"#b22222",
-		"#ff7f50",
-		"#9acd32",
-		"#ff4500",
-		"#2e8b57",
-		"#daa520",
-		"#d2691e",
-		"#5f9ea0",
-		"#1e90ff",
-		"#ff69b4",
-		"#8a2be2",
-		"#00ff7f"
-	],
-	getRandomDefaultUserColor: () => twitch.defaultUserColors[getRandomInt(0, twitch.defaultUserColors.length)],
 
 	links: {
 		icon: `${app.link}/assets/twitch.png`,
@@ -129,13 +104,13 @@ const twitch = {
 				else if (response.data.length === 0) throw `User not found: ${userID}`;
 				else {
 					output = {status: request.status, response: response.data[0].color};
-					if (output.response.length === 0) output.response = twitch.getRandomDefaultUserColor();
+					if (output.response.length === 0) output.response = await generateUserColor(userID);
 				}
 			} catch(e) {
-				output = {status: 400, message: e.toString(), response: twitch.getRandomDefaultUserColor()};
+				output = {status: 400, message: e.toString(), response: await generateUserColor(userID)};
 			}
 		} else
-			output = {status: 200, response: twitch.getRandomDefaultUserColor()};
+			output = {status: 200, response: await generateUserColor(userID)};
 
 		if (output.response) twitch.userColors[userID] = output.response;
 		return output;
