@@ -62,7 +62,10 @@ const twitch = {
 			channels: (accessToken, query) => advancedFetch(`https://api.twitch.tv/helix/search/channels?first=1&query=${encodeURI(query)}`, {abortIfNewStarted: true, headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}})
 		},
 		eventsub: {
-			subscriptions: (accessToken, body) => advancedFetch("https://api.twitch.tv/helix/eventsub/subscriptions", {method: "POST", headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json"}, body: JSON.stringify(body)})
+			subscriptions: {
+				get: (accessToken, body) => advancedFetch("https://api.twitch.tv/helix/eventsub/subscriptions", {method: "POST", headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json"}, body: JSON.stringify(body)}),
+				delete: (accessToken, id) => advancedFetch(`https://api.twitch.tv/helix/eventsub/subscriptions?id=${id}`, {method: "DELETE", headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}})
+			}
 		},
 		chat: {
 			color: (accessToken, user_id) => advancedFetch(`https://api.twitch.tv/helix/chat/color?user_id=${user_id}`, {headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}}),

@@ -1,6 +1,9 @@
 // chat will use eventsub to connect as logged user
 // (if twitch_access_token is specified)
 
+twitch.eventsub.subscriptions = [];
+twitch.eventsub.subscriptions_localstoragekey = "twitch_subscriptions";
+
 twitch.eventsub.connectWebSocket = () => {
 	twitch.eventsub.session = null;
 	twitch.eventsub.ws?.close();
@@ -80,6 +83,13 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 	const broadcaster_user_id = twitch.broadcasterData.id; // id of broadcaster, see how twitch.broadcasterData is defined in start of main() in index.js
 	const user_id = twitch.accessTokenData.user_id; // id of current user
 
+	// removing previous subscriptions
+	twitch.eventsub.subscriptions = JSON.parse(localStorage.getItem(twitch.eventsub.subscriptions_localstoragekey) ?? "[]");
+	for (const id of twitch.eventsub.subscriptions) {
+		twitch.eventsub.unsubscribeFromEvent(id);
+		twitch.eventsub.subscriptions.shift();
+	}
+
 	if (args.search.twitch_dashboard) {
 		r = await twitch.eventsub.subscribeToEvent("stream.online", {broadcaster_user_id});
 		if (!requestIsOK(r.status)) return console.error(r);
@@ -136,6 +146,8 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 	if (!requestIsOK(r.status)) return console.error(r);
 	r = await twitch.eventsub.subscribeToEvent("channel.shared_chat.end", {broadcaster_user_id});
 	if (!requestIsOK(r.status)) return console.error(r);
+
+	localStorage.setItem(twitch.eventsub.subscriptions_localstoragekey, JSON.stringify(twitch.eventsub.subscriptions));
 
 	if (!twitch.eventsub.connected) twitch.eventsub.onConnect();
 };
@@ -493,10 +505,22 @@ twitch.eventsub.subscribeToEvent = async(type, condition, version) => {
 	let request, response = null;
 
 	try {
-		request = await twitch.fetch.eventsub.subscriptions(args.search.twitch_access_token, {
-			type, version, condition,
-			transport: { method: "websocket", session_id: twitch.eventsub.session.id }
-		});
+		const subscription = { type, version, condition, transport: { method: "websocket", session_id: twitch.eventsub.session.id } };
+		request = await twitch.fetch.eventsub.subscriptions.get(args.search.twitch_access_token, subscription);
+		response = await request.json();
+
+		if (!request.ok) return response;
+		twitch.eventsub.subscriptions.push(response.data[0].id);
+		return {status: request.status};
+	} catch(e) {
+		return {status: 400, message: e.toString()};
+	}
+};
+twitch.eventsub.unsubscribeFromEvent = async(id) => {
+	let request, response = null;
+
+	try {
+		request = await twitch.fetch.eventsub.subscriptions.delete(args.search.twitch_access_token, id);
 		response = await request.json();
 
 		if (!request.ok) return response;
