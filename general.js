@@ -11,7 +11,8 @@ app.icon = app.link + app.icon;
 document.title = app.name;
 
 const regex = {
-	http_protocol: /https?:\/\//
+	http_protocol: /https?:\/\//,
+	is_number: /^\d+$/
 };
 
 const args = {

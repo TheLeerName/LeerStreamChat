@@ -16,6 +16,84 @@ const twitch = {
 		10000: '#f43021'
 	},
 
+	sounds: {
+		upload_limit: 3145728,
+		upload_limit_string: "3 MB",
+		play: async(type) => {
+			try {
+				return await twitch.sounds[type]?.play();
+			}
+			catch(e) {
+				console.error(e);
+				return undefined;
+			}
+		},
+		init: async() => {
+			if (args.search.twitch_sound_on_message) twitch.sounds.loadSound("on_message", parseFloat(args.search.twitch_sound_on_message_volume));
+			if (args.search.twitch_sound_on_follower) twitch.sounds.loadSound("on_follower", parseFloat(args.search.twitch_sound_on_follower_volume));
+			if (args.search.twitch_sound_on_subscriber) twitch.sounds.loadSound("on_subscriber", parseFloat(args.search.twitch_sound_on_subscriber_volume));
+			if (args.search.twitch_sound_on_raid) twitch.sounds.loadSound("on_raid", parseFloat(args.search.twitch_sound_on_raid_volume));
+			//twitch.sounds.play("on_message");
+		},
+
+		loadSound: async(type, volume) => {
+			if (!volume) volume = 1; // volume ??= 1 doesnt work with NaN's lol
+			var sound = await new Promise(r => window.ldb.get(`${type}_sound`, v => r(v)));
+			const msg = makeMessage({type: "image", url: app.icon, text: "lsc_icon", cssClass: "image badge"}, {text: translation.frame.sounds.loading.replace("%1", type), cssClass: "text", color: warnColor});
+			msg.style.cursor = "pointer";
+
+			if (sound) {
+				twitch.sounds[type] = new Audio(`data:audio/mpeg;base64,${sound}`);
+				twitch.sounds[type].volume = volume;
+				msg.children[1].innerText = translation.frame.sounds.loaded.replace("%1", type);
+				msg.children[1].style.color = "";
+			}
+			else {
+				msg.children[1].innerText = translation.frame.sounds.not_set_click.replace("%1", type);
+				msg.children[1].style.color = errorColor;
+			}
+
+			msg.onclick = async() => {
+				try {
+					msg.children[1].innerText = translation.frame.sounds.loading.replace("%1", type);
+					msg.children[1].style.color = warnColor;
+
+					const [file_handle] = await window.showOpenFilePicker({
+						multiple: false,
+						startIn: "downloads",
+						types: [{
+							description: "Music files",
+							accept: { "audio/mpeg": [".mp3"] }
+						}]
+					});
+					const file = await file_handle.getFile();
+					if (file.size <= twitch.sounds.upload_limit) {
+						const base64 = Uint8ToBase64(new Uint8Array(await file.arrayBuffer()));
+						await new Promise(r => window.ldb.set(`${type}_sound`, base64, r));
+
+						twitch.sounds[type] = new Audio(`data:audio/mpeg;base64,${base64}`);
+						twitch.sounds[type].volume = volume;
+						msg.children[1].innerText = translation.frame.sounds.loaded.replace("%1", type);
+						msg.children[1].style.color = "";
+					}
+					else {
+						msg.children[1].innerText = translation.frame.sounds.upload_limit.replace("%1", type).replace("%2", twitch.sounds.upload_limit_string);
+						msg.children[1].style.color = errorColor;
+					}
+				}
+				catch(e) {
+					if (e.name === "AbortError")
+						msg.children[1].innerText = translation.frame.sounds.not_set.replace("%1", type);
+					else
+						msg.children[1].innerText = translation.frame.sounds.not_set_error.replace("%1", type).replace("%2", e.name);
+					console.log(e.message);
+					window.ldb.delete(`${type}_sound`);
+					delete twitch.sounds[type];
+				}
+			};
+		}
+	},
+
 	links: {
 		icon: `${app.link}/assets/twitch.png`,
 		icon_channel_points: `${app.link}/assets/twitch-channel-points.svg`,

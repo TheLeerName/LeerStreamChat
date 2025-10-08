@@ -131,6 +131,14 @@
 				"loaded": ["Badges loaded (", ")"]
 			}
 		},
+		"sounds": {
+			"loaded": "Sound %1 was loaded, click here to change it",
+			"loading": "Sound %1 is loading...",
+			"not_set_click": "Sound %1 is not set! Click here to set it",
+			"upload_limit": "Sound %1 has size higher than %2! No sound will be played",
+			"not_set": "Sound %1 is not set! No sound will be played",
+			"not_set_error": "Sound %1 has %2! No sound will be played"
+		},
 		"dashboard": {
 			"followers": "followers",
 			"subscribers": "subscribers"

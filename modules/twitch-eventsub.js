@@ -242,6 +242,7 @@ twitch.eventsub.onChatNotification = async(event) => {
 
 		const div = await twitch.eventsub.makeChatMessage(event, messageChunks, true);
 		div.classList.add('message-sub');
+		twitch.sounds.play("on_subscriber");
 		return div;
 	}
 	else if (noticetype === "community_sub_gift" || noticetype === "shared_chat_community_sub_gift") {
@@ -253,6 +254,7 @@ twitch.eventsub.onChatNotification = async(event) => {
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
+		twitch.sounds.play("on_subscriber");
 		return div;
 	}
 	else if (noticetype === "sub_gift" || noticetype === "shared_chat_sub_gift") {
@@ -266,6 +268,7 @@ twitch.eventsub.onChatNotification = async(event) => {
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
+		twitch.sounds.play("on_subscriber");
 		return div;
 	}
 	else if (noticetype === "raid" || noticetype === "shared_chat_raid") {
@@ -279,6 +282,7 @@ twitch.eventsub.onChatNotification = async(event) => {
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
+		twitch.sounds.play("on_raid");
 		return div;
 	}
 	else if (noticetype === "unraid")
@@ -496,6 +500,7 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 	if (isHighlighted)
 		div.style.background = "rgba(255, 64, 0, 0.25)";
 
+	twitch.sounds.play("on_message");
 	return div;
 };
 

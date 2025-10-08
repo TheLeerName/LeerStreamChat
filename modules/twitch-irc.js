@@ -124,8 +124,9 @@ twitch.irc.onUserNotice = async(event) => {
 			);
 		}
 
-		const div = await twitch.irc.makeChatMessage(event, messageChunks);
+		const div = await twitch.irc.makeChatMessage(event, messageChunks, false);
 		div.classList.add('message-sub');
+		twitch.sounds.play("on_subscriber");
 		return div;
 	}
 	else if (msgid === "subgift") {
@@ -139,6 +140,7 @@ twitch.irc.onUserNotice = async(event) => {
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.id);
 		div.setAttribute('user-id', event['user-id']);
+		twitch.sounds.play("on_subscriber");
 		return div;
 	}
 	else if (msgid === "raid") {
@@ -152,6 +154,7 @@ twitch.irc.onUserNotice = async(event) => {
 		div.classList.add('message-sub');
 		div.setAttribute('message-id', event.message_id);
 		div.setAttribute('user-id', event.chatter_user_id);
+		twitch.sounds.play("on_raid");
 		return div;
 	}
 	else if (msgid === 'unraid') {} // do nothing
@@ -159,7 +162,7 @@ twitch.irc.onUserNotice = async(event) => {
 		console.warn(`unsupported user notice id: ${msgid}`, event);
 };
 
-twitch.irc.makeChatMessage = async(event, prefixChunks) => {
+twitch.irc.makeChatMessage = async(event, prefixChunks, playSound) => {
 	let isHighlighted = event['msg-id'] === 'highlighted-message';
 	const messageChunks = [];
 
@@ -273,6 +276,7 @@ twitch.irc.makeChatMessage = async(event, prefixChunks) => {
 	if (isHighlighted)
 		div.style.background = "rgba(255, 64, 0, 0.25)";
 
+	if (playSound) twitch.sounds.play("on_message");
 	return div;
 };
 
