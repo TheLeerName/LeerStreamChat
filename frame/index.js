@@ -200,8 +200,8 @@ async function main() {
 	const style = document.body.style;
 	style.setProperty('--info_color', infoColor);
 	style.setProperty('--args_size', `${args.search.size}px`);
-	style.setProperty('--args_decay', `${args.search.fadeout}ms`);
-	style.setProperty('--args_decay_duration', `${args.search.fadeout_duration}ms`);
+	style.setProperty('--args_decay', `${args.search.fadeout}s`);
+	style.setProperty('--args_decay_duration', `${args.search.fadeout_duration}s`);
 	style.setProperty('--args_margin_top', args.search.indent * 0.5);
 	style.setProperty('--args_padding', args.search.indent * 0.5);
 
@@ -245,7 +245,7 @@ async function main() {
 
 		if (!twitch.isAnonymous) {
 			r = await twitch.getUserData(args.search.twitch_access_token, args.search.twitch_login);
-			if (!r.response) return makeMessage(messageChunks.twitch_icon, {text: t.twitch_login.invalid[0], color: errorColor}, {text: args.search.twitch_login, color: "white"}, {text: t.twitch_login.invalid[1], color: errorColor});
+			if (!r.response) return makeMessage(messageChunks.twitch_icon, {text: t.twitch_login.invalid[0], color: errorColor}, {text: ` ${args.search.twitch_login} `, color: "white"}, {text: t.twitch_login.invalid[1], color: errorColor});
 			else if (!requestIsOK(r.status)) return console.error(r);
 			else {
 				twitch.broadcasterData = r.response;
@@ -256,13 +256,13 @@ async function main() {
 			if (args.search.twitch_badges) {
 				let r = await twitch.loadBadges(args.search.twitch_access_token, twitch.broadcasterData.id);
 				if (requestIsOK(r.status)) makeMessage(messageChunks.twitch_icon, {text: t.twitch_badges.loaded[0]}, {text: `${r.response.count}`, color: "white"}, {text: t.twitch_badges.loaded[1]});
-				else makeMessage(messageChunks.twitch_icon, {text: t.twitch_badges.not_loaded, color: errorColor}, {text: r.message, color: "white"});
+				else makeMessage(messageChunks.twitch_icon, {text: t.twitch_badges.not_loaded, color: errorColor}, {text: ` ${r.message}`, color: "white"});
 			}
 
 			if (args.search['7tv_emotes']) {
 				let r = await seventv.loadEmotes(twitch.broadcasterData.id);
 				if (requestIsOK(r.status)) makeMessage(messageChunks.twitch_icon, {text: t['7tv_emotes'].loaded[0]}, {text: `${r.response.count}`, color: "white"},{text: t['7tv_emotes'].loaded[1]});
-				else makeMessage(messageChunks.twitch_icon,{text: t['7tv_emotes'].not_loaded, color: errorColor},{text: r.message, color: "white"});
+				else makeMessage(messageChunks.twitch_icon,{text: t['7tv_emotes'].not_loaded, color: errorColor},{text: ` ${r.message}`, color: "white"});
 			}
 		}
 	}
