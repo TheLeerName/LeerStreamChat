@@ -10,6 +10,7 @@ Stream chat for displaying on browser source in OBS
 - Twitch subscriptions and gifts display
 - Twitch raid notification in chat
 - Twitch announcements in chat
+- Sounds on new message/follower/subscriber/raid
 - Dashboard with showing viewers (if channel is live) / followers / subscribers (if twitch token belongs to broadcaster of chat)
 - Removing message
 - Fade out of message
