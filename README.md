@@ -24,4 +24,5 @@ Stream chat for displaying on browser source in OBS
 - BetterTTV emotes
 
 ## Special thanks <3
-- library [HumanizeDuration.js](https://github.com/EvanHahn/HumanizeDuration.js) by [EvanHahn](https://github.com/EvanHahn)
+- library [HumanizeDuration.js](https://github.com/EvanHahn/HumanizeDuration.js) by [EvanHahn](https://github.com/EvanHahn), used for displaying access token expiration date
+- library [LocalData](https://github.com/DVLP/localStorageDB) by [DVLP](https://github.com/DVLP), used for accessing indexedDB with localStorage-like access
