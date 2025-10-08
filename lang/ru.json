@@ -71,7 +71,7 @@
 				},
 				"coming_soon": "Скоро...",
 				"label": {
-					"twitch_access_token": "Twitch токен доступа",
+					"twitch_access_token": "Токен доступа Twitch",
 					"twitch_login": "Twitch-канал",
 					"hide_sensitive_info": "Скрыть приватную информацию",
 					"lang": "Язык",
@@ -83,8 +83,8 @@
 					"twitch_emotes": "Twitch смайлики",
 					"7tv_emotes": "7TV смайлики",
 					"bttv_emotes": "BetterTTV смайлики",
-					"twitch_dashboard": "Twitch-панель статистики",
-					"twitch_badges": "Twitch значки",
+					"twitch_dashboard": "Панель статистики Twitch",
+					"twitch_badges": "Значки Twitch",
 					"twitch_notifications_reward_redemption": "Траты баллов Twitch-канала",
 					"twitch_notifications_follow": "Новые фолловеры Twitch-канала",
 					"twitch_notifications_subscribe": "Новые подписчики Twitch-канала",
@@ -141,20 +141,20 @@
 			"chat_cleared": "Чат очищен!",
 			"message_deleted": "<сообщение удалено>",
 			"twitch_login": {
-				"not_found": ["Параметр", "не найден!"],
-				"invalid": ["Канал", "не найден!"]
+				"not_found": "Параметр %1 не найден!",
+				"invalid": "Канал %1 не найден!"
 			},
 			"twitch_access_token": {
-				"not_found": ["Параметр", "не найден! Использую анонимное соединение..."],
-				"invalid": "Неверный токен! Использую анонимное соединение..."
+				"not_found": "Параметр %1 не найден! Использую анонимное соединение...",
+				"invalid": "Параметр %1 неверный! Использую анонимное соединение..."
 			},
 			"7tv_emotes": {
-				"not_loaded": "Смайлики не загружены: ",
-				"loaded": ["Смайлики загружены (", ")"]
+				"not_loaded": "Смайлики не загружены: %1",
+				"loaded": "Смайлики загружены (%1)"
 			},
 			"twitch_badges": {
-				"not_loaded": "Значки не загружены: ",
-				"loaded": ["Значки загружены (", ")"]
+				"not_loaded": "Значки не загружены: %1",
+				"loaded": "Значки загружены (%1)"
 			}
 		},
 		"sounds": {
@@ -172,19 +172,20 @@
 		"twitch": {
 			"eventsub": {
 				"connected": "Чат подключён к ",
+				"disconnected": "Чат был отключён: ",
+				"reconnected": "Чат был переподключён",
 				"twitch_notifications_follow": {
-					"unauthorized": [
-						"Оповещения о новых фолловерах отключены: ",
-						"Вы не модератор/владелец канала"
-					],
+					"unauthorized": "Оповещения о новых фолловерах отключены:%1 Вы не модератор/владелец канала",
 					"text": "Начинает отслеживать этот канал"
 				},
 				"twitch_notifications_reward_redemption": {
-					"unauthorized": [
-						"Оповещения о покупках за баллы канала отключены: ",
-						"Вы не владелец канала"
-					],
+					"unauthorized": "Оповещения о покупках за баллы канала отключены:%1 Вы не владелец канала",
 					"text": "получил(а)"
+				},
+				"twitch_dashboard": {
+					"failed_viewers": "Панель уведомлений не смогла обновить кол-во зрителей: %1",
+					"failed_followers": "Панель уведомлений не смогла обновить кол-во фолловеров: %1",
+					"failed_subscribers": "Панель уведомлений не смогла обновить кол-во подписчиков: %1"
 				}
 			},
 			"irc": {

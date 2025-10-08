@@ -24,19 +24,23 @@ twitch.eventsub.onError = async(e) => {
 
 twitch.eventsub.onClose = async(e) => {
 	//console.log(e);
+	makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.disconnected, cssClass: "text bold", color: errorColor}, {text: `${e.code} - ${e.reason}`, color: "white"});
 	setTimeout(twitch.eventsub.connectWebSocket, 500);
 };
 
 twitch.eventsub.connected = false;
 twitch.eventsub.onConnect = async() => {
+	if (!twitch.eventsub.connected) {
+		let r = await twitch.getUserColor(args.search.twitch_access_token, twitch.broadcasterData.id);
+		if (!requestIsOK(r.status)) console.error(r);
+		let userColor = r.response;
+
+		makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.connected}, {text: twitch.broadcasterData.display_name, color: userColor});
+		twitch.eventsub.releaseMessages();
+	}
+	else
+		makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.reconnected});
 	twitch.eventsub.connected = true;
-
-	let r = await twitch.getUserColor(args.search.twitch_access_token, twitch.broadcasterData.id);
-	if (!requestIsOK(r.status)) console.error(r);
-	let userColor = r.response;
-
-	makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.connected}, {text: twitch.broadcasterData.display_name, color: userColor});
-	twitch.eventsub.releaseMessages();
 };
 
 twitch.eventsub.delayMessagesEnabled = false;
@@ -116,7 +120,10 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 
 	if (args.search.twitch_notifications_follow) {
 		r = await twitch.eventsub.subscribeToEvent("channel.follow", {broadcaster_user_id, moderator_user_id: user_id}, "2");
-		if (r.status === 403) makeMessage(messageChunks.twitch_icon, {text: t.twitch_notifications_follow.unauthorized[0], color: warnColor}, {text: t.twitch_notifications_follow.unauthorized[1], color: "white"});
+		if (r.status === 403) {
+			const texts = t.twitch_notifications_follow.unauthorized.split("%1");
+			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: warnColor}, {text: texts[1], color: "white"});
+		}
 		else if (!requestIsOK(r.status)) return console.error(r);
 	}
 
@@ -136,8 +143,10 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 
 	if (args.search.twitch_notifications_reward_redemption) {
 		r = await twitch.eventsub.subscribeToEvent("channel.channel_points_custom_reward_redemption.add", {broadcaster_user_id});
-		if (r.status === 403)
-			makeMessage(messageChunks.twitch_icon, {text: t.twitch_notifications_reward_redemption.unauthorized[0], color: warnColor}, {text: t.twitch_notifications_reward_redemption.unauthorized[1], color: "white"});
+		if (r.status === 403) {
+			const texts = t.twitch_notifications_reward_redemption.unauthorized.split("%1");
+			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: warnColor}, {text: texts[1], color: "white"});
+		}
 		else if (!requestIsOK(r.status)) return console.error(r);
 	}
 

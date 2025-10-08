@@ -84,6 +84,7 @@ twitch.dashboard.hideViewers = () => {
 	twitch.dashboard.initialize();
 
 	twitch.dashboard.div.removeChild(twitch.dashboard.viewers.div);
+	twitch.dashboard.viewers.added = false;
 
 	if (twitch.dashboard.viewers.interval_id) clearInterval(twitch.dashboard.viewers.interval_id);
 };
@@ -93,7 +94,11 @@ twitch.dashboard.updateViewers = async(count) => {
 
 	if (!count) {
 		const r = await twitch.getStreamData(args.search.twitch_access_token, twitch.broadcasterData.id);
-		if (!requestIsOK(r.status)) return console.error(r);
+		if (!requestIsOK(r.status)) {
+			const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_viewers.split("%1");
+			makeMessage(messageChunks.twitch_icon, {text: texts[0], cssClass: "text bold", color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], cssClass: "text bold", color: errorColor});
+			return console.error(r);
+		}
 		count = r.response?.viewer_count ?? 0;
 	}
 
@@ -104,7 +109,11 @@ twitch.dashboard.updateFollowers = async() => {
 	twitch.dashboard.initialize();
 
 	const r = await twitch.getChannelFollowers(args.search.twitch_access_token, twitch.broadcasterData.id);
-	if (!requestIsOK(r.status)) return console.error(r);
+	if (!requestIsOK(r.status)) {
+		const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_followers.split("%1");
+		makeMessage(messageChunks.twitch_icon, {text: texts[0], cssClass: "text bold", color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], cssClass: "text bold", color: errorColor});
+		return console.error(r);
+	}
 	twitch.dashboard.setFollowers(r.response.total);
 };
 
@@ -131,7 +140,9 @@ twitch.dashboard.updateSubscribers = async() => {
 
 	const r = await twitch.getChannelSubscribers(args.search.twitch_access_token, twitch.broadcasterData.id);
 	if (!requestIsOK(r.status)) {
-		if (args.search.debug) console.error(r);
+		const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_subscribers.split("%1");
+		makeMessage(messageChunks.twitch_icon, {text: texts[0], cssClass: "text bold", color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], cssClass: "text bold", color: errorColor});
+		console.error(r);
 		return false;
 	}
 

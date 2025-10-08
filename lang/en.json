@@ -137,20 +137,20 @@
 			"chat_cleared": "Chat cleared!",
 			"message_deleted": "<message deleted>",
 			"twitch_login": {
-				"not_found": ["Parameter", "isn't specified!"],
-				"invalid": ["Channel", "not found!"]
+				"not_found": "Parameter %1 isn't specified!",
+				"invalid": "Channel %1 not found!"
 			},
 			"twitch_access_token": {
-				"not_found": ["Parameter", "isn't specified! Connecting to chat anonymously..."],
-				"invalid": "Invalid token! Connecting to chat anonymously..."
+				"not_found": "Parameter %1 isn't specified! Connecting to chat anonymously...",
+				"invalid": "Parameter %1 is invalid! Connecting to chat anonymously..."
 			},
 			"7tv_emotes": {
-				"not_loaded": "Emotes aren't loaded: ",
-				"loaded": ["Emotes loaded (", ")"]
+				"not_loaded": "Emotes aren't loaded: %1",
+				"loaded": "Emotes loaded (%1)"
 			},
 			"twitch_badges": {
-				"not_loaded": "Badges aren't loaded: ",
-				"loaded": ["Badges loaded (", ")"]
+				"not_loaded": "Badges aren't loaded: %1",
+				"loaded": "Badges loaded (%1)"
 			}
 		},
 		"sounds": {
@@ -168,19 +168,20 @@
 		"twitch": {
 			"eventsub": {
 				"connected": "Chat connected to ",
+				"disconnected": "Chat was disconnected: ",
+				"reconnected": "Chat was reconnected",
 				"twitch_notifications_follow": {
-					"unauthorized": [
-						"Follow notifications are disabled: ",
-						"You aren't moderator/broadcaster of channel"
-					],
+					"unauthorized": "Follow notifications are disabled:%1 You aren't moderator/broadcaster of channel",
 					"text": "Started following this channel"
 				},
 				"twitch_notifications_reward_redemption": {
-					"unauthorized": [
-						"Reward redemption notifications are disabled: ",
-						"You aren't broadcaster of channel"
-					],
+					"unauthorized": "Reward redemption notifications are disabled:%1 You aren't broadcaster of channel",
 					"text": "redeemed"
+				},
+				"twitch_dashboard": {
+					"failed_viewers": "Dashboard failed to update viewers: %1",
+					"failed_followers": "Dashboard failed to update followers: %1",
+					"failed_subscribers": "Dashboard failed to update subscribers: %1"
 				}
 			},
 			"irc": {

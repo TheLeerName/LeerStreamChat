@@ -93,8 +93,11 @@ function makeMessage(...chunks) {
 	const consoleLogChunks = [];
 	function addChunks(chunks, appendTo) {
 		for (let chunk of chunks) {
+			if (!chunk) continue;
+
 			let chunkDiv;
 			if (chunk.type === "image") {
+				if (!chunk.text || chunk.text.length < 1) continue;
 				chunkDiv = createMessageChunkImage(chunk.url, chunk.cssClass, appendTo);
 				if (args.search.debug) consoleLogChunks.push({text: `%c${chunk.text} `, css: `color:${chunk.color ?? imagePlaceholderColor}`});
 			} else if (chunk.type === "group") {
@@ -104,6 +107,7 @@ function makeMessage(...chunks) {
 				if (args.search.debug) consoleLogChunks.push({text: "\n"});
 				appendTo.appendChild(chunkDiv);
 			} else { // else if (chunk.type === "text")
+				if (!chunk.text || chunk.text.length < 1) continue;
 				chunkDiv = createMessageChunkText(chunk.text, chunk.cssClass, appendTo);
 				if (chunk.color) chunkDiv.style.color = chunk.color;
 				if (args.search.debug) consoleLogChunks.push({text: `%c${chunk.text}`, css: `color:${chunk.color ?? infoColor}`});
@@ -210,11 +214,14 @@ async function main() {
 
 	const t = translation.frame.general;
 
-	if (!args.search.twitch_login)
-		return makeMessage(messageChunks.twitch_icon, {text: t.twitch_login.not_found[0], color: errorColor}, {text: " twitch_login ", color: "white"}, {text: t.twitch_login.not_found[1], color: errorColor});
+	if (!args.search.twitch_login) {
+		const texts = t.twitch_login.not_found.split("%1");
+		return makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: "twitch_login", color: "white"}, {text: texts[1], color: errorColor});
+	}
 	if (!args.search.twitch_access_token) {
 		twitch.isAnonymous = true;
-		makeMessage(messageChunks.twitch_icon, {text: t.twitch_access_token.not_found[0], color: warnColor}, {text: " twitch_access_token ", color: "white"}, {text: t.twitch_access_token.not_found[1], color: warnColor});
+		const texts = t.twitch_access_token.not_found.split("%1");
+		makeMessage(messageChunks.twitch_icon, {text: texts[0], color: warnColor}, {text: " twitch_access_token ", color: "white"}, {text: texts[1], color: warnColor});
 	}
 
 	args.search.twitch_login = args.search.twitch_login.toLowerCase();
@@ -239,13 +246,17 @@ async function main() {
 		if(!requestIsOK(r.status)) {
 			twitch.isAnonymous = true;
 			delete args.search.twitch_access_token;
-			makeMessage(messageChunks.twitch_icon, {text: t.twitch_access_token.invalid, color: warnColor});
+			const texts = t.twitch_access_token.invalid.split("%1");
+			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: warnColor}, {text: "twitch_access_token", color: "white"}, {text: texts[1], color: warnColor});
 			console.error(r);
 		}
 
 		if (!twitch.isAnonymous) {
 			r = await twitch.getUserData(args.search.twitch_access_token, args.search.twitch_login);
-			if (!r.response) return makeMessage(messageChunks.twitch_icon, {text: t.twitch_login.invalid[0], color: errorColor}, {text: ` ${args.search.twitch_login} `, color: "white"}, {text: t.twitch_login.invalid[1], color: errorColor});
+			if (!r.response) {
+				const texts = t.twitch_login.invalid.split("%1");
+				return makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: args.search.twitch_login, color: "white"}, {text: texts[1], color: errorColor});
+			}
 			else if (!requestIsOK(r.status)) return console.error(r);
 			else {
 				twitch.broadcasterData = r.response;
@@ -255,14 +266,26 @@ async function main() {
 
 			if (args.search.twitch_badges) {
 				let r = await twitch.loadBadges(args.search.twitch_access_token, twitch.broadcasterData.id);
-				if (requestIsOK(r.status)) makeMessage(messageChunks.twitch_icon, {text: t.twitch_badges.loaded[0]}, {text: `${r.response.count}`, color: "white"}, {text: t.twitch_badges.loaded[1]});
-				else makeMessage(messageChunks.twitch_icon, {text: t.twitch_badges.not_loaded, color: errorColor}, {text: ` ${r.message}`, color: "white"});
+				if (requestIsOK(r.status)) {
+					const texts = t.twitch_badges.loaded.split("%1");
+					makeMessage(messageChunks.twitch_icon, {text: texts[0]}, {text: `${r.response.count}`, color: "white"}, {text: texts[1]});
+				}
+				else {
+					const texts = t.twitch_badges.not_loaded.split("%1");
+					makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: r.message, color: "white"}, {text: texts[1], color: errorColor});
+				}
 			}
 
 			if (args.search['7tv_emotes']) {
 				let r = await seventv.loadEmotes(twitch.broadcasterData.id);
-				if (requestIsOK(r.status)) makeMessage(messageChunks.twitch_icon, {text: t['7tv_emotes'].loaded[0]}, {text: `${r.response.count}`, color: "white"},{text: t['7tv_emotes'].loaded[1]});
-				else makeMessage(messageChunks.twitch_icon,{text: t['7tv_emotes'].not_loaded, color: errorColor},{text: ` ${r.message}`, color: "white"});
+				if (requestIsOK(r.status)) {
+					const texts = t['7tv_emotes'].loaded.split("%1");
+					makeMessage(messageChunks.twitch_icon, {text: texts[0]}, {text: `${r.response.count}`, color: "white"},{text: texts[1]});
+				}
+				else {
+					const texts = t['7tv_emotes'].not_loaded.split("%1");
+					makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: r.message, color: "white"}, {text: texts[1], color: errorColor});
+				}
 			}
 		}
 	}

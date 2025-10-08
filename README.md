@@ -20,7 +20,6 @@ Stream chat for displaying on browser source in OBS
 - To see logs in Ctrl+Shift+I just add `&debug=1` to link of link builder or chat frame
 
 ## TODO
-- use indexedDB to save emoji/badges to it and load new emoji/badges in parallel to loading chat, will decrease loading time
 - YouTube stream chat
 - BetterTTV emotes
 
