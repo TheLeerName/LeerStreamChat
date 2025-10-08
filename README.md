@@ -19,7 +19,6 @@ Stream chat for displaying on browser source in OBS
 - To see logs in Ctrl+Shift+I just add `&debug=1` to link of link builder or chat frame
 
 ## TODO
-- delete eventsub subscriptions from previous chat session
 - YouTube stream chat
 - BetterTTV emotes
 
