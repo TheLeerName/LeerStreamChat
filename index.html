@@ -159,6 +159,45 @@
 				</div>
 			</div>
 		</div>
+		<div class="category">
+			<p class="label">#builder.category.label.sounds</p>
+			<div class="category-row">
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.sound_volume_on_message</p>
+					<div class="number-input" onclick="focusTextAreaOnClickDiv_onclick(this)">
+						<textarea id="sound_volume_on_message" onkeydown="textAreaOnlyNumbers_onkeydown(event)" maxlength="3"></textarea>
+						<p>#builder.category.cell.number-input.sound_volume_on_message</p>
+					</div>
+					<p class="footer">#builder.category.cell.footer.sound_volume_on_message.info</p>
+				</div>
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.sound_volume_on_follower</p>
+					<div class="number-input" onclick="focusTextAreaOnClickDiv_onclick(this)">
+						<textarea id="sound_volume_on_follower" onkeydown="textAreaOnlyNumbers_onkeydown(event)" maxlength="3"></textarea>
+						<p>#builder.category.cell.number-input.sound_volume_on_follower</p>
+					</div>
+					<p class="footer">#builder.category.cell.footer.sound_volume_on_follower.info</p>
+				</div>
+			</div>
+			<div class="category-row">
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.sound_volume_on_subscriber</p>
+					<div class="number-input" onclick="focusTextAreaOnClickDiv_onclick(this)">
+						<textarea id="sound_volume_on_subscriber" onkeydown="textAreaOnlyNumbers_onkeydown(event)" maxlength="3"></textarea>
+						<p>#builder.category.cell.number-input.sound_volume_on_subscriber</p>
+					</div>
+					<p class="footer">#builder.category.cell.footer.sound_volume_on_subscriber.info</p>
+				</div>
+				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.sound_volume_on_raid</p>
+					<div class="number-input" onclick="focusTextAreaOnClickDiv_onclick(this)">
+						<textarea id="sound_volume_on_raid" onkeydown="textAreaOnlyNumbers_onkeydown(event)" maxlength="3"></textarea>
+						<p>#builder.category.cell.number-input.sound_volume_on_raid</p>
+					</div>
+					<p class="footer">#builder.category.cell.footer.sound_volume_on_raid.info</p>
+				</div>
+			</div>
+		</div>
 		<div class="category output">
 			<p id="button_output" class="label">#builder.category.label.output</p>
 			<div id="textarea_output" class="textarea" onclick="selectTextRange(this, 0, this.innerText.length - 1)"></div>

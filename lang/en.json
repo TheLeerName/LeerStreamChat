@@ -6,6 +6,7 @@
 				"chat_message_display": "Chat message display",
 				"additional_chat_features": "Additional chat features",
 				"chat_notifications": "Chat notifications",
+				"sounds": "Sounds",
 				"output": "Generated link"
 			},
 			"cell": {
@@ -19,7 +20,12 @@
 					"size": "pixels",
 					"indent": "pixels",
 					"fadeout": "seconds",
-					"fadeout_duration": "seconds"
+					"fadeout_duration": "seconds",
+					"sound_volume": "%",
+					"sound_volume_on_message": "%",
+					"sound_volume_on_follower": "%",
+					"sound_volume_on_subscriber": "%",
+					"sound_volume_on_raid": "%"
 				},
 				"select": {
 					"hide_sensitive_info": {
@@ -77,7 +83,11 @@
 					"twitch_dashboard": "Twitch dashboard",
 					"twitch_badges": "Twitch badges",
 					"twitch_notifications_reward_redemption": "Twitch reward redemptions",
-					"twitch_notifications_follow": "Twitch new followers"
+					"twitch_notifications_follow": "Twitch new followers",
+					"sound_volume_on_message": "Volume of sound on new message",
+					"sound_volume_on_follower": "Volume of sound on new follower",
+					"sound_volume_on_subscriber": "Volume of sound on new subscriber",
+					"sound_volume_on_raid": "Volume of sound on channel raid"
 				},
 				"footer": {
 					"twitch_access_token": {
@@ -102,6 +112,18 @@
 					},
 					"twitch_notifications_follow": {
 						"info": "displays, if twitch token belongs<br>to moderator/broadcaster of channel"
+					},
+					"sound_volume_on_message": {
+						"info": "if higher than 0, then sound is enabled"
+					},
+					"sound_volume_on_follower": {
+						"info": "if higher than 0, then sound is enabled"
+					},
+					"sound_volume_on_subscriber": {
+						"info": "if higher than 0, then sound is enabled"
+					},
+					"sound_volume_on_raid": {
+						"info": "if higher than 0, then sound is enabled"
 					},
 					"output": {
 						"info": "paste this URL to browser source of OBS or other streaming app"

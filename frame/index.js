@@ -211,10 +211,10 @@ async function main() {
 	const t = translation.frame.general;
 
 	if (!args.search.twitch_login)
-		return makeMessage(messageChunks.twitch_icon, {text: t.twitch_login.not_found[0], color: errorColor}, {text: "twitch_login", color: "white"}, {text: t.twitch_login.not_found[1], color: errorColor});
+		return makeMessage(messageChunks.twitch_icon, {text: t.twitch_login.not_found[0], color: errorColor}, {text: " twitch_login ", color: "white"}, {text: t.twitch_login.not_found[1], color: errorColor});
 	if (!args.search.twitch_access_token) {
 		twitch.isAnonymous = true;
-		makeMessage(messageChunks.twitch_icon, {text: t.twitch_access_token.not_found[0], color: warnColor}, {text: "twitch_access_token", color: "white"}, {text: t.twitch_access_token.not_found[1], color: warnColor});
+		makeMessage(messageChunks.twitch_icon, {text: t.twitch_access_token.not_found[0], color: warnColor}, {text: " twitch_access_token ", color: "white"}, {text: t.twitch_access_token.not_found[1], color: warnColor});
 	}
 
 	args.search.twitch_login = args.search.twitch_login.toLowerCase();

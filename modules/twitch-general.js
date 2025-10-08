@@ -32,7 +32,7 @@ const twitch = {
 			for (const sound of ["on_message", "on_follower", "on_subscriber", "on_raid"]) {
 				args.search[`sound_volume_${sound}`] = parseFloat(args.search[`sound_volume_${sound}`]);
 				if (!args.search[`sound_volume_${sound}`]) args.search[`sound_volume_${sound}`] = 0;
-				if (args.search[`sound_volume_${sound}`] > 0) twitch.sounds.loadSound(sound, parseFloat(args.search[`sound_volume_${sound}`]));
+				if (args.search[`sound_volume_${sound}`] > 0) twitch.sounds.loadSound(sound, parseFloat(args.search[`sound_volume_${sound}`]) / 100);
 			}
 			//twitch.sounds.play("on_message");
 		},
