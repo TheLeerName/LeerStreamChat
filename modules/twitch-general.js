@@ -29,10 +29,11 @@ const twitch = {
 			}
 		},
 		init: async() => {
-			if (args.search.twitch_sound_on_message) twitch.sounds.loadSound("on_message", parseFloat(args.search.twitch_sound_on_message_volume));
-			if (args.search.twitch_sound_on_follower) twitch.sounds.loadSound("on_follower", parseFloat(args.search.twitch_sound_on_follower_volume));
-			if (args.search.twitch_sound_on_subscriber) twitch.sounds.loadSound("on_subscriber", parseFloat(args.search.twitch_sound_on_subscriber_volume));
-			if (args.search.twitch_sound_on_raid) twitch.sounds.loadSound("on_raid", parseFloat(args.search.twitch_sound_on_raid_volume));
+			for (const sound of ["on_message", "on_follower", "on_subscriber", "on_raid"]) {
+				args.search[`sound_volume_${sound}`] = parseFloat(args.search[`sound_volume_${sound}`]);
+				if (!args.search[`sound_volume_${sound}`]) args.search[`sound_volume_${sound}`] = 0;
+				if (args.search[`sound_volume_${sound}`] > 0) twitch.sounds.loadSound(sound, parseFloat(args.search[`sound_volume_${sound}`]));
+			}
 			//twitch.sounds.play("on_message");
 		},
 
