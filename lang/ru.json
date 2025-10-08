@@ -88,10 +88,10 @@
 					"twitch_notifications_reward_redemption": "Траты баллов Twitch-канала",
 					"twitch_notifications_follow": "Новые фолловеры Twitch-канала",
 					"twitch_notifications_subscribe": "Новые подписчики Twitch-канала",
-					"sound_volume_on_message": "Громкость звука при новом сообщении",
+					"sound_volume_on_message": "Громкость звука при сообщении",
 					"sound_volume_on_follower": "Громкость звука при новом фолловере",
 					"sound_volume_on_subscriber": "Громкость звука при новом подписчике",
-					"sound_volume_on_raid": "Громкость звука при новом рейде канала"
+					"sound_volume_on_raid": "Громкость звука при рейде канала"
 				},
 				"footer": {
 					"twitch_access_token": {
