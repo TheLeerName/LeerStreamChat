@@ -24,7 +24,7 @@ twitch.eventsub.onError = async(e) => {
 
 twitch.eventsub.onClose = async(e) => {
 	//console.log(e);
-	makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.disconnected, cssClass: "text bold", color: errorColor}, {text: `${e.code} - ${e.reason}`, color: "white"});
+	makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.disconnected, color: errorColor}, {text: `${e.code} - ${e.reason}`, color: "white"});
 	setTimeout(twitch.eventsub.connectWebSocket, 500);
 };
 

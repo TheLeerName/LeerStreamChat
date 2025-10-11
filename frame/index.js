@@ -200,10 +200,28 @@ async function loadTranslation() {
 }
 
 async function main() {
+	args.search.lang ??= 'en';
+	args.search.remove_msg = parseInt(args.search.remove_msg ?? 1);
+	args.search.size = parseFloat(args.search.size ?? 16);
+	args.search.indent = parseFloat(args.search.indent ?? 4);
+	args.search.fadeout = parseFloat(args.search.fadeout ?? 0) * 1000;
+	args.search.fadeout_duration = parseFloat(args.search.fadeout_duration ?? 0.5) * 1000;
+	args.search.twitch_emotes = args.search.twitch_emotes == 1;
+	args.search['7tv_emotes'] = args.search['7tv_emotes'] == 1;
+	args.search.twitch_dashboard = args.search.twitch_dashboard == 1;
+	args.search.twitch_dashboard_size = parseFloat(args.search.twitch_dashboard_size ?? args.search.size);
+	args.search.twitch_badges = args.search.twitch_badges == 1;
+	args.search.twitch_notifications_follow = args.search.twitch_notifications_follow == 1;
+	args.search.twitch_notifications_subscribe = args.search.twitch_notifications_subscribe == 1;
+	args.search.twitch_notifications_reward_redemption = (args.search.twitch_notifications_reward_redemption ?? args.search.twitch_reward_redemptions) == 1;
+	args.search.twitch_message_sound = args.search.twitch_message_sound == 1;
+	args.search.debug = args.search.debug == 1;
+
 	chatMessagesDiv = document.getElementsByClassName("messages")[0];
 	const style = document.body.style;
 	style.setProperty('--info_color', infoColor);
 	style.setProperty('--args_size', `${args.search.size}px`);
+	style.setProperty('--args_twitch_dashboard_size', `${args.search.twitch_dashboard_size}px`);
 	style.setProperty('--args_decay', `${args.search.fadeout}s`);
 	style.setProperty('--args_decay_duration', `${args.search.fadeout_duration}s`);
 	style.setProperty('--args_margin_top', args.search.indent * 0.5);
@@ -223,23 +241,7 @@ async function main() {
 		const texts = t.twitch_access_token.not_found.split("%1");
 		makeMessage(messageChunks.twitch_icon, {text: texts[0], color: warnColor}, {text: " twitch_access_token ", color: "white"}, {text: texts[1], color: warnColor});
 	}
-
 	args.search.twitch_login = args.search.twitch_login.toLowerCase();
-	args.search.lang ??= 'en';
-	args.search.remove_msg = parseInt(args.search.remove_msg ?? '1');
-	args.search.size = parseFloat(args.search.size ?? '16');
-	args.search.indent = parseFloat(args.search.indent ?? '4');
-	args.search.fadeout = parseFloat(args.search.fadeout ?? '0') * 1000;
-	args.search.fadeout_duration = parseFloat(args.search.fadeout_duration ?? '0.5') * 1000;
-	args.search.twitch_emotes = args.search.twitch_emotes == 1;
-	args.search['7tv_emotes'] = args.search['7tv_emotes'] == 1;
-	args.search.twitch_dashboard = args.search.twitch_dashboard == 1;
-	args.search.twitch_badges = args.search.twitch_badges == 1;
-	args.search.twitch_notifications_follow = args.search.twitch_notifications_follow == 1;
-	args.search.twitch_notifications_subscribe = args.search.twitch_notifications_subscribe == 1;
-	args.search.twitch_notifications_reward_redemption = (args.search.twitch_notifications_reward_redemption ?? args.search.twitch_reward_redemptions) == 1;
-	args.search.twitch_message_sound = args.search.twitch_message_sound == 1;
-	args.search.debug = args.search.debug == 1;
 
 	if (!twitch.isAnonymous) {
 		var r = await twitch.validateAccessToken(args.search.twitch_access_token);

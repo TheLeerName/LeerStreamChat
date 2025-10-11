@@ -115,6 +115,9 @@ body {
 	font-weight: 400;
 	margin: 0;
 }
+.text.twitch-dashboard {
+	font-size: var(--args_twitch_dashboard_size);
+}
 .text.chat {
 	color: rgb(239, 239, 241);
 }
@@ -131,6 +134,10 @@ body {
 
 	height: calc(var(--args_size) * 1.75);
 	margin-right: calc(var(--args_size) / 8);
+}
+.image.twitch-dashboard {
+	height: var(--args_twitch_dashboard_size);
+	margin-right: calc(var(--args_twitch_dashboard_size) / 8);
 }
 .image.gigantified {
 	display: block;

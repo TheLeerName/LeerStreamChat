@@ -129,6 +129,13 @@
 					<p class="footer">#builder.category.cell.footer.twitch_dashboard.info</p>
 				</div>
 				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.twitch_dashboard_size</p>
+					<div class="number-input" onclick="focusTextAreaOnClickDiv_onclick(this)">
+						<textarea id="twitch_dashboard_size" onkeydown="textAreaOnlyNumbers_onkeydown(event)" maxlength="10"></textarea>
+						<p>#builder.category.cell.number-input.twitch_dashboard_size</p>
+					</div>
+				</div>
+				<div class="category-cell">
 					<p class="label">#builder.category.cell.label.twitch_badges</p>
 					<select id="twitch_badges">
 						<option value="1">#builder.category.cell.select.twitch_badges.1</option>

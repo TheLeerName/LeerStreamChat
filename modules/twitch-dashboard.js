@@ -29,9 +29,10 @@ twitch.dashboard.initialize = () => {
 	viewers.className = "container-viewer";
 	const viewers_svg = document.createElement('img');
 	viewers_svg.src = twitch.links.icon_viewers;
+	viewers_svg.className = "image twitch-dashboard";
 	viewers.appendChild(viewers_svg);
 	const viewers_count = document.createElement('p');
-	viewers_count.className = "text";
+	viewers_count.className = "text twitch-dashboard";
 	viewers_count.style.color = "rgb(255, 130, 128)";
 	viewers_count.innerText = "...";
 	viewers.appendChild(viewers_count);
@@ -40,11 +41,11 @@ twitch.dashboard.initialize = () => {
 
 	const followers = document.createElement('div');
 	const followers_count = document.createElement('p');
-	followers_count.className = "text chat bold";
+	followers_count.className = "text chat bold twitch-dashboard";
 	followers_count.innerText = "...";
 	followers.appendChild(followers_count);
 	const followers_text = document.createElement('p');
-	followers_text.className = "text";
+	followers_text.className = "text twitch-dashboard";
 	followers_text.innerText = ` ${translation.frame.dashboard.followers}`;
 	followers.appendChild(followers_text);
 	div.appendChild(followers);
@@ -53,11 +54,11 @@ twitch.dashboard.initialize = () => {
 
 	const subscribers = document.createElement('div');
 	const subscribers_count = document.createElement('p');
-	subscribers_count.className = "text chat bold";
+	subscribers_count.className = "text chat bold twitch-dashboard";
 	subscribers_count.innerText = "...";
 	subscribers.appendChild(subscribers_count);
 	const subscribers_text = document.createElement('p');
-	subscribers_text.className = "text";
+	subscribers_text.className = "text twitch-dashboard";
 	subscribers_text.innerText = ` ${translation.frame.dashboard.subscribers}`;
 	subscribers.appendChild(subscribers_text);
 	twitch.dashboard.subscribers.div = subscribers;
@@ -96,7 +97,7 @@ twitch.dashboard.updateViewers = async(count) => {
 		const r = await twitch.getStreamData(args.search.twitch_access_token, twitch.broadcasterData.id);
 		if (!requestIsOK(r.status)) {
 			const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_viewers.split("%1");
-			makeMessage(messageChunks.twitch_icon, {text: texts[0], cssClass: "text bold", color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], cssClass: "text bold", color: errorColor});
+			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], color: errorColor});
 			return console.error(r);
 		}
 		count = r.response?.viewer_count ?? 0;
@@ -111,7 +112,7 @@ twitch.dashboard.updateFollowers = async() => {
 	const r = await twitch.getChannelFollowers(args.search.twitch_access_token, twitch.broadcasterData.id);
 	if (!requestIsOK(r.status)) {
 		const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_followers.split("%1");
-		makeMessage(messageChunks.twitch_icon, {text: texts[0], cssClass: "text bold", color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], cssClass: "text bold", color: errorColor});
+		makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], color: errorColor});
 		return console.error(r);
 	}
 	twitch.dashboard.setFollowers(r.response.total);
@@ -141,7 +142,7 @@ twitch.dashboard.updateSubscribers = async(doerr = true) => {
 	const r = await twitch.getChannelSubscribers(args.search.twitch_access_token, twitch.broadcasterData.id);
 	if (!requestIsOK(r.status)) {
 		const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_subscribers.split("%1");
-		if (doerr) makeMessage(messageChunks.twitch_icon, {text: texts[0], cssClass: "text bold", color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], cssClass: "text bold", color: errorColor});
+		if (doerr) makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], color: errorColor});
 		console.error(r);
 		return false;
 	}

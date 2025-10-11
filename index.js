@@ -67,6 +67,7 @@ const values = {
 		twitch_badges: '1',
 		'7tv_emotes': '1',
 		twitch_dashboard: '0',
+		twitch_dashboard_size: '16',
 		twitch_notifications_follow: '1',
 		twitch_notifications_reward_redemption: '1',
 		sound_volume_on_message: '0',
