@@ -135,13 +135,13 @@ twitch.dashboard.showSubscribers = () => {
 	twitch.dashboard.div.appendChild(twitch.dashboard.subscribers.div);
 };
 
-twitch.dashboard.updateSubscribers = async() => {
+twitch.dashboard.updateSubscribers = async(doerr = true) => {
 	twitch.dashboard.initialize();
 
 	const r = await twitch.getChannelSubscribers(args.search.twitch_access_token, twitch.broadcasterData.id);
 	if (!requestIsOK(r.status)) {
 		const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_subscribers.split("%1");
-		makeMessage(messageChunks.twitch_icon, {text: texts[0], cssClass: "text bold", color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], cssClass: "text bold", color: errorColor});
+		if (doerr) makeMessage(messageChunks.twitch_icon, {text: texts[0], cssClass: "text bold", color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], cssClass: "text bold", color: errorColor});
 		console.error(r);
 		return false;
 	}

@@ -176,7 +176,7 @@ const twitch = {
 		let color = twitch.userColors[userID];
 		if (color) return {status: 200, response: color};
 
-		let request, response, output = null;
+		let request, response, output;
 		if (accessToken) {
 			try {
 				request = await twitch.fetch.chat.color(accessToken, userID);
@@ -248,7 +248,7 @@ const twitch = {
 
 	/** https://dev.twitch.tv/docs/authentication/validate-tokens/#how-to-validate-a-token */
 	validateAccessToken: async(accessToken) => {
-		let request, response, output = null;
+		let request, response, output;
 
 		try {
 			request = await twitch.fetch.validate(accessToken);
@@ -268,7 +268,7 @@ const twitch = {
 	},
 
 	revokeAccessToken: async(accessToken) => {
-		let request, output = null;
+		let request, output;
 
 		try {
 			request = await twitch.fetch.revoke(accessToken);
@@ -287,7 +287,7 @@ const twitch = {
 	 * WARNING: `response` can be null! (if channel isnt in shared chat session or not found)
 	 */
 	getSharedChatSession: async(accessToken, channelID) => {
-		let request, response, output = null;
+		let request, response, output;
 
 		try {
 			request = await twitch.fetch.shared_chat.session(accessToken, channelID);
@@ -304,7 +304,7 @@ const twitch = {
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-streams */
 	getStreamData: async(accessToken, channelID) => {
-		let request, response, output = null;
+		let request, response, output;
 
 		try {
 			request = await twitch.fetch.streams(accessToken, channelID);
@@ -321,7 +321,7 @@ const twitch = {
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-users */
 	getUserData: async(accessToken, channelLogin) => {
-		let request, response, output = null;
+		let request, response, output;
 
 		try {
 			request = await twitch.fetch.users.byLogin(accessToken, channelLogin);
@@ -338,7 +338,7 @@ const twitch = {
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-channel-followers */
 	getChannelFollowers: async(accessToken, channelID) => {
-		let request, output = null;
+		let request, response, output;
 
 		try {
 			request = await twitch.fetch.channels.followers(accessToken, channelID);
@@ -355,11 +355,14 @@ const twitch = {
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-broadcaster-subscriptions */
 	getChannelSubscribers: async(accessToken, channelID) => {
-		let request, output = null;
+		let request, response, output;
 
 		try {
 			request = await twitch.fetch.subscriptions(accessToken, channelID);
-			output = await request.json();
+			response = await request.json();
+
+			if (response.status != null) output = response;
+			else output = {status: request.status, response: response};
 		} catch(e) {
 			output = {status: 400, message: e.toString()};
 		}
@@ -369,7 +372,7 @@ const twitch = {
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-channel-chat-badges */
 	getChannelBadges: async(accessToken, channelID) => {
-		let request, response, output = null;
+		let request, response, output;
 
 		try {
 			request = await twitch.fetch.chat.badges(accessToken, channelID);
@@ -386,7 +389,7 @@ const twitch = {
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-global-chat-badges */
 	getGlobalBadges: async(accessToken) => {
-		let request, response, output = null;
+		let request, response, output;
 
 		try {
 			request = await twitch.fetch.chat.badges_global(accessToken);
@@ -403,7 +406,7 @@ const twitch = {
 
 	/** https://dev.twitch.tv/docs/api/reference/#search-channels */
 	getChannelByQuery: async(accessToken, query) => {
-		let request, response, output = null;
+		let request, response, output;
 
 		try {
 			request = await twitch.fetch.search.channels(accessToken, query);

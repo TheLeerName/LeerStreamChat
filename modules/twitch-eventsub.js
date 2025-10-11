@@ -112,7 +112,7 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 
 		// channel subscribers will be updated with timeout of 5 min
 		// or will be increased by 1 on channel.chat.notification if its sub
-		if (await twitch.dashboard.updateSubscribers())
+		if (await twitch.dashboard.updateSubscribers(false))
 			setInterval(twitch.dashboard.updateSubscribers, 300000);
 	}
 
