@@ -254,13 +254,13 @@ async function main() {
 		} else {
 			twitch.client_id = r.response.client_id;
 			var not_found_scopes = [];
-			for (const scope of twitch.scopes) if (!r.response.scope.includes(scope)) not_found_scopes.push(scope);
+			for (const scope of twitch.scopes) if (!r.response.scopes.includes(scope)) not_found_scopes.push(scope);
 			if (not_found_scopes.length > 0) {
 				twitch.isAnonymous = true;
 				delete args.search.twitch_access_token;
 				const texts = t.twitch_access_token.wrong_scopes.split("%1");
 				makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: "twitch_access_token", color: "white"}, {text: texts[1], color: errorColor});
-				console.error(`scopes:  ${r.response.scope.join(" ")},\n\nnot found: ${not_found_scopes.join(" ")}`);
+				console.error(`scopes:  ${r.response.scopes.join(" ")},\n\nnot found: ${not_found_scopes.join(" ")}`);
 			}
 		}
 

@@ -255,9 +255,8 @@ const twitch = {
 			response = await request.json();
 
 			if (response.status != null) output = response;
-			else if (response.scopes.sort().join(' ') != twitch.scopes.sort().join(' ')) throw `Twitch access token has wrong scopes, needed: "${twitch.scopes.join(' ')}"`;
 			else {
-				if (!response.scope) response.scope = [];
+				if (!response.scopes) response.scopes = [];
 				twitch.accessTokenData = response;
 				output = {status: request.status, response};
 			}
