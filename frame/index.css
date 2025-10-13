@@ -96,11 +96,11 @@ body {
 
 	align-content: center;
 }
-.message.decaying {
+.message.fadeout {
 	opacity: 0;
 	transition-property: opacity;
-	transition-duration: var(--args_decay_duration);
-	transition-delay: var(--args_decay);
+	transition-duration: var(--args_fadeout_duration);
+	transition-delay: var(--args_fadeout);
 }
 .text {
 	overflow: hidden;

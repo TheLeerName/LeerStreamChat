@@ -144,7 +144,8 @@
 			},
 			"twitch_access_token": {
 				"not_found": "Parameter %1 isn't specified! Connecting to chat anonymously...",
-				"invalid": "Parameter %1 is invalid! Connecting to chat anonymously..."
+				"invalid": "Parameter %1 is invalid! Connecting to chat anonymously...",
+				"wrong_scopes": "Parameter %1 has wrong authorization scopes! Connecting to chat anonymously..."
 			},
 			"7tv_emotes": {
 				"not_loaded": "Emotes aren't loaded: %1",

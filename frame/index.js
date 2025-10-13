@@ -129,7 +129,7 @@ function makeMessage(...chunks) {
 
 	// starting fadeout of message (if allowed)
 	if (args.search.fadeout > 0)
-		setTimeout(() => { div.className += " decaying" }, args.search.fadeout);
+		setTimeout(() => { div.className += " fadeout" }, args.search.fadeout);
 
 	if (args.search.debug && consoleLogChunks.length > 0) {
 		let message = "";
@@ -222,8 +222,8 @@ async function main() {
 	style.setProperty('--info_color', infoColor);
 	style.setProperty('--args_size', `${args.search.size}px`);
 	style.setProperty('--args_twitch_dashboard_size', `${args.search.twitch_dashboard_size}px`);
-	style.setProperty('--args_decay', `${args.search.fadeout}s`);
-	style.setProperty('--args_decay_duration', `${args.search.fadeout_duration}s`);
+	style.setProperty('--args_fadeout', `${args.search.fadeout}s`);
+	style.setProperty('--args_fadeout_duration', `${args.search.fadeout_duration}s`);
 	style.setProperty('--args_margin_top', args.search.indent * 0.5);
 	style.setProperty('--args_padding', args.search.indent * 0.5);
 
@@ -249,8 +249,19 @@ async function main() {
 			twitch.isAnonymous = true;
 			delete args.search.twitch_access_token;
 			const texts = t.twitch_access_token.invalid.split("%1");
-			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: warnColor}, {text: "twitch_access_token", color: "white"}, {text: texts[1], color: warnColor});
+			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: "twitch_access_token", color: "white"}, {text: texts[1], color: errorColor});
 			console.error(r);
+		} else {
+			twitch.client_id = r.response.client_id;
+			var not_found_scopes = [];
+			for (const scope of twitch.scopes) if (!r.response.scope.includes(scope)) not_found_scopes.push(scope);
+			if (not_found_scopes.length > 0) {
+				twitch.isAnonymous = true;
+				delete args.search.twitch_access_token;
+				const texts = t.twitch_access_token.wrong_scopes.split("%1");
+				makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: "twitch_access_token", color: "white"}, {text: texts[1], color: errorColor});
+				console.error(`scopes:  ${r.response.scope.join(" ")},\n\nnot found: ${not_found_scopes.join(" ")}`);
+			}
 		}
 
 		if (!twitch.isAnonymous) {
