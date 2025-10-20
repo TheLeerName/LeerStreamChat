@@ -204,8 +204,8 @@ async function main() {
 	args.search.remove_msg = parseInt(args.search.remove_msg ?? 1);
 	args.search.size = parseFloat(args.search.size ?? 16);
 	args.search.indent = parseFloat(args.search.indent ?? 4);
-	args.search.fadeout = parseFloat(args.search.fadeout ?? 0) * 1000;
-	args.search.fadeout_duration = parseFloat(args.search.fadeout_duration ?? 0.5) * 1000;
+	args.search.fadeout = parseFloat(args.search.fadeout ?? 0);
+	args.search.fadeout_duration = parseFloat(args.search.fadeout_duration ?? 0.5);
 	args.search.twitch_emotes = args.search.twitch_emotes == 1;
 	args.search['7tv_emotes'] = args.search['7tv_emotes'] == 1;
 	args.search.twitch_dashboard = args.search.twitch_dashboard == 1;
