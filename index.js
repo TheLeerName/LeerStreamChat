@@ -124,7 +124,7 @@ twitch.addAccessToken = (newAccessToken) => {
 
 	if (!message_twitch_access_token_invalid.classList.contains('hidden')) message_twitch_access_token_invalid.classList.add('hidden');
 	message_twitch_access_token_expires_in.classList.remove('hidden');
-	message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeDuration(twitch.accessTokenData.expires_in * 1000, {largest: 2, language: values.current.lang, delimiter: ' and '}));
+	message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeAccessTokenExpireDate());
 };
 twitch.removeAccessToken = async(accessToken) => {
 	const r = await twitch.revokeAccessToken(accessToken);
@@ -139,6 +139,10 @@ twitch.removeAccessToken = async(accessToken) => {
 	message_twitch_access_token_invalid.classList.remove('hidden');
 	if (!message_twitch_access_token_expires_in.classList.contains('hidden')) message_twitch_access_token_expires_in.classList.add('hidden');
 };
+
+function humanizeAccessTokenExpireDate() {
+	return humanizeDuration(twitch.accessTokenData.expires_in * 1000, {largest: 2, language: values.current.lang, delimiter: values.current.lang === "ru" ? " и " : " and "});
+}
 
 var createChatLinkWorking = 0;
 /**
@@ -179,7 +183,7 @@ function updateTranslation(langID) {
 		}
 
 		translatedNodes.forEach((node, id) => node.innerHTML = getValue(lang, id));
-		message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeDuration(twitch.accessTokenData.expires_in * 1000, {largest: 2, language: values.current.lang, delimiter: ' and '}));
+		message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeAccessTokenExpireDate());
 	});
 }
 
