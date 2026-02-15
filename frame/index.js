@@ -123,8 +123,9 @@ function makeMessage(...chunks) {
 	chatMessagesDiv.appendChild(div);
 
 	// removing out of bounds message
-	if (chatMessagesDiv.children.length > 0) while (chatMessagesDiv.getBoundingClientRect().height > window.innerHeight)
-		chatMessagesDiv.removeChild(chatMessagesDiv.children[0]);
+	while (chatMessagesDiv.getBoundingClientRect().height > window.innerHeight)
+		if (chatMessagesDiv.children.length > 0)
+			chatMessagesDiv.removeChild(chatMessagesDiv.children[0]);
 	document.body.scrollTop = document.body.scrollHeight;
 
 	// starting fadeout of message (if allowed)
