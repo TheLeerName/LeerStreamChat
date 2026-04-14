@@ -1,5 +1,5 @@
 const app = {
-	version: "v2.3.10",
+	version: "v2.3.11",
 	name: "LeerStreamChat",
 
 	link: "https://theleername.github.io/LeerStreamChat",

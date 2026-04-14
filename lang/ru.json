@@ -175,8 +175,7 @@
 		"twitch": {
 			"eventsub": {
 				"connected": "Чат подключён к ",
-				"disconnected": "Чат был отключён: ",
-				"reconnected": "Чат был переподключён",
+				"reconnected": "Чат переподключён к ",
 				"twitch_notifications_follow": {
 					"unauthorized": "Оповещения о новых фолловерах отключены:%1 Вы не модератор/владелец канала",
 					"text": "Начинает отслеживать этот канал"
@@ -193,9 +192,12 @@
 			},
 			"irc": {
 				"connected": "Чат подключён анонимно к ",
-				"reconnecting": "Переподключение..."
+				"reconnected": "Чат переподключён анонимно к "
 			},
 			"general": {
+				"reconnecting_first": "Переподключение...",
+				"reconnecting": "Переподключение... (%1)",
+				"disconnected": "Чат отключён, код: %1, причина: ",
 				"sub": {
 					"text_bold": "Оформлена подписка",
 					"text_prime": "через Prime",

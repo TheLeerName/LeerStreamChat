@@ -171,8 +171,7 @@
 		"twitch": {
 			"eventsub": {
 				"connected": "Chat connected to ",
-				"disconnected": "Chat was disconnected: ",
-				"reconnected": "Chat was reconnected",
+				"reconnected": "Chat reconnected to ",
 				"twitch_notifications_follow": {
 					"unauthorized": "Follow notifications are disabled:%1 You aren't moderator/broadcaster of channel",
 					"text": "Started following this channel"
@@ -189,9 +188,12 @@
 			},
 			"irc": {
 				"connected": "Chat anonymously connected to ",
-				"reconnecting": "Reconnecting..."
+				"reconnected": "Chat anonymously reconnected to "
 			},
 			"general": {
+				"reconnecting_first": "Reconnecting... ",
+				"reconnecting": "Reconnecting... (%1)",
+				"disconnected": "Chat was disconnected%1, code %1, reason: ",
 				"sub": {
 					"text_bold": "Subscribed",
 					"text_prime": "with Prime",

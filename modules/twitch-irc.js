@@ -2,7 +2,20 @@
 // (if twitch_access_token is not specified)
 
 twitch.irc.connectWebSocket = () => {
-	twitch.irc.ws?.close();
+	if (twitch.irc.ws) {
+		twitch.irc.reconnecting_attempt++;
+		if (twitch.irc.reconnecting_attempt == 1)
+			makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.general.reconnecting_first});
+		else {
+			const [part1, part2] = translation.frame.twitch.general.reconnecting.split("%1", 2);
+			makeMessage(messageChunks.twitch_icon, {text: part1}, {text: twitch.irc.reconnecting_attempt, color: "white"}, {text: part2});
+		}
+		twitch.irc.ws.removeEventListener('open', twitch.irc.onOpen);
+		twitch.irc.ws.removeEventListener('message', twitch.irc.onMessage);
+		twitch.irc.ws.removeEventListener('error', twitch.irc.onError);
+		twitch.irc.ws.removeEventListener('close', twitch.irc.onClose);
+		twitch.irc.ws.close();
+	}
 	twitch.irc.ws = new WebSocket('wss://irc-ws.chat.twitch.tv');
 	twitch.irc.ws.addEventListener('open', twitch.irc.onOpen);
 	twitch.irc.ws.addEventListener('message', twitch.irc.onMessage);
@@ -30,6 +43,11 @@ twitch.irc.onError = async(e) => {
 
 twitch.irc.onClose = async(e) => {
 	//console.log(e);
+	const [part1, part2, part3] = translation.frame.twitch.general.disconnected.split("%1");
+	if (e.reason)
+		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: e.code, text: "white"}, {text: part3}, {text: e.reason, text: "white"});
+	else
+		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: e.code, text: "white"});
 	setTimeout(twitch.irc.connectWebSocket, 500);
 };
 
@@ -49,7 +67,7 @@ twitch.irc.onMessageChunk = async(data) => {
 		else if (type === "USERNOTICE") twitch.irc.onUserNotice(event);
 		else if (type === "CLEARCHAT") twitch.irc.onClearChat(event);
 		else if (type === "CLEARMSG") twitch.irc.onClearMsg(event);
-		else if (type === "RECONNECT") twitch.itc.onReconnect(event);
+		else if (type === "RECONNECT") twitch.irc.onReconnect(event);
 		else if (type === "ROOMSTATE") twitch.irc.onRoomState(event);
 		else if (type === "USERSTATE" || type === "NOTICE") {} // ignore
 		else if (type === "CAP * ACK" || type === "CAP * NAK") {} // ignore
@@ -62,11 +80,17 @@ twitch.irc.onMessageChunk = async(data) => {
 };
 
 twitch.irc.onJoin = async(event) => {
-	makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.irc.connected}, {text: args.search.twitch_login, color: "white"});
+	if (twitch.irc.reconnecting_attempt === 0) {
+		makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.irc.connected}, {text: args.search.twitch_login, color: "white"});
+	}
+	else {
+		makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.irc.reconnected}, {text: args.search.twitch_login, color: "white"});
+	}
+
+	twitch.irc.reconnecting_attempt = 0;
 };
 
 twitch.irc.onReconnect = async(event) => {
-	makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.irc.reconnecting});
 	twitch.irc.connectWebSocket();
 };
 

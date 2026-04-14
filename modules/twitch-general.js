@@ -142,7 +142,7 @@ const twitch = {
 		},
 		eventsub: {
 			subscriptions: {
-				get: (accessToken, body) => advancedFetch("https://api.twitch.tv/helix/eventsub/subscriptions", {method: "POST", headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json"}, body: JSON.stringify(body)}),
+				post: (accessToken, body) => advancedFetch("https://api.twitch.tv/helix/eventsub/subscriptions", {method: "POST", headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json"}, body: JSON.stringify(body)}),
 				delete: (accessToken, id) => advancedFetch(`https://api.twitch.tv/helix/eventsub/subscriptions?id=${id}`, {method: "DELETE", headers: {'Client-Id': twitch.client_id, Authorization: `Bearer ${accessToken}`}})
 			}
 		},
