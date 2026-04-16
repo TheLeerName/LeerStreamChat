@@ -266,21 +266,21 @@ async function main() {
 			}
 		}
 
-		if (!twitch.isAnonymous) {
-			r = await twitch.getUserData(args.search.twitch_access_token, args.search.twitch_login);
-			if (!r.response) {
-				const texts = t.twitch_login.invalid.split("%1");
-				return makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: args.search.twitch_login, color: "white"}, {text: texts[1], color: errorColor});
-			}
-			else if (!requestIsOK(r.status)) return console.error(r);
-			else {
-				twitch.broadcasterData = r.response;
-				// put the broadcaster avatar to userAvatars to use it for shared chat later
-				twitch.userAvatars[twitch.broadcasterData.login] = twitch.userAvatars.profile_image_url;
-			}
+		r = await twitch.getUserData(args.search.twitch_access_token, args.search.twitch_login);
+		if (!r.response) {
+			const texts = t.twitch_login.invalid.split("%1");
+			return makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: args.search.twitch_login, color: "white"}, {text: texts[1], color: errorColor});
+		}
+		else if (!requestIsOK(r.status)) return console.error(r);
+		else {
+			twitch.broadcasterData = r.response;
+			// put the broadcaster avatar to userAvatars to use it for shared chat later
+			twitch.userAvatars[twitch.broadcasterData.login] = twitch.userAvatars.profile_image_url;
+		}
 
-			if (args.search.twitch_badges) {
-				let r = await twitch.loadBadges(args.search.twitch_access_token, twitch.broadcasterData.id);
+		const promises = [];
+		if (args.search.twitch_badges) {
+			promises.push(twitch.loadBadges(args.search.twitch_access_token, twitch.broadcasterData.id).then(r => {
 				if (requestIsOK(r.status)) {
 					const texts = t.twitch_badges.loaded.split("%1");
 					makeMessage(messageChunks.twitch_icon, {text: texts[0]}, {text: `${r.response.count}`, color: "white"}, {text: texts[1]});
@@ -289,10 +289,10 @@ async function main() {
 					const texts = t.twitch_badges.not_loaded.split("%1");
 					makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: texts[1], color: "white"}, {text: r.message, color: "white"});
 				}
-			}
-
-			if (args.search['7tv_emotes']) {
-				let r = await seventv.loadEmotes(twitch.broadcasterData.id);
+			}));
+		}
+		if (args.search['7tv_emotes']) {
+			promises.push(seventv.loadEmotes(twitch.broadcasterData.id).then(r => {
 				if (requestIsOK(r.status)) {
 					const texts = t['7tv_emotes'].loaded.split("%1");
 					makeMessage(messageChunks.seventv_icon, {text: texts[0]}, {text: `${r.response.count}`, color: "white"}, {text: texts[1]});
@@ -301,14 +301,14 @@ async function main() {
 					const texts = t['7tv_emotes'].not_loaded.split("%1");
 					makeMessage(messageChunks.seventv_icon, {text: texts[0], color: errorColor}, {text: texts[1], color: "white"}, {text: r.message, color: "white"});
 				}
-			}
+			}));
 		}
-	}
+		await Promise.race(promises);
 
-	if (twitch.isAnonymous)
-		twitch.irc.connectWebSocket();
-	else
 		twitch.eventsub.connectWebSocket();
+	}
+	else
+		twitch.irc.connectWebSocket();
 
 	twitch.sounds.init();
 }
