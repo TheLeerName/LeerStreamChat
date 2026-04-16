@@ -44,11 +44,17 @@ twitch.irc.onError = async(e) => {
 
 twitch.irc.onClose = async(e) => {
 	//console.log(e);
-	const [part1, part2, part3] = translation.frame.twitch.general.disconnected.split("%1");
+	const [
+		part1, // chat was disconnected
+		part2, // , code
+		// e.code
+		part3, // , reason
+		// e.reason
+	] = translation.frame.twitch.general.disconnected.split("%1");
 	if (e.reason)
-		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: e.code, color: "white"}, {text: part3}, {text: e.reason, color: "white"});
+		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: `${e.code}`, color: "white"}, {text: part3}, {text: e.reason, color: "white"});
 	else
-		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: e.code, color: "white"});
+		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: `${e.code}`, color: "white"});
 	setTimeout(twitch.irc.connectWebSocket, 500);
 };
 
@@ -103,7 +109,7 @@ twitch.irc.onRoomState = async(event) => {
 		}
 		else {
 			const texts = t['7tv_emotes'].not_loaded.split("%1");
-			makeMessage(messageChunks.seventv_icon, {text: texts[0], color: errorColor}, {text: r.message, color: "white"}, {text: texts[1], color: errorColor});
+			makeMessage(messageChunks.seventv_icon, {text: texts[0], color: errorColor}, {text: texts[1], color: "white"}, {text: r.message, color: "white"});
 		}
 	}
 };

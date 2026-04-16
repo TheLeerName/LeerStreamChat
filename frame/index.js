@@ -287,7 +287,7 @@ async function main() {
 				}
 				else {
 					const texts = t.twitch_badges.not_loaded.split("%1");
-					makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: r.message, color: "white"}, {text: texts[1], color: errorColor});
+					makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: texts[1], color: "white"}, {text: r.message, color: "white"});
 				}
 			}
 
@@ -299,7 +299,7 @@ async function main() {
 				}
 				else {
 					const texts = t['7tv_emotes'].not_loaded.split("%1");
-					makeMessage(messageChunks.seventv_icon, {text: texts[0], color: errorColor}, {text: r.message, color: "white"}, {text: texts[1], color: "white"});
+					makeMessage(messageChunks.seventv_icon, {text: texts[0], color: errorColor}, {text: texts[1], color: "white"}, {text: r.message, color: "white"});
 				}
 			}
 		}

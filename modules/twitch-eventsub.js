@@ -39,11 +39,17 @@ twitch.eventsub.onError = async(e) => {
 
 twitch.eventsub.onClose = async(e) => {
 	//console.log(e);
-	const [part1, part2, part3] = translation.frame.twitch.general.disconnected.split("%1");
+	const [
+		part1, // chat was disconnected
+		part2, // , code
+		// e.code
+		part3, // , reason
+		// e.reason
+	] = translation.frame.twitch.general.disconnected.split("%1");
 	if (e.reason)
-		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: e.code, color: "white"}, {text: part3}, {text: e.reason, color: "white"});
+		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: `${e.code}`, color: "white"}, {text: part3}, {text: e.reason, color: "white"});
 	else
-		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: e.code, color: "white"});
+		makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2}, {text: `${e.code}`, color: "white"});
 	setTimeout(twitch.eventsub.connectWebSocket, 500);
 };
 

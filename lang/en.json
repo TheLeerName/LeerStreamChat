@@ -148,11 +148,11 @@
 				"wrong_scopes": "Parameter %1 has wrong authorization scopes! Connecting to chat anonymously..."
 			},
 			"7tv_emotes": {
-				"not_loaded": "Emotes aren't loaded: %1",
+				"not_loaded": "Emotes aren't loaded%1: ",
 				"loaded": "Emotes loaded (%1)"
 			},
 			"twitch_badges": {
-				"not_loaded": "Badges aren't loaded: %1",
+				"not_loaded": "Badges aren't loaded%1: ",
 				"loaded": "Badges loaded (%1)"
 			}
 		},
