@@ -168,9 +168,8 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 	r = await twitch.getUserColor(args.search.twitch_access_token, twitch.broadcasterData.id);
 	if (!requestIsOK(r.status)) console.error(r);
 	let userColor = r.response;
-	if (twitch.eventsub.reconnecting_attempt === 0) {
+	if (twitch.eventsub.reconnecting_attempt === 0)
 		makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.connected}, {text: twitch.broadcasterData.display_name, color: userColor});
-	}
 	else
 		makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.reconnected}, {text: twitch.broadcasterData.display_name, color: userColor});
 

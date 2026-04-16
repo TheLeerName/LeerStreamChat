@@ -1,6 +1,7 @@
 // chat will use irc to connect as anonymous user
 // (if twitch_access_token is not specified)
 
+twitch.irc.reconnecting_attempt = 0;
 twitch.irc.connectWebSocket = () => {
 	if (twitch.irc.ws) {
 		twitch.irc.reconnecting_attempt++;
@@ -80,12 +81,10 @@ twitch.irc.onMessageChunk = async(data) => {
 };
 
 twitch.irc.onJoin = async(event) => {
-	if (twitch.irc.reconnecting_attempt === 0) {
+	if (twitch.irc.reconnecting_attempt === 0)
 		makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.irc.connected}, {text: args.search.twitch_login, color: "white"});
-	}
-	else {
+	else
 		makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.irc.reconnected}, {text: args.search.twitch_login, color: "white"});
-	}
 
 	twitch.irc.reconnecting_attempt = 0;
 };
