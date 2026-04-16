@@ -97,11 +97,13 @@ twitch.irc.onRoomState = async(event) => {
 	if (args.search['7tv_emotes'] && !seventv.isEmotesLoaded) {
 		const t = translation.frame.general;
 		let r = await seventv.loadEmotes(event['room-id']);
-		if (requestIsOK(r.status))
-			makeMessage(messageChunks.twitch_icon, {text: t['7tv_emotes'].loaded[0]}, {text: `${r.response.count}`, color: "white"}, {text: t['7tv_emotes'].loaded[1]});
+		if (requestIsOK(r.status)) {
+			const texts = t['7tv_emotes'].loaded.split("%1");
+			makeMessage(messageChunks.seventv_icon, {text: texts[0]}, {text: `${r.response.count}`, color: "white"}, {text: texts[1]});
+		}
 		else {
 			const texts = t['7tv_emotes'].not_loaded.split("%1");
-			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: r.message, color: "white"}, texts[1].length > 0 ? {text: texts[1], color: errorColor} : undefined);
+			makeMessage(messageChunks.seventv_icon, {text: texts[0], color: errorColor}, {text: r.message, color: "white"}, {text: texts[1], color: errorColor});
 		}
 	}
 };

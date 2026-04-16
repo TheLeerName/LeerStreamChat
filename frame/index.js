@@ -84,7 +84,8 @@ function createMessageChunkText(text, cssClass, appendTo) {
 }
 
 const messageChunks = {
-	twitch_icon: {type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"}
+	twitch_icon: {type: "image", url: twitch.links.icon, text: "twitch_icon", cssClass: "image badge"},
+	seventv_icon: {type: "image", url: seventv.links.icon, text: "7tv_icon", cssClass: "image badge"}
 };
 function makeMessage(...chunks) {
 	const div = document.createElement('div');
@@ -294,11 +295,11 @@ async function main() {
 				let r = await seventv.loadEmotes(twitch.broadcasterData.id);
 				if (requestIsOK(r.status)) {
 					const texts = t['7tv_emotes'].loaded.split("%1");
-					makeMessage(messageChunks.twitch_icon, {text: texts[0]}, {text: `${r.response.count}`, color: "white"},{text: texts[1]});
+					makeMessage(messageChunks.seventv_icon, {text: texts[0]}, {text: `${r.response.count}`, color: "white"}, {text: texts[1]});
 				}
 				else {
 					const texts = t['7tv_emotes'].not_loaded.split("%1");
-					makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: r.message, color: "white"}, {text: texts[1], color: errorColor});
+					makeMessage(messageChunks.seventv_icon, {text: texts[0], color: errorColor}, {text: r.message, color: "white"}, {text: texts[1], color: "white"});
 				}
 			}
 		}
