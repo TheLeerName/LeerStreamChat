@@ -190,7 +190,8 @@ twitch.eventsub.onSessionKeepalive = async(data) => {
 twitch.eventsub.onNotification = async(data) => {
 	const subtype = data.payload.subscription.type;
 	const event = data.payload.event;
-	if (subtype === "channel.channel_points_custom_reward_redemption.add") twitch.eventsub.makeRewardMessage(event);
+	if (subtype === "channel.chat.message") twitch.eventsub.makeChatMessage(event);
+	else if (subtype === "channel.channel_points_custom_reward_redemption.add") twitch.eventsub.makeRewardMessage(event);
 	else if (subtype === "channel.chat.message_delete") twitch.eventsub.onMessageDelete(event);
 	else if (subtype === "channel.chat.clear") twitch.eventsub.onChatClear(event);
 	else if (subtype === "channel.chat.clear_user_messages") twitch.eventsub.onChatClearUserMessages(event);
@@ -201,7 +202,6 @@ twitch.eventsub.onNotification = async(data) => {
 	else if (subtype === "stream.offline") twitch.eventsub.onStreamOffline(event);
 	else if (subtype === "channel.follow") twitch.eventsub.onChannelFollow(event);
 	else if (subtype === "channel.subscribe") twitch.eventsub.onChannelSubscribe(event);
-	else if (event.message_type === 'text' || event.message_type === 'channel_points_highlighted' || event.message_type === 'power_ups_gigantified_emote' || event.message_type === 'power_ups_message_effect') twitch.eventsub.makeChatMessage(event);
 	else if (args.search.debug) {
 		console.warn('unsupported notification message type', data);
 	}
