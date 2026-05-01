@@ -145,6 +145,28 @@ body {
 	outline: none;
 }
 
+.category-cell .profile-input .textarea {
+	margin-right: 16px;
+	width: 250px;
+	background: white;
+
+	border-radius: 6px 0 0 6px;
+	padding: 2px 4px 2px 4px;
+
+	text-align: start;
+	display: inline-block;
+}
+.category-cell .profile-input .select {
+	margin-right: -278px;
+	width: 275px;
+	background: rgb(198, 198, 198);
+
+	border-radius: 6px 0 0 6px;
+	padding: 2px 4px 2px 4px;
+
+	text-align: start;
+	display: inline-block;
+}
 .category-cell .access-token-input {
 	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
 
@@ -153,7 +175,7 @@ body {
 
 	display: inline-block;
 }
-.category-cell .access-token-input .button-generate {
+.category-cell .button-green {
 	background: rgb(160, 255, 160);
 
 	font-family: Arial;
@@ -164,10 +186,10 @@ body {
 
 	display: inline;
 }
-.category-cell .access-token-input .button-generate:hover {
+.category-cell .button-green:hover {
 	background-color: rgb(128, 255, 128);
 }
-.category-cell .access-token-input .button-revoke {
+.category-cell .button-red {
 	background-color: rgb(255, 128, 128);
 	transition: background-color 0.1s ease-out;
 
@@ -180,12 +202,12 @@ body {
 
 	display: inline;
 }
-.category-cell .access-token-input .button-revoke:hover {
+.category-cell .button-red:hover {
 	background-color: rgb(255, 96, 96);
 }
 .category-cell .access-token-input .textarea {
-	min-width: 200px;
-	max-width: 300px;
+	min-width: 250px;
+	max-width: 600px;
 	background: white;
 
 	border-radius: 6px 0 0 6px;

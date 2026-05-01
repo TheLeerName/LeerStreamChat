@@ -103,9 +103,9 @@ twitch.irc.onRoomState = async(event) => {
 	if (args.search['7tv_emotes'] && !seventv.isEmotesLoaded) {
 		const t = translation.frame.general;
 		let r = await seventv.loadEmotes(event['room-id']);
-		if (requestIsOK(r.status)) {
+		if (r.ok) {
 			const texts = t['7tv_emotes'].loaded.split("%1");
-			makeMessage(messageChunks.seventv_icon, {text: texts[0]}, {text: `${r.response.count}`, color: "white"}, {text: texts[1]});
+			makeMessage(messageChunks.seventv_icon, {text: texts[0]}, {text: `${r.data.count}`, color: "white"}, {text: texts[1]});
 		}
 		else {
 			const texts = t['7tv_emotes'].not_loaded.split("%1");
@@ -219,7 +219,7 @@ twitch.irc.makeChatMessage = async(event, prefixChunks, playSound) => {
 		// chatter name
 		let color = event.color;
 		if (!color || color.length === 0)
-			color = (await twitch.getUserColor(null, event['user-id'])).response;
+			color = (await twitch.getUserColor(null, event['user-id'])).color;
 		else
 			twitch.userColors[event['user-id']] = color;
 		messageChunks.push({text: event['display-name'], cssClass: "text bold", color});

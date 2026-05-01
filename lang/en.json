@@ -11,6 +11,10 @@
 			},
 			"cell": {
 				"button": {
+					"profile": {
+						"clone": "Clone",
+						"delete": "Delete"
+					},
 					"twitch_access_token": {
 						"generate": "Generate",
 						"revoke": "Revoke"
@@ -69,6 +73,7 @@
 				},
 				"coming_soon": "Coming soon...",
 				"label": {
+					"profile": "Choosed settings profile",
 					"twitch_access_token": "Twitch access token",
 					"twitch_login": "Twitch channel login",
 					"hide_sensitive_info": "Hide sensitive info",
@@ -92,9 +97,13 @@
 					"sound_volume_on_raid": "Volume of sound on channel raid"
 				},
 				"footer": {
+					"profile": {
+						"info": "<b>must</b> be used for several running chats"
+					},
 					"twitch_access_token": {
 						"invalid": "token isn't valid. try to generate new.",
 						"expires_in": "this token expires in <b>$1</b>",
+						"validating": "validating token...",
 						"info": "token is required for some features of chat, see options below<br>token stores only in your browser cache, its not going to any 3rd-party servers"
 					},
 					"twitch_login": {
@@ -184,7 +193,8 @@
 					"failed_viewers": "Dashboard failed to update viewers: %1",
 					"failed_followers": "Dashboard failed to update followers: %1",
 					"failed_subscribers": "Dashboard failed to update subscribers: %1"
-				}
+				},
+				"subscription_exceeded_limit": "Chat is disabled%1: Subscriptions exceeded the limit, try to create own settings profile for this chat instance"
 			},
 			"irc": {
 				"connected": "Chat anonymously connected to ",

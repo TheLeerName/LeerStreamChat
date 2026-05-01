@@ -107,14 +107,14 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 
 	if (args.search.twitch_dashboard) {
 		r = await twitch.eventsub.subscribeToEvent("stream.online", {broadcaster_user_id});
-		if (!requestIsOK(r.status)) return console.error(r);
+		if (!r.ok) return console.error(r);
 		r = await twitch.eventsub.subscribeToEvent("stream.offline", {broadcaster_user_id});
-		if (!requestIsOK(r.status)) return console.error(r);
+		if (!r.ok) return console.error(r);
 
 		// if stream already started, show viewers on dashboard
 		r = await twitch.getStreamData(args.search.twitch_access_token, broadcaster_user_id);
-		if (!requestIsOK(r.status)) return console.error(r);
-		if (r.response) twitch.dashboard.showViewers(r.response.viewer_count);
+		if (!r.ok) return console.error(r);
+		if (r.data) twitch.dashboard.showViewers(r.data.viewer_count);
 
 		// channel followers will be updated with timeout of 5 min
 		// or will be increased by 1 on channel.follow
@@ -136,21 +136,21 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: warnColor}, {text: texts[1], color: "white"});
 			args.search.twitch_notifications_follow = false;
 		}
-		else if (!requestIsOK(r.status)) return console.error(r);
+		else if (!r.ok) return console.error(r);
 	}
 
 	r = await twitch.eventsub.subscribeToEvent("channel.chat.message", {broadcaster_user_id, user_id});
-	if (!requestIsOK(r.status)) return console.error(r);
+	if (!r.ok) return console.error(r);
 	r = await twitch.eventsub.subscribeToEvent("channel.chat.notification", {broadcaster_user_id, user_id});
-	if (!requestIsOK(r.status)) return console.error(r);
+	if (!r.ok) return console.error(r);
 
 	if (args.search.remove_msg != 0) {
 		r = await twitch.eventsub.subscribeToEvent("channel.chat.message_delete", {broadcaster_user_id, user_id});
-		if (!requestIsOK(r.status)) return console.error(r);
+		if (!r.ok) return console.error(r);
 		r = await twitch.eventsub.subscribeToEvent("channel.chat.clear", {broadcaster_user_id, user_id});
-		if (!requestIsOK(r.status)) return console.error(r);
+		if (!r.ok) return console.error(r);
 		r = await twitch.eventsub.subscribeToEvent("channel.chat.clear_user_messages", {broadcaster_user_id, user_id});
-		if (!requestIsOK(r.status)) return console.error(r);
+		if (!r.ok) return console.error(r);
 	}
 
 	if (args.search.twitch_notifications_reward_redemption) {
@@ -160,20 +160,20 @@ twitch.eventsub.onSessionWelcome = async(data) => {
 			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: warnColor}, {text: texts[1], color: "white"});
 			args.search.twitch_notifications_reward_redemption = false;
 		}
-		else if (!requestIsOK(r.status)) return console.error(r);
+		else if (!r.ok) return console.error(r);
 	}
 
-	twitch.eventsub.sharedChatEnabled = (await twitch.getSharedChatSession(args.search.twitch_access_token, twitch.broadcasterData.id)).response != null;
+	twitch.eventsub.sharedChatEnabled = (await twitch.getSharedChatSession(args.search.twitch_access_token, twitch.broadcasterData.id)).data != null;
 	r = await twitch.eventsub.subscribeToEvent("channel.shared_chat.begin", {broadcaster_user_id});
-	if (!requestIsOK(r.status)) return console.error(r);
+	if (!r.ok) return console.error(r);
 	r = await twitch.eventsub.subscribeToEvent("channel.shared_chat.end", {broadcaster_user_id});
-	if (!requestIsOK(r.status)) return console.error(r);
+	if (!r.ok) return console.error(r);
 
 	localStorage.setItem(twitch.eventsub.subscriptions_localstoragekey, JSON.stringify(twitch.eventsub.subscriptions));
 
 	r = await twitch.getUserColor(args.search.twitch_access_token, twitch.broadcasterData.id);
-	if (!requestIsOK(r.status)) console.error(r);
-	let userColor = r.response;
+	if (!r.ok) console.error(r);
+	let userColor = r.color;
 	if (twitch.eventsub.reconnecting_attempt === 0)
 		makeMessage(messageChunks.twitch_icon, {text: translation.frame.twitch.eventsub.connected}, {text: twitch.broadcasterData.display_name, color: userColor});
 	else
@@ -417,8 +417,8 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 				else badges = event.source_badges; // display badges from source broadcaster
 
 				let r = await twitch.getUserAvatar(args.search.twitch_access_token, broadcasterLogin);
-				if (!requestIsOK(r.status)) console.error(r);
-				else messageChunks.push({type: "image", url: r.response, text: broadcasterLogin, cssClass: "image badge"});
+				if (!r.ok) console.error(r);
+				else messageChunks.push({type: "image", url: r.avatar, text: broadcasterLogin, cssClass: "image badge"});
 			}
 
 			// chatter badges
@@ -435,8 +435,8 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 		let color = event.color;
 		if (color.length === 0) {
 			let r = await twitch.getUserColor(args.search.twitch_access_token, event.chatter_user_id);
-			if (!requestIsOK(r.status)) console.error(r);
-			color = r.response;
+			if (!r.ok) console.error(r);
+			color = r.color;
 		} else
 			twitch.userColors[event.chatter_user_id] = color;
 		messageChunks.push({text: event.chatter_user_name, cssClass: "text bold", color});
@@ -503,8 +503,8 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 				let color = twitch.userColors[fragment.mention.user_id];
 				if (color == null) {
 					let r = await twitch.getUserColor(args.search.twitch_access_token, fragment.mention.user_id);
-					if (!requestIsOK(r.status)) console.error(r);
-					color = r.response;
+					if (!r.ok) console.error(r);
+					color = r.color;
 				}
 
 				messageChunks.push({text: fragment.text, color, cssClass: "text bold"});
@@ -538,29 +538,38 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 twitch.eventsub.subscribeToEvent = async(type, condition, version) => {
 	version ??= "1";
 
-	let request, response = null;
-
+	let request, response;
 	try {
 		const subscription = { type, version, condition, transport: { method: "websocket", session_id: twitch.eventsub.session.id } };
 		request = await twitch.fetch.eventsub.subscriptions.post(args.search.twitch_access_token, subscription);
 		response = await request.json();
 
-		if (!request.ok) return response;
-		twitch.eventsub.subscriptions.push(response.data[0].id);
-		return {ok: request.ok, status: request.status, response};
+		response.ok = request.ok;
+		response.status = request.status;
+		response.data = response.data?.[0];
+
+		if (request.status === 429) {
+			const [part1, part2] = translation.frame.twitch.eventsub.subscriptions_exceeded_limit.split("%1", 2);
+			makeMessage(messageChunks.twitch_icon, {text: part1, color: errorColor}, {text: part2, color: "white"});
+		}
+		if (response.ok)
+			twitch.eventsub.subscriptions.push(response.data.id);
+
+		return response;
 	} catch(e) {
 		return {ok: false, status: 400, message: e.toString()};
 	}
 };
 twitch.eventsub.unsubscribeFromEvent = async(id) => {
-	let request, response = null;
-
+	let request, response;
 	try {
 		request = await twitch.fetch.eventsub.subscriptions.delete(args.search.twitch_access_token, id);
 		response = await request.json();
 
-		if (!request.ok) return response;
-		return {ok: request.ok, status: request.status, response};
+		response.ok = request.ok;
+		response.status = request.status;
+
+		return response;
 	} catch(e) {
 		return {ok: false, status: 400, message: e.toString()};
 	}

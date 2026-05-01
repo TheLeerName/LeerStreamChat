@@ -52,8 +52,22 @@ function updateHideSensitiveInfo(v) {
 }
 
 const values = {
+	latestVersion: 1,
+	version: null,
+	profiles: null,
+	getProfileByName: name => {
+		for (const profile of values.profiles) if (profile.name === name)
+			return profile;
+		return null;
+	},
+	save: (...fields) => {
+		if (fields.length < 1 || fields.includes("values")) localStorage.setItem('values', JSON.stringify(values.profiles));
+		if (fields.length < 1 || fields.includes("valuesChoosedProfile")) localStorage.setItem('valuesChoosedProfile', values.current.name);
+	},
+
 	default: {},
 	current: {
+		name: "default", // profile name, isnt used in chat link
 		twitch_access_token: null,
 		twitch_login: 'kaicenat',
 		hide_sensitive_info: '1',
@@ -98,7 +112,7 @@ function listenPopupWindow() {
 
 		if (args.search.debug) console.log({status: 200, message: `access token received: ${accessToken}`});
 		twitch.validateAccessToken(accessToken).then(r => {
-			if (requestIsOK(r.status))
+			if (r.ok)
 				twitch.addAccessToken(accessToken);
 			else {
 				twitch.removeAccessToken(accessToken);
@@ -118,53 +132,69 @@ function listenPopupWindow() {
 
 twitch.addAccessToken = (newAccessToken) => {
 	setElementValue(textarea_twitch_access_token, newAccessToken);
-	createChatLink();
+	updateChatLink();
 	values.current.twitch_access_token = newAccessToken;
-	localStorage.setItem('values', JSON.stringify(values.current));
+	values.save();
 
+	if (!message_twitch_access_token_validating.classList.contains('hidden')) message_twitch_access_token_validating.classList.add('hidden');
 	if (!message_twitch_access_token_invalid.classList.contains('hidden')) message_twitch_access_token_invalid.classList.add('hidden');
 	message_twitch_access_token_expires_in.classList.remove('hidden');
 	message_twitch_access_token_expires_in.innerHTML = getValue(lang, 'builder.category.cell.footer.twitch_access_token.expires_in').replace('$1', humanizeAccessTokenExpireDate());
 };
 twitch.removeAccessToken = async(accessToken) => {
-	const r = await twitch.revokeAccessToken(accessToken);
-
-	if (args.search.debug) console[requestIsOK(r.status) ? 'log' : 'error'](r);
+	if (accessToken !== "") {
+		const r = await twitch.revokeAccessToken(accessToken);
+		if (args.search.debug) console[requestIsOK(r.status) ? 'log' : 'error'](r);
+	}
 
 	setElementValue(textarea_twitch_access_token, '');
-	createChatLink();
+	updateChatLink();
 	values.current.twitch_access_token = "";
-	localStorage.setItem('values', JSON.stringify(values.current));
+	values.save();
 
-	message_twitch_access_token_invalid.classList.remove('hidden');
+	if (!message_twitch_access_token_validating.classList.contains('hidden')) message_twitch_access_token_validating.classList.add('hidden');
 	if (!message_twitch_access_token_expires_in.classList.contains('hidden')) message_twitch_access_token_expires_in.classList.add('hidden');
+	message_twitch_access_token_invalid.classList.remove('hidden');
 };
 
 function humanizeAccessTokenExpireDate() {
 	return humanizeDuration(twitch.accessTokenData.expires_in * 1000, {largest: 2, language: values.current.lang, delimiter: values.current.lang === "ru" ? " и " : " and "});
 }
 
-var createChatLinkWorking = 0;
+let updateChatLink_cooldown = 250;
+let updateChatLink_resolves = [];
 /**
  * generates chat link and enters it to #textarea_output div on async;
  * 
  * if method is already executed, stops current running method and starts the new one
  */
-async function createChatLink(cancel) {
-	if (cancel) createChatLinkWorking = 0;
-	if (createChatLinkWorking > 0) return;
-	createChatLinkWorking++;
+async function updateChatLink() {
+	return await new Promise(resolve => {
+		updateChatLink_resolves.push(resolve);
+		if (updateChatLink_resolves.length < 2) {
+			var toadd = `${app.link}/frame?`;
+			for (let arg of Object.keys(values.current)) {
+				if (arg === "name") continue;
+				const defaultValue = values.default[arg];
+				const currentValue = getElementValue(document.getElementById(arg));
+				if (currentValue != null) {
+					values.current[arg] = currentValue;
+					toadd += `${arg}=${currentValue}&`;
+				}
+				else {
+					values.current[arg] = defaultValue;
+					toadd += `${arg}=${defaultValue}&`;
+				}
+			}
+			values.save();
+			textarea_output.innerText = encodeURI(toadd);
 
-	var toadd = `${app.link}/frame?`;
-	for (let arg of Object.keys(values.current)) {
-		if (createChatLinkWorking > 1) return await createChatLink(true);
-		values.current[arg] = getElementValue(document.getElementById(arg)) ?? values.default[arg];
-		toadd += `${arg}=${values.current[arg]}&`;
-	}
-	localStorage.setItem('values', JSON.stringify(values.current));
-	textarea_output.innerText = encodeURI(toadd);
-
-	createChatLinkWorking = false;
+			while(updateChatLink_resolves.length > 0) {
+				updateChatLink_resolves[0]();
+				updateChatLink_resolves.shift();
+			}
+		}
+	});
 }
 
 var translatedNodes;
@@ -187,60 +217,169 @@ function updateTranslation(langID) {
 	});
 }
 
+function updateProfileInputElements(...fields) {
+	if (fields.length < 1 || fields.includes("select")) {
+		if (!window.profileSelect)
+			window.profileSelect = document.querySelector("body .profile-input .select");
+		let innerHTML = "";
+		for (const profile of values.profiles)
+			innerHTML += `<option value="${profile.name}"${values.current === profile ? " selected" : ""}>${profile.name}</option>`;
+		window.profileSelect.innerHTML = innerHTML;
+	}
+	if (fields.length < 1 || fields.includes("textarea")) {
+		if (!window.profileTextArea)
+			window.profileTextArea = document.querySelector("body .profile-input .textarea");
+		window.profileTextArea.innerText = values.current.name;
+	}
+}
+function updateValuesInElements() {
+	for (let [arg, value] of Object.entries(values.current)) {
+		if (arg === "name") continue;
+		setElementValue(document.getElementById(arg), value);
+	}
+}
+
+async function updateTwitchAccessToken() {
+	if (textarea_twitch_access_token.innerText == "")
+		return twitch.removeAccessToken(textarea_twitch_access_token.innerText);
+
+	if (!message_twitch_access_token_invalid.classList.contains('hidden')) message_twitch_access_token_invalid.classList.add('hidden');
+	if (!message_twitch_access_token_expires_in.classList.contains('hidden')) message_twitch_access_token_expires_in.classList.add('hidden');
+	message_twitch_access_token_validating.classList.remove('hidden');
+	let r = await twitch.validateAccessToken(textarea_twitch_access_token.innerText);
+	if (r.ok)
+		twitch.addAccessToken(textarea_twitch_access_token.innerText);
+	else {
+		twitch.removeAccessToken(textarea_twitch_access_token.innerText);
+		console.error(r);
+	}
+}
+
 document.addEventListener('DOMContentLoaded', (_, e) => main());
 
 async function main() {
 	// get input field values from browser cache
 	for (let [arg, value] of Object.entries(values.current))
 		values.default[arg] = value;
-	const cache = JSON.parse(localStorage.getItem('values') ?? '{}');
-	for (let [arg, value] of Object.entries(values.default))
-		values.current[arg] = cache[arg] ?? value;
+	values.profiles = localStorage.getItem('values');
+	if (values.profiles)
+		values.profiles = JSON.parse(values.profiles);
+	values.version = localStorage.getItem('valuesVersion');
+	if (values.version)
+		values.version = parseInt(values.version);
 
-	// iterate over all input fields
-	for (let [arg, value] of Object.entries(values.current)) {
-		setElementValue(document.getElementById(arg), value);
+	if (!values.version) {
+		values.version = 1;
+		localStorage.setItem('valuesVersion', values.version);
 
-		// adding "change" event in each input field which will execute creating chat link,
-		// if createChatLink already executing, this will stop current executing and will start a new one
-		const node = document.getElementById(arg);
-		//console.log(node.nodeName, arg);
-		const nodeName = node.nodeName.toLowerCase();
-		if (nodeName === 'select')
-			document.getElementById(arg).addEventListener('change', e => createChatLink());
-		else if (nodeName === 'textarea' || arg === 'twitch_login')
-			document.getElementById(arg).addEventListener('input', e => createChatLink());
-		else if (arg === 'twitch_access_token')
-			document.getElementById(arg).addEventListener('paste', e => createChatLink());
+		if (values.profiles) {
+			// 0 version detected!
+			values.current = values.profiles;
+			values.current.name = values.default.name;
+		}
+
+		values.profiles = [values.current];
+		values.save();
 	}
-
-	updateTranslation();
-	document.getElementById('lang').addEventListener('change', e => updateTranslation(e.target.value));
+	else {
+		const choosedProfile = localStorage.getItem('valuesChoosedProfile') ?? values.profiles[0].name;
+		values.current = values.getProfileByName(choosedProfile) ?? values.profiles[0];
+		// here will be migrations for future values versions
+	}
 
 	// set useful shortcuts
 	message_twitch_access_token_expires_in = document.getElementById('message_twitch_access_token_expires_in');
+	message_twitch_access_token_validating = document.getElementById('message_twitch_access_token_validating');
 	message_twitch_access_token_invalid = document.getElementById('message_twitch_access_token_invalid');
 	textarea_twitch_access_token = document.getElementById('twitch_access_token');
 	textarea_output = document.getElementById('textarea_output');
 	textarea_twitch_login_placeholder = document.getElementById('twitch_login-placeholder');
 	textarea_twitch_login = document.getElementById('twitch_login');
 
-	async function lol() {
-		if (textarea_twitch_access_token.innerText == "") return;
+	// adding change event of hide_sensitive_info "checkbox" which will blur/show sensitive fields
+	document.getElementById('hide_sensitive_info').addEventListener('change', e => updateHideSensitiveInfo(e.target.value));
+	updateHideSensitiveInfo(values.current.hide_sensitive_info);
 
-		let r = await twitch.validateAccessToken(textarea_twitch_access_token.innerText);
-		if (requestIsOK(r.status))
-			twitch.addAccessToken(textarea_twitch_access_token.innerText);
-		else {
-			twitch.removeAccessToken(textarea_twitch_access_token.innerText);
-			console.error(r);
-		}
+	// setting callbacks
+	for (let [arg, value] of Object.entries(values.current)) {
+		if (arg === "name") continue;
+
+		// adding "change" event in each input field which will execute creating chat link,
+		// if updateChatLink already executing, this will stop current executing and will start a new one
+		const node = document.getElementById(arg);
+		//console.log(node.nodeName, arg);
+		const nodeName = node.nodeName.toLowerCase();
+		if (nodeName === 'select')
+			document.getElementById(arg).addEventListener('change', e => updateChatLink());
+		else if (nodeName === 'textarea' || arg === 'twitch_login')
+			document.getElementById(arg).addEventListener('input', e => updateChatLink());
+		else if (arg === 'twitch_access_token')
+			document.getElementById(arg).addEventListener('paste', e => updateChatLink());
 	}
+
+	updateValuesInElements();
+	updateProfileInputElements();
+
+	document.querySelector("body .profile-input .textarea").addEventListener("input", e => {
+		values.current.name = e.target.innerText;
+		values.save("valuesChoosedProfile");
+		updateProfileInputElements("select");
+	});
+	document.querySelector("body .profile-input .select").addEventListener("change", e => {
+		values.current = values.getProfileByName(e.target.value);
+
+		values.save();
+		updateValuesInElements();
+		updateProfileInputElements("textarea");
+		updateChatLink();
+		updateHideSensitiveInfo(values.current.hide_sensitive_info);
+		updateTwitchAccessToken(textarea_twitch_access_token.innerText);
+	});
+	document.querySelector("body .profile-input .button-green").addEventListener("click", e => {
+		const prev = values.current;
+		values.current = {};
+		for (let [arg, value] of Object.entries(prev))
+			values.current[arg] = value;
+
+		let i = 0;
+		while(values.getProfileByName(values.current.name) != null) {
+			i++;
+			values.current.name = `${prev.name} (${i})`;
+		}
+		values.profiles.push(values.current);
+
+		values.save();
+		updateValuesInElements();
+		updateProfileInputElements();
+		updateChatLink();
+		updateHideSensitiveInfo(values.current.hide_sensitive_info);
+		updateTwitchAccessToken(textarea_twitch_access_token.innerText);
+	});
+	document.querySelector("body .profile-input .button-red").addEventListener("click", async(e) => {
+		if (values.profiles.length < 2) return;
+
+		await twitch.removeAccessToken(values.current.twitch_access_token);
+		const index = values.profiles.indexOf(values.current);
+		if (index > -1) {
+			values.profiles.splice(index, 1);
+			values.current = values.profiles[0];
+		}
+
+		values.save();
+		updateProfileInputElements();
+		updateChatLink();
+		updateHideSensitiveInfo(values.current.hide_sensitive_info);
+		updateTwitchAccessToken(textarea_twitch_access_token.innerText);
+	});
+
+	updateTranslation();
+	document.getElementById('lang').addEventListener('change', e => updateTranslation(e.target.value));
+
 	// pasting text to twitch_access_token input field will validate access token in twitch api,
 	// which displays on frontend if token was successfully validated
-	await lol(textarea_twitch_access_token.innerText);
+	await updateTwitchAccessToken(textarea_twitch_access_token.innerText);
 	textarea_twitch_access_token.addEventListener('paste', e => {
-		lol(e.clipboardData.getData('Text'));
+		updateTwitchAccessToken(e.clipboardData.getData('Text'));
 		e.target.innerText = '';
 		e.preventDefault();
 	});
@@ -261,12 +400,8 @@ async function main() {
 		if (values.current.twitch_access_token != "") twitch.removeAccessToken(values.current.twitch_access_token);
 	});
 
-	// adding change event of hide_sensitive_info "checkbox" which will blur/show sensitive fields
-	document.getElementById('hide_sensitive_info').addEventListener('change', e => updateHideSensitiveInfo(e.target.value));
-	updateHideSensitiveInfo(values.current.hide_sensitive_info);
-
 	// needs to create chat link on page load lol
-	createChatLink(true);
+	updateChatLink();
 
 	document.getElementById('twitch_login').addEventListener('input', e => {
 		textarea_twitch_login_placeholder.innerText = '';
@@ -275,8 +410,8 @@ async function main() {
 
 		twitch.getChannelByQuery(values.current.twitch_access_token, textarea_twitch_login.innerText)
 		.then(r => {
-			if (!requestIsOK(r.status)) return console.error(r);
-			textarea_twitch_login_placeholder.innerText = r.response.broadcaster_login;
+			if (!r.ok) return console.error(r);
+			textarea_twitch_login_placeholder.innerText = r.broadcaster_login;
 		});
 	});
 }

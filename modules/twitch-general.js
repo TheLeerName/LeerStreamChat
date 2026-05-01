@@ -171,46 +171,49 @@ const twitch = {
 
 	// <userID> => <userColor>
 	userColors: {},
-	/** https://dev.twitch.tv/docs/api/reference/#get-user-chat-color  */
+	/** https://dev.twitch.tv/docs/api/reference/#get-user-chat-color */
 	getUserColor: async(accessToken, userID) => {
 		let color = twitch.userColors[userID];
-		if (color) return {status: 200, response: color};
+		if (color) return {ok: true, status: 200, color: color};
 
-		let request, response, output;
+		let request, response;
 		if (accessToken) {
 			try {
 				request = await twitch.fetch.chat.color(accessToken, userID);
 				response = await request.json();
+				if (response.data.length === 0) throw `User not found: ${userID}`;
 
-				if (response.status != null) output = response;
-				else if (response.data.length === 0) throw `User not found: ${userID}`;
-				else {
-					output = {status: request.status, response: response.data[0].color};
-					if (output.response.length === 0) output.response = await generateUserColor(userID);
-				}
+				response.ok = request.ok;
+				response.status = request.status;
+
+				response.color = response.data[0].color;
+				delete response.data;
+				if (response.color.length === 0)
+					response.color = await generateUserColor(userID);
 			} catch(e) {
-				output = {status: 400, message: e.toString(), response: await generateUserColor(userID)};
+				response = {ok: false, status: 400, message: e.toString(), color: await generateUserColor(userID)};
 			}
 		} else
-			output = {status: 200, response: await generateUserColor(userID)};
+			response = {ok: true, status: 200, color: await generateUserColor(userID)};
 
-		if (output.response) twitch.userColors[userID] = output.response;
-		return output;
+		twitch.userColors[userID] = response.color;
+		return response;
 	},
 
 	// <userLogin> => <userAvatarURL>
 	userAvatars: {},
 	getUserAvatar: async(accessToken, userLogin) => {
 		let avatar = twitch.userAvatars[userLogin];
-		if (avatar) return {status: 200, response: avatar};
+		if (avatar) return {ok: true, status: 200, avatar};
 
 		const r = await twitch.getUserData(accessToken, userLogin);
-		if (!r.response) return {status: 400, message: `User not found: ${userLogin}`};
-		if (!requestIsOK(r.status)) return r;
+		if (!r.ok) return r;
+		if (!r.data) return {ok: false, status: 400, message: `User not found: ${userLogin}`};
 
-		let output = {status: r.status, response: r.response.profile_image_url};
-		twitch.userAvatars[userLogin] = output.response;
-		return output;
+		r.avatar = r.data.profile_image_url;
+		delete r.data;
+		twitch.userAvatars[userLogin] = r.avatar;
+		return r;
 	},
 
 	broadcasterData: {},
@@ -220,9 +223,9 @@ const twitch = {
 		let count = 0;
 
 		r = await twitch.getGlobalBadges(accessToken);
-		if (!requestIsOK(r.status)) return r;
+		if (!r.ok) return r;
 		else {
-			for (let badge of r.response) {
+			for (let badge of r.data) {
 				let versions = {};
 				for (let version of badge.versions)
 					versions[version.id] = version.image_url_4x;
@@ -232,9 +235,9 @@ const twitch = {
 		}
 
 		r = await twitch.getChannelBadges(accessToken, channelID);
-		if (!requestIsOK(r.status)) return r;
+		if (!r.ok) return r;
 		else {
-			for (let badge of r.response) {
+			for (let badge of r.data) {
 				let versions = {};
 				for (let version of badge.versions)
 					versions[version.id] = version.image_url_4x;
@@ -243,182 +246,194 @@ const twitch = {
 			}
 		}
 
-		return {status: 200, response: {count}};
+		return {ok: true, status: 200, count};
 	},
 
 	/** https://dev.twitch.tv/docs/authentication/validate-tokens/#how-to-validate-a-token */
 	validateAccessToken: async(accessToken) => {
-		let request, response, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.validate(accessToken);
 			response = await request.json();
 
-			if (response.status != null) output = response;
-			else {
-				if (!response.scopes) response.scopes = [];
-				twitch.accessTokenData = response;
-				output = {status: request.status, response};
-			}
+			response.ok = request.ok;
+			response.status = request.status;
+			if (!response.scopes) response.scopes = [];
+			twitch.accessTokenData = response;
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	revokeAccessToken: async(accessToken) => {
-		let request, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.revoke(accessToken);
-			if (requestIsOK(request.status)) output = {status: request.status};
-			else output = await request.json();
+
+			response = {};
+			response.ok = request.ok;
+			response.status = request.status;
+
+			if (!response.ok) {
+				for (const [k, v] of Object.entries(await request.json()))
+					response[k] = v;
+			}
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	/**
 	 * https://dev.twitch.tv/docs/api/reference/#get-shared-chat-session
 	 * 
-	 * WARNING: `response` can be null! (if channel isnt in shared chat session or not found)
+	 * WARNING: `data` can be undefined! (if channel isnt in shared chat session or not found)
 	 */
 	getSharedChatSession: async(accessToken, channelID) => {
-		let request, response, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.shared_chat.session(accessToken, channelID);
 			response = await request.json();
 
-			if (response.status != null) output = response;
-			else output = {status: request.status, response: response.data[0]};
+			response.ok = request.ok;
+			response.status = request.status;
+			response.data = response.data[0];
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-streams */
 	getStreamData: async(accessToken, channelID) => {
-		let request, response, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.streams(accessToken, channelID);
 			response = await request.json();
 
-			if (response.status != null) output = response;
-			else output = {status: request.status, response: response.data[0]};
+			response.ok = request.ok;
+			response.status = request.status;
+			response.data = response.data[0];
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-users */
 	getUserData: async(accessToken, channelLogin) => {
-		let request, response, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.users.byLogin(accessToken, channelLogin);
 			response = await request.json();
 
-			if (response.status != null) output = response;
-			else output = {status: request.status, response: response.data[0]};
+			response.ok = request.ok;
+			response.status = request.status;
+			response.data = response.data[0];
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-channel-followers */
 	getChannelFollowers: async(accessToken, channelID) => {
-		let request, response, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.channels.followers(accessToken, channelID);
 			response = await request.json();
 
-			if (response.status != null) output = response;
-			else output = {status: request.status, response: response};
+			response.ok = request.ok;
+			response.status = request.status;
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-broadcaster-subscriptions */
 	getChannelSubscribers: async(accessToken, channelID) => {
-		let request, response, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.subscriptions(accessToken, channelID);
 			response = await request.json();
 
-			if (response.status != null) output = response;
-			else output = {status: request.status, response: response};
+			response.ok = request.ok;
+			response.status = request.status;
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-channel-chat-badges */
 	getChannelBadges: async(accessToken, channelID) => {
-		let request, response, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.chat.badges(accessToken, channelID);
 			response = await request.json();
 
-			if (response.status != null) output = response;
-			else output = {status: request.status, response: response.data};
+			response.ok = request.ok;
+			response.status = request.status;
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	/** https://dev.twitch.tv/docs/api/reference/#get-global-chat-badges */
 	getGlobalBadges: async(accessToken) => {
-		let request, response, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.chat.badges_global(accessToken);
 			response = await request.json();
 
-			if (response.status != null) output = response;
-			else output = {status: request.status, response: response.data};
+			response.ok = request.ok;
+			response.status = request.status;
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	/** https://dev.twitch.tv/docs/api/reference/#search-channels */
 	getChannelByQuery: async(accessToken, query) => {
-		let request, response, output;
+		let request, response;
 
 		try {
 			request = await twitch.fetch.search.channels(accessToken, query);
 			response = await request.json();
+			if (response.data.length === 0) throw `Channel not found: ${query}`;
 
-			if (response.status != null) output = response;
-			else if (response.data.length === 0) throw `Channel not found: ${query}`;
-			else output = {status: request.status, response: response.data[0]};
+			response.ok = request.ok;
+			response.status = request.status;
+			for (const [k, v] of Object.entries(response.data[0]))
+				response[k] = v;
+			delete response.data;
+
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	}
 };

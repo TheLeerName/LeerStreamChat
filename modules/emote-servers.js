@@ -17,12 +17,12 @@ const seventv = {
 
 	isEmotesLoaded: false,
 	loadEmotes: async(channelID) => {
-		if (seventv.isEmotesLoaded) return {status: 200, response: {count: Object.keys(seventv.links.emotes).length, message: "7TV emotes were already loaded"}};
+		if (seventv.isEmotesLoaded) return {status: 200, data: {count: Object.keys(seventv.links.emotes).length, message: "7TV emotes were already loaded"}};
 
 		let count = 0;
 		let r = await seventv.getGlobalEmoteSet();
-		if (!requestIsOK(r.status)) return r;
-		for (let entry of r.response.emotes) {
+		if (!r.ok) return r;
+		for (let entry of r.emotes) {
 			seventv.links.emotes[entry.name] = {
 				url: `https:${entry.data.host.url}/${seventv.emoteSize}x.webp`,
 				isZeroWidth: entry.flags == 1
@@ -31,8 +31,8 @@ const seventv = {
 		}
 
 		r = await seventv.getChannelEmoteSet(channelID);
-		if (!requestIsOK(r.status)) return r;
-		if (r.response.emote_set.emotes) for (let entry of r.response.emote_set.emotes) {
+		if (!r.ok) return r;
+		if (r.emote_set.emotes) for (let entry of r.emote_set.emotes) {
 			seventv.links.emotes[entry.name] = {
 				url: `https:${entry.data.host.url}/${seventv.emoteSize}x.webp`,
 				isZeroWidth: entry.flags == 1
@@ -41,38 +41,38 @@ const seventv = {
 		}
 
 		seventv.isEmotesLoaded = true;
-		return {status: 200, response: {count}};
+		return {ok: true, status: 200, count};
 	},
 
 	getGlobalEmoteSet: async() => {
-		let request, response, output = null;
+		let request, response;
 
 		try {
 			request = await advancedFetch(seventv.links.emotesets(seventv.globalEmoteSetID));
 			response = await request.json();
 
-			if (response.error_code != null) output = {status: request.status, message: `(${response.status}) ${response.error}`};
-			else output = {status: request.status, response};
+			response.ok = request.ok;
+			response.status = request.status;
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 
 	getChannelEmoteSet: async(channelID) => {
-		let request, response, output = null;
+		let request, response;
 
 		try {
 			request = await advancedFetch(seventv.links.users.twitch(channelID));
 			response = await request.json();
 
-			if (response.error_code != null) output = {status: request.status, message: `(${response.status}) ${response.error}`};
-			else output = {status: request.status, response};
+			response.ok = request.ok;
+			response.status = request.status;
 		} catch(e) {
-			output = {status: 400, message: e.toString()};
+			response = {ok: false, status: 400, message: e.toString()};
 		}
 
-		return output;
+		return response;
 	},
 };

@@ -1,5 +1,5 @@
 const app = {
-	version: "v2.3.17",
+	version: "v2.4.0",
 	name: "LeerStreamChat",
 
 	link: "https://theleername.github.io/LeerStreamChat",
@@ -80,8 +80,6 @@ const isUserRussianUnderstanding =
 	navigator.language === 'ru' || navigator.language === 'ru-RU' ||
 	navigator.language === 'uk' || navigator.language === 'uk-UA' || // <3
 	navigator.language === 'uz' || navigator.language === 'uz-UZ'; // fun fact: im 50% uzbek
-
-const requestIsOK = (code) => code > 199 && code < 300;
 
 const fetchTimeout = 5000;
 const abortControllers = {};

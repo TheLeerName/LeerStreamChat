@@ -95,12 +95,12 @@ twitch.dashboard.updateViewers = async(count) => {
 
 	if (!count) {
 		const r = await twitch.getStreamData(args.search.twitch_access_token, twitch.broadcasterData.id);
-		if (!requestIsOK(r.status)) {
+		if (!r.ok) {
 			const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_viewers.split("%1");
 			makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], color: errorColor});
 			return console.error(r);
 		}
-		count = r.response?.viewer_count ?? 0;
+		count = r.data?.viewer_count ?? 0;
 	}
 
 	twitch.dashboard.viewers.div_count.innerText = `${count}`;
@@ -110,12 +110,12 @@ twitch.dashboard.updateFollowers = async() => {
 	twitch.dashboard.initialize();
 
 	const r = await twitch.getChannelFollowers(args.search.twitch_access_token, twitch.broadcasterData.id);
-	if (!requestIsOK(r.status)) {
+	if (!r.ok) {
 		const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_followers.split("%1");
 		makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], color: errorColor});
 		return console.error(r);
 	}
-	twitch.dashboard.setFollowers(r.response.total);
+	twitch.dashboard.setFollowers(r.total);
 };
 
 twitch.dashboard.setFollowers = (count) => {
@@ -140,7 +140,7 @@ twitch.dashboard.updateSubscribers = async(doerr = true) => {
 	twitch.dashboard.initialize();
 
 	const r = await twitch.getChannelSubscribers(args.search.twitch_access_token, twitch.broadcasterData.id);
-	if (!requestIsOK(r.status)) {
+	if (!r.ok) {
 		const texts = translation.frame.twitch.eventsub.twitch_dashboard.failed_subscribers.split("%1");
 		if (doerr) makeMessage(messageChunks.twitch_icon, {text: texts[0], color: errorColor}, {text: `${r.status} - ${r.message}`, color: "white"}, {text: texts[1], color: errorColor});
 		console.error(r);
@@ -148,7 +148,7 @@ twitch.dashboard.updateSubscribers = async(doerr = true) => {
 	}
 
 	twitch.dashboard.showSubscribers();
-	twitch.dashboard.setSubscribers(r.response.total);
+	twitch.dashboard.setSubscribers(r.total);
 	return true;
 };
 

@@ -17,14 +17,27 @@
 			<p class="label">#builder.category.label.general</p>
 			<div class="category-row">
 				<div class="category-cell">
+					<p class="label">#builder.category.cell.label.profile</p>
+					<div class="profile-input">
+						<select id="profile-select" class="select"></select>
+						<div class="textarea" contenteditable="plaintext-only">adf</div>
+						<div class="button-green">#builder.category.cell.button.profile.clone</div>
+						<div class="button-red">#builder.category.cell.button.profile.delete</div>
+					</div>
+					<p class="footer">#builder.category.cell.footer.profile.info</p>
+				</div>
+			</div>
+			<div class="category-row">
+				<div class="category-cell">
 					<p class="label">#builder.category.cell.label.twitch_access_token</p>
 					<div class="access-token-input">
-						<div id="twitch_access_token" class="textarea" contenteditable="plaintext-only" onkeydown="return event.ctrlKey && (event.key === 'v' || event.key === 'c')"></div>
-						<div id="button_twitch_access_token_generate" class="button-generate">#builder.category.cell.button.twitch_access_token.generate</div>
-						<div id="button_twitch_access_token_revoke" class="button-revoke">#builder.category.cell.button.twitch_access_token.revoke</div>
+						<div id="twitch_access_token" class="textarea blurred" contenteditable="plaintext-only" onkeydown="return event.ctrlKey && (event.key === 'v' || event.key === 'c')"></div>
+						<div id="button_twitch_access_token_generate" class="button-green">#builder.category.cell.button.twitch_access_token.generate</div>
+						<div id="button_twitch_access_token_revoke" class="button-red">#builder.category.cell.button.twitch_access_token.revoke</div>
 					</div>
-					<p id="message_twitch_access_token_invalid" class="footer" style="color: red">#builder.category.cell.footer.twitch_access_token.invalid</p>
-					<p id="message_twitch_access_token_expires_in" class="footer hidden"></p>
+					<p id="message_twitch_access_token_invalid" class="footer hidden" style="color: red">#builder.category.cell.footer.twitch_access_token.invalid</p>
+					<p id="message_twitch_access_token_expires_in" class="footer hidden">#builder.category.cell.footer.twitch_access_token.expires_in</p>
+					<p id="message_twitch_access_token_validating" class="footer">#builder.category.cell.footer.twitch_access_token.validating</p>
 					<p class="footer">#builder.category.cell.footer.twitch_access_token.info</p>
 				</div>
 			</div>
@@ -207,7 +220,7 @@
 		</div>
 		<div class="category output">
 			<p id="button_output" class="label">#builder.category.label.output</p>
-			<div id="textarea_output" class="textarea" onclick="selectTextRange(this, 0, this.innerText.length - 1)"></div>
+			<div id="textarea_output" class="textarea blurred" onclick="selectTextRange(this, 0, this.innerText.length - 1)"></div>
 			<p class="footer">#builder.category.cell.footer.output.info</p>
 		</div>
 	</body>
