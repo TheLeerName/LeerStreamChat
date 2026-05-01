@@ -340,6 +340,7 @@ async function main() {
 		values.current = {};
 		for (let [arg, value] of Object.entries(prev))
 			values.current[arg] = value;
+		values.current.twitch_access_token = "";
 
 		let i = 0;
 		while(values.getProfileByName(values.current.name) != null) {
