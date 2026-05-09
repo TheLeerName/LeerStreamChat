@@ -265,7 +265,9 @@ async function main() {
 				console.error(`scopes:  ${r.scopes.join(" ")},\n\nnot found: ${not_found_scopes.join(" ")}`);
 			}
 		}
+	}
 
+	if (!twitch.isAnonymous) {
 		r = await twitch.getUserData(args.search.twitch_access_token, args.search.twitch_login);
 		if (!r.ok) return console.error(r);
 		else if (!r.data) {
