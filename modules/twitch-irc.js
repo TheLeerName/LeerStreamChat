@@ -105,7 +105,7 @@ twitch.irc.onRoomState = async(event) => {
 		let r = await seventv.loadEmotes(event['room-id']);
 		if (r.ok) {
 			const texts = t['7tv_emotes'].loaded.split("%1");
-			makeMessage(messageChunks.seventv_icon, {text: texts[0]}, {text: `${r.data.count}`, color: "white"}, {text: texts[1]});
+			makeMessage(messageChunks.seventv_icon, {text: texts[0]}, {text: `${r.count}`, color: "white"}, {text: texts[1]});
 		}
 		else {
 			const texts = t['7tv_emotes'].not_loaded.split("%1");
