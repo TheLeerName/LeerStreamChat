@@ -401,126 +401,124 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 
 	if (prefixChunks) messageChunks.push(...prefixChunks);
 
-	if (event.message.text.length > 0) {
-		// chatter badges
+	// chatter badges
 
-		// TODO: for youtube chat in future
-		//messageChunks.push(messageChunks.twitch_icon);
+	// TODO: for youtube chat in future
+	//messageChunks.push(messageChunks.twitch_icon);
 
-		if (args.search.twitch_badges) {
-			let badges = event.badges;
+	if (args.search.twitch_badges) {
+		let badges = event.badges;
 
-			// broadcaster avatar if shared chat enabled
-			if (twitch.eventsub.sharedChatEnabled) {
-				let broadcasterLogin = event.source_broadcaster_user_login;
-				if (broadcasterLogin == null) broadcasterLogin = event.broadcaster_user_login;
-				else badges = event.source_badges; // display badges from source broadcaster
+		// broadcaster avatar if shared chat enabled
+		if (twitch.eventsub.sharedChatEnabled) {
+			let broadcasterLogin = event.source_broadcaster_user_login;
+			if (broadcasterLogin == null) broadcasterLogin = event.broadcaster_user_login;
+			else badges = event.source_badges; // display badges from source broadcaster
 
-				let r = await twitch.getUserAvatar(args.search.twitch_access_token, broadcasterLogin);
-				if (!r.ok) console.error(r);
-				else messageChunks.push({type: "image", url: r.avatar, text: broadcasterLogin, cssClass: "image badge"});
-			}
-
-			// chatter badges
-			if (badges) for (let badge of badges) {
-				const badgeSet = twitch.links.badges[badge.set_id];
-				if (badgeSet) {
-					const badgeURL = badgeSet[badge.id] ?? badgeSet['1'];
-					if (badgeURL) messageChunks.push({type: "image", url: badgeURL, text: badge.set_id, cssClass: "image badge"});
-				}
-			}
+			let r = await twitch.getUserAvatar(args.search.twitch_access_token, broadcasterLogin);
+			if (!r.ok) console.error(r);
+			else messageChunks.push({type: "image", url: r.avatar, text: broadcasterLogin, cssClass: "image badge"});
 		}
 
-		// chatter name
-		let color = event.color;
-		if (color.length === 0) {
-			let r = await twitch.getUserColor(args.search.twitch_access_token, event.chatter_user_id);
-			if (!r.ok) console.error(r);
-			color = r.color;
-		} else
-			twitch.userColors[event.chatter_user_id] = color;
-		messageChunks.push({text: event.chatter_user_name, cssClass: "text bold", color});
+		// chatter badges
+		if (badges) for (let badge of badges) {
+			const badgeSet = twitch.links.badges[badge.set_id];
+			if (badgeSet) {
+				const badgeURL = badgeSet[badge.id] ?? badgeSet['1'];
+				if (badgeURL) messageChunks.push({type: "image", url: badgeURL, text: badge.set_id, cssClass: "image badge"});
+			}
+		}
+	}
 
-		// separator from name and message
-		messageChunks.push({text: ": ", cssClass: "text chat", attributes: {isseparator: ''}});
+	// chatter name
+	let color = event.color;
+	if (color.length === 0) {
+		let r = await twitch.getUserColor(args.search.twitch_access_token, event.chatter_user_id);
+		if (!r.ok) console.error(r);
+		color = r.color;
+	} else
+		twitch.userColors[event.chatter_user_id] = color;
+	messageChunks.push({text: event.chatter_user_name, cssClass: "text bold", color});
 
-		let prevEmote = false;
-		for (let fragment of event.message.fragments) {
-			if (fragment.type === 'text') {
-				prevEmote = false;
+	// separator from name and message
+	messageChunks.push({text: ": ", cssClass: "text chat", attributes: {isseparator: ''}});
 
-				let chunkText = "";
-				for (let chunk of fragment.text.split(' ')) {
-					chunkText += `${chunk} `;
-					let isLink = regex.http_protocol.test(chunk);
-					if (isLink) {
-						let chunkAfterComma;
-						if (!isLink && chunk.includes(',')) {
-							chunkAfterComma = chunk.substring(chunk.indexOf(','));
-							chunk = chunk.substring(0, chunk.indexOf(','));
-							chunkText = chunkText.substring(0, chunkText.length - chunk.length - chunkAfterComma.length - 1) + chunk + " ";
-						}
+	let prevEmote = false;
+	for (let fragment of event.message.fragments) {
+		if (fragment.type === 'text') {
+			prevEmote = false;
 
-						// add message fragment before link as new chunk
+			let chunkText = "";
+			for (let chunk of fragment.text.split(' ')) {
+				chunkText += `${chunk} `;
+				let isLink = regex.http_protocol.test(chunk);
+				if (isLink) {
+					let chunkAfterComma;
+					if (!isLink && chunk.includes(',')) {
+						chunkAfterComma = chunk.substring(chunk.indexOf(','));
+						chunk = chunk.substring(0, chunk.indexOf(','));
+						chunkText = chunkText.substring(0, chunkText.length - chunk.length - chunkAfterComma.length - 1) + chunk + " ";
+					}
+
+					// add message fragment before link as new chunk
+					chunkText = chunkText.substring(0, chunkText.length - chunk.length - 1);
+					messageChunks.push({text: chunkText, cssClass: "text chat"});
+					chunkText = " ";
+
+					// add link chunk
+					messageChunks.push({text: chunk, cssClass: "text", color: "#8000ff"});
+					prevEmote = false;
+
+					if (chunkAfterComma)
+						messageChunks.push({text: chunkAfterComma, cssClass: "text chat"});
+					continue;
+				}
+				if (args.search['7tv_emotes']) {
+					let emote = findInStruct(seventv.links.emotes, chunk);
+					if (emote) {
+						// add message fragment before emote as new chunk
 						chunkText = chunkText.substring(0, chunkText.length - chunk.length - 1);
 						messageChunks.push({text: chunkText, cssClass: "text chat"});
-						chunkText = " ";
+						chunkText = "";
 
-						// add link chunk
-						messageChunks.push({text: chunk, cssClass: "text", color: "#8000ff"});
-						prevEmote = false;
-
-						if (chunkAfterComma)
-							messageChunks.push({text: chunkAfterComma, cssClass: "text chat"});
+						// add emote chunk
+						messageChunks.push({type: "image", url: emote.url, text: chunk, cssClass: prevEmote && emote.isZeroWidth ? "image zero-width" : "image"});
+						prevEmote = true;
 						continue;
 					}
-					if (args.search['7tv_emotes']) {
-						let emote = findInStruct(seventv.links.emotes, chunk);
-						if (emote) {
-							// add message fragment before emote as new chunk
-							chunkText = chunkText.substring(0, chunkText.length - chunk.length - 1);
-							messageChunks.push({text: chunkText, cssClass: "text chat"});
-							chunkText = "";
+				}
+			}
 
-							// add emote chunk
-							messageChunks.push({type: "image", url: emote.url, text: chunk, cssClass: prevEmote && emote.isZeroWidth ? "image zero-width" : "image"});
-							prevEmote = true;
-							continue;
-						}
-					}
-				}
+			// add new chunk
+			if (chunkText.length > 0) messageChunks.push({text: chunkText, cssClass: "text chat"});
+		}
+		else if (fragment.type === 'emote') {
+			if (args.search.twitch_emotes) {
+				messageChunks.push({type: "image", url: twitch.links.emoticons_v2(fragment.emote.id), text: fragment.text, cssClass: isGigantifiedEmote ? "image gigantified" : "image"});
+				prevEmote = true;
+			}
+		}
+		else if (fragment.type === 'mention') {
+			let color = twitch.userColors[fragment.mention.user_id];
+			if (color == null) {
+				let r = await twitch.getUserColor(args.search.twitch_access_token, fragment.mention.user_id);
+				if (!r.ok) console.error(r);
+				color = r.color;
+			}
 
-				// add new chunk
-				if (chunkText.length > 0) messageChunks.push({text: chunkText, cssClass: "text chat"});
+			messageChunks.push({text: fragment.text, color, cssClass: "text bold"});
+			if (fragment.text.toLowerCase() === `@${args.search.twitch_login}`) isHighlighted = true;
+		}
+		else if (fragment.type === 'cheermote') {
+			if (args.search.twitch_emotes) {
+				messageChunks.push({type: "image", url: twitch.links.cheermotes(fragment.cheermote.prefix, fragment.cheermote.bits), text: fragment.text, cssClass: isGigantifiedEmote ? "image gigantified" : "image"});
+				messageChunks.push({text: fragment.cheermote.bits, cssClass: "text bits", color: twitch.bitsTextColor[fragment.cheermote.bits]});
+				prevEmote = false; // cuz it ends with bits count
 			}
-			else if (fragment.type === 'emote') {
-				if (args.search.twitch_emotes) {
-					messageChunks.push({type: "image", url: twitch.links.emoticons_v2(fragment.emote.id), text: fragment.text, cssClass: isGigantifiedEmote ? "image gigantified" : "image"});
-					prevEmote = true;
-				}
-			}
-			else if (fragment.type === 'mention') {
-				let color = twitch.userColors[fragment.mention.user_id];
-				if (color == null) {
-					let r = await twitch.getUserColor(args.search.twitch_access_token, fragment.mention.user_id);
-					if (!r.ok) console.error(r);
-					color = r.color;
-				}
-
-				messageChunks.push({text: fragment.text, color, cssClass: "text bold"});
-				if (fragment.text.toLowerCase() === `@${args.search.twitch_login}`) isHighlighted = true;
-			}
-			else if (fragment.type === 'cheermote') {
-				if (args.search.twitch_emotes) {
-					messageChunks.push({type: "image", url: twitch.links.cheermotes(fragment.cheermote.prefix, fragment.cheermote.bits), text: fragment.text, cssClass: isGigantifiedEmote ? "image gigantified" : "image"});
-					messageChunks.push({text: fragment.cheermote.bits, cssClass: "text bits", color: twitch.bitsTextColor[fragment.cheermote.bits]});
-					prevEmote = false; // cuz it ends with bits count
-				}
-			}
-			else {
-				if (args.search.debug) console.warn('unsupported message fragment type', event);
-				prevEmote = false;
-			}
+		}
+		else {
+			if (args.search.debug) console.warn('unsupported message fragment type', event);
+			prevEmote = false;
 		}
 	}
 
@@ -529,7 +527,7 @@ twitch.eventsub.makeChatMessage = async(event, prefixChunks, ignoreDebug) => {
 	div.setAttribute('user-id', event.chatter_user_id);
 
 	if (isHighlighted)
-		div.style.background = "rgba(255, 64, 0, 0.25)";
+		div.classList.add("highlighted");
 
 	twitch.sounds.play("on_message");
 	return div;

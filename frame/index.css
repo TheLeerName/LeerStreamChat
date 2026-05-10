@@ -102,6 +102,9 @@ body {
 	transition-duration: var(--args_fadeout_duration);
 	transition-delay: var(--args_fadeout);
 }
+.message.highlighted {
+	background: rgba(255, 64, 0, 0.25);
+}
 .text {
 	overflow: hidden;
 	word-break: break-word;

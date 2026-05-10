@@ -307,7 +307,7 @@ twitch.irc.makeChatMessage = async(event, prefixChunks, playSound) => {
 	div.setAttribute('user-id', event['user-id']);
 
 	if (isHighlighted)
-		div.style.background = "rgba(255, 64, 0, 0.25)";
+		div.classList.add("highlighted");
 
 	if (playSound) twitch.sounds.play("on_message");
 	return div;
