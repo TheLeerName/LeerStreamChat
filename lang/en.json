@@ -22,6 +22,7 @@
 				},
 				"number-input": {
 					"size": "pixels",
+					"max_messages": "messages",
 					"indent": "pixels",
 					"fadeout": "seconds",
 					"fadeout_duration": "seconds",
@@ -80,6 +81,7 @@
 					"lang": "Language",
 					"remove_msg": "Removing chat message mode",
 					"size": "Chat message size",
+					"max_messages": "Max messages in chat",
 					"indent": "Size between chat messages",
 					"fadeout": "Fade out timeout",
 					"fadeout_duration": "Fade out duration",

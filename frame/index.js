@@ -124,9 +124,8 @@ function makeMessage(...chunks) {
 	chatMessagesDiv.appendChild(div);
 
 	// removing out of bounds message
-	while (chatMessagesDiv.getBoundingClientRect().height > window.innerHeight)
-		if (chatMessagesDiv.children.length > 0)
-			chatMessagesDiv.removeChild(chatMessagesDiv.children[0]);
+	while (chatMessagesDiv.children.length >= args.search.max_messages)
+		chatMessagesDiv.removeChild(chatMessagesDiv.children[0]);
 	document.body.scrollTop = document.body.scrollHeight;
 
 	// starting fadeout of message (if allowed)
@@ -208,6 +207,7 @@ async function main() {
 	args.search.indent = parseFloat(args.search.indent ?? 4);
 	args.search.fadeout = parseFloat(args.search.fadeout ?? 0);
 	args.search.fadeout_duration = parseFloat(args.search.fadeout_duration ?? 0.5);
+	args.search.max_messages = Math.max(parseInt(args.search.max_messages ?? 10), 1);
 	args.search.twitch_emotes = args.search.twitch_emotes == 1;
 	args.search['7tv_emotes'] = args.search['7tv_emotes'] == 1;
 	args.search.twitch_dashboard = args.search.twitch_dashboard == 1;

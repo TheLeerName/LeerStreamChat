@@ -52,7 +52,7 @@ function updateHideSensitiveInfo(v) {
 }
 
 const values = {
-	latestVersion: 1,
+	latestVersion: 2,
 	version: null,
 	profiles: null,
 	getProfileByName: name => {
@@ -74,6 +74,7 @@ const values = {
 		lang: isUserRussianUnderstanding ? 'ru' : 'en',
 		remove_msg: '1',
 		size: '16',
+		max_messages: '10',
 		indent: '4',
 		fadeout: '0',
 		fadeout_duration: '0.5',
@@ -284,7 +285,11 @@ async function main() {
 	else {
 		const choosedProfile = localStorage.getItem('valuesChoosedProfile') ?? values.profiles[0].name;
 		values.current = values.getProfileByName(choosedProfile) ?? values.profiles[0];
-		// here will be migrations for future values versions
+		// migrations for versions
+		if (values.version === 1) {
+			values.profiles.forEach(v => v.max_messages = '10');
+			values.save();
+			values.version++;
 	}
 
 	// set useful shortcuts
