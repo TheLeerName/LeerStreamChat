@@ -322,7 +322,7 @@ async function main() {
 
 	document.querySelector("body .profile-input .textarea").addEventListener("input", e => {
 		values.current.name = e.target.innerText;
-		values.save("valuesChoosedProfile");
+		values.save();
 		updateProfileInputElements("select");
 	});
 	document.querySelector("body .profile-input .select").addEventListener("change", e => {
