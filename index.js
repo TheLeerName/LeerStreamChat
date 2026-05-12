@@ -290,6 +290,8 @@ async function main() {
 			values.profiles.forEach(v => v.max_messages = '10');
 			values.save();
 			values.version++;
+			localStorage.setItem('valuesVersion', values.version);
+		}
 	}
 
 	// set useful shortcuts
